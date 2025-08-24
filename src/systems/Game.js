@@ -431,12 +431,26 @@ class Game {
     // Advance turn
     this.turnCount += 1;
     
-    return {
+    const result = {
       success: true,
       statGain: finalGain,
       energyChange: -energyCost,
       turnComplete: true
     };
+    
+    // Check if it's time for a race after advancing turn
+    const raceTime = this.checkForScheduledRace();
+    if (raceTime) {
+      result.raceReady = true;
+      result.nextRace = raceTime;
+    }
+    
+    // Check if career is complete after this turn
+    if (!this.character.canContinue()) {
+      result.careerComplete = true;
+    }
+    
+    return result;
   }
 
   performRest() {
@@ -457,11 +471,25 @@ class Game {
     // Advance turn
     this.turnCount += 1;
     
-    return {
+    const result = {
       success: true,
       energyChange: energyGain,
       turnComplete: true
     };
+    
+    // Check if it's time for a race after advancing turn
+    const raceTime = this.checkForScheduledRace();
+    if (raceTime) {
+      result.raceReady = true;
+      result.nextRace = raceTime;
+    }
+    
+    // Check if career is complete after this turn
+    if (!this.character.canContinue()) {
+      result.careerComplete = true;
+    }
+    
+    return result;
   }
 
   performSocial() {
@@ -483,12 +511,26 @@ class Game {
     // Advance turn
     this.turnCount += 1;
     
-    return {
+    const result = {
       success: true,
       friendshipGain,
       energyChange: -5,
       turnComplete: true
     };
+    
+    // Check if it's time for a race after advancing turn
+    const raceTime = this.checkForScheduledRace();
+    if (raceTime) {
+      result.raceReady = true;
+      result.nextRace = raceTime;
+    }
+    
+    // Check if career is complete after this turn
+    if (!this.character.canContinue()) {
+      result.careerComplete = true;
+    }
+    
+    return result;
   }
 
   // TDD Race Implementation - Replaces old runRace for test compatibility

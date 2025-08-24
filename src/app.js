@@ -9,16 +9,16 @@ const GameApp = require('./GameApp');
 
 function main() {
   try {
+    console.log('Uma Musume Text Clone - Starting...');
+    console.log('Use number keys (1-5) for options, Q to quit\n');
+    
     // Create and start the game application
     const game = new GameApp();
-    
-    console.log('🎮 Uma Musume Text Clone - Starting...');
-    console.log('💡 Use mouse clicks or keyboard (1-5) for training');
-    console.log('📖 Press H for help, Q to quit\n');
+    game.start();
     
   } catch (error) {
-    console.error('❌ Failed to start game:', error.message);
-    console.error('🔧 Please ensure all dependencies are installed: npm install');
+    console.error('Failed to start game:', error.message);
+    console.error('Please ensure all dependencies are installed: npm install');
     process.exit(1);
   }
 }

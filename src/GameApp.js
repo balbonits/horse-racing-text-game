@@ -1,6 +1,5 @@
 const Game = require('./systems/Game');
-const UISystem = require('./systems/UI');
-const blessed = require('blessed');
+const TextUI = require('./systems/TextUI');
 const fs = require('fs').promises;
 const path = require('path');
 const { validation, result, energy, ui } = require('./utils/gameUtils');
@@ -10,61 +9,46 @@ const { validation, result, energy, ui } = require('./utils/gameUtils');
  * Handles UI state management, user input, and coordinates between systems
  */
 class GameApp {
-  constructor(screen) {
-    // Create screen first
-    this.screen = screen || this.createScreen();
-    
+  constructor() {
     this.game = new Game();
-    this.ui = new UISystem(this.screen);
+    this.ui = new TextUI(); // Use pure text UI for maximum simplicity
     this.currentState = 'main_menu';
     this.saveDirectory = path.join(__dirname, '../data/saves');
     this.characterNameBuffer = '';
     
-    this.setupEventHandlers();
+    // No blessed, no screen, just pure console input handling
+    this.setupKeyboardInput();
+  }
+
+  /**
+   * Start the game application with pure console input
+   */
+  start() {
+    console.log('Starting Uma Musume Text Clone...\n');
     this.render();
   }
 
-  createScreen() {
-    return blessed.screen({
-      smartCSR: true,
-      title: 'Uma Musume Text Clone',
-      mouse: true,
-      keys: true,
-      vi: false
+  setupKeyboardInput() {
+    // Use line-based input for maximum compatibility
+    const readline = require('readline');
+    
+    this.rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
     });
-  }
-
-  setupEventHandlers() {
-    // Only setup keyboard handlers for real screens
-    if (this.screen && this.screen.key) {
-      this.screen.key(['escape', 'q', 'C-c'], () => {
-        this.handleKeyInput('q');
-      });
-
-      this.screen.key(['1', '2', '3', '4', '5'], (ch) => {
-        this.handleKeyInput(ch);
-      });
-
-      this.screen.key(['h'], () => {
-        this.handleKeyInput('h');
-      });
-
-      this.screen.key(['s'], () => {
-        this.handleKeyInput('s');
-      });
-
-      this.screen.key(['l'], () => {
-        this.handleKeyInput('l');
-      });
-
-      this.screen.key(['r'], () => {
-        this.handleKeyInput('r');
-      });
-
-      this.screen.key(['enter'], () => {
-        this.handleKeyInput('enter');
-      });
-    }
+    
+    // Handle line input
+    this.rl.on('line', (input) => {
+      const trimmed = input.trim();
+      if (trimmed) {
+        this.handleKeyInput(trimmed);
+      }
+    });
+    
+    // Handle Ctrl+C
+    this.rl.on('SIGINT', () => {
+      this.quit();
+    });
   }
 
   handleKeyInput(key) {
@@ -74,6 +58,8 @@ class GameApp {
           return this.handleMainMenuInput(key);
         case 'character_creation':
           return this.handleCharacterCreationInput(key);
+        case 'load_game':
+          return this.handleLoadGameInput(key);
         case 'training':
           return this.handleTrainingInput(key);
         case 'race_results':
@@ -100,6 +86,7 @@ class GameApp {
         this.selectMainMenuOption('load_game');
         return { success: true, action: 'load_game' };
       case '3':
+      case 'h':
         this.selectMainMenuOption('help');
         return { success: true, action: 'help' };
       case '4':
@@ -112,8 +99,12 @@ class GameApp {
   }
 
   handleCharacterCreationInput(key) {
+    console.log('⌨️ Character creation input:', JSON.stringify(key));
+    console.log('📝 Current buffer:', JSON.stringify(this.characterNameBuffer || ''));
+    
     // Handle quit
     if (key === 'q') {
+      console.log('🚪 Quitting character creation');
       this.setState('main_menu');
       return { success: true, action: 'quit' };
     }
@@ -121,40 +112,53 @@ class GameApp {
     // Fallback input handling when textbox doesn't work
     if (!this.characterNameBuffer) {
       this.characterNameBuffer = '';
+      console.log('🆕 Initialized character name buffer');
     }
 
     // Handle character input
     if (key.length === 1 && key.match(/[a-zA-Z0-9_-]/)) {
       this.characterNameBuffer += key;
+      console.log('✏️ Added character, new buffer:', this.characterNameBuffer);
       this.ui.updateStatus(`Enter name: ${this.characterNameBuffer}_`);
       return { success: true, action: 'input', buffer: this.characterNameBuffer };
     }
     
     // Handle backspace
     else if (key === 'backspace' && this.characterNameBuffer.length > 0) {
+      const oldBuffer = this.characterNameBuffer;
       this.characterNameBuffer = this.characterNameBuffer.slice(0, -1);
+      console.log('⌫ Backspace:', oldBuffer, '→', this.characterNameBuffer);
       this.ui.updateStatus(`Enter name: ${this.characterNameBuffer}_`);
       return { success: true, action: 'backspace', buffer: this.characterNameBuffer };
     }
     
     // Handle enter/space to submit
     else if (key === 'enter' || key === 'space') {
+      console.log('🔄 Submitting character name:', JSON.stringify(this.characterNameBuffer));
+      
       if (this.characterNameBuffer && this.characterNameBuffer.trim().length > 0) {
+        console.log('✅ Name is valid, creating character...');
         const result = this.createCharacter(this.characterNameBuffer.trim());
+        console.log('🎯 Character creation result:', result);
+        
         this.characterNameBuffer = '';
         
         if (!result.success) {
+          console.log('❌ Character creation failed:', result.message);
           this.ui.updateStatus(`❌ ${result.message}`);
           return { success: false, action: 'create_character', message: result.message };
         }
         
+        console.log('🎉 Character creation successful!');
         return { success: true, action: 'create_character', character: this.game.character };
       } else {
+        console.log('❌ Empty or invalid name');
         this.ui.updateStatus('❌ Name must be 1-20 alphanumeric characters');
         return { success: false, action: 'create_character', message: 'Name must be 1-20 alphanumeric characters' };
       }
     }
     
+    console.log('❓ Unknown key pressed:', key);
     return { success: false, action: 'unknown_key', key: key };
   }
 
@@ -191,61 +195,84 @@ class GameApp {
       const completedRaces = this.game.getRaceResults();
       
       if (completedRaces.length < scheduledRaces.length) {
-        // Run next race
-        const nextRaceData = scheduledRaces[completedRaces.length];
-        this.game.runRace(nextRaceData);
-        this.render();
+        // Check if there are more scheduled races in the near future
+        // If not, return to training
+        this.setState('training');
+        return { success: true, action: 'continue_training' };
       } else {
         // All races complete - finish career
         this.setState('career_complete');
+        return { success: true, action: 'career_complete' };
       }
+    } else {
+      // Return to training
+      this.setState('training');
+      return { success: true, action: 'continue_training' };
     }
   }
 
   handleHelpInput(key) {
     this.setState('training');
+    return { success: true, action: 'return_to_training' };
   }
 
   handleCareerCompleteInput(key) {
     if (key === 'enter') {
       this.startNewCareer();
+      return { success: true, action: 'new_career' };
     } else if (key === 'q') {
       this.quit();
+      return { success: true, action: 'quit' };
     }
+    return { success: false, message: 'Invalid input. Press Enter for new career or Q to quit.' };
   }
 
   handleGlobalInput(key) {
     if (key === 'q') {
       this.quit();
+      return { success: true, action: 'quit' };
     } else if (key === 'h') {
       this.setState('help');
+      return { success: true, action: 'help' };
     }
+    return { success: false, message: 'Invalid input' };
   }
 
   // State management
   setState(newState) {
+    console.log('🔄 setState() called:', this.currentState, '→', newState);
+    
     const validStates = [
-      'main_menu', 'character_creation', 'training', 
+      'main_menu', 'character_creation', 'load_game', 'training', 
       'race_results', 'help', 'career_complete'
     ];
     
     if (!validStates.includes(newState)) {
+      console.error('❌ Invalid state:', newState);
       throw new Error(`Invalid state: ${newState}`);
     }
     
+    const oldState = this.currentState;
     this.currentState = newState;
+    console.log('📍 State transition successful:', oldState, '→', this.currentState);
     
     // Clear character name buffer when leaving character creation
     if (this.currentState !== 'character_creation') {
-      this.characterNameBuffer = '';
+      if (this.characterNameBuffer) {
+        console.log('🧹 Clearing character name buffer');
+        this.characterNameBuffer = '';
+      }
     }
     
     // Auto-run first race when entering race phase
     if (newState === 'race_results' && this.game.getRaceResults().length === 0) {
+      console.log('🏁 Auto-running first race...');
       this.game.enterRacePhase();
     }
     
+    console.log('🖼️ Rendering new state:', this.currentState);
     this.render();
+    console.log('✅ State transition complete');
   }
 
   // Main menu methods
@@ -259,7 +286,7 @@ class GameApp {
         this.setState('character_creation');
         break;
       case 'load_game':
-        this.showLoadGameDialog();
+        this.setState('load_game');
         break;
       case 'help':
         this.setState('help');
@@ -272,21 +299,36 @@ class GameApp {
 
   // Character creation
   createCharacter(name) {
+    console.log('🎮 createCharacter() called with name:', JSON.stringify(name));
+    
     try {
       // Use DRY validation utility
+      console.log('🔍 Validating character name...');
       const nameValidation = validation.validateCharacterName(name);
+      console.log('✅ Name validation result:', nameValidation);
+      
       if (!nameValidation.valid) {
+        console.log('❌ Name validation failed:', nameValidation.message);
         return result.failure(nameValidation.message);
       }
 
       // If validation passes, create character
+      console.log('🚀 Creating new game with name:', name.trim());
       const gameResult = this.game.startNewGame(name.trim());
+      console.log('🎲 Game creation result:', gameResult);
+      
       if (gameResult.success) {
+        console.log('🏃 Transitioning to training state...');
+        console.log('🐎 Character created:', this.game.character ? this.game.character.name : 'null');
         this.setState('training');
+        console.log('📍 New state after transition:', this.currentState);
+      } else {
+        console.log('❌ Game creation failed:', gameResult);
       }
       
       return gameResult;
     } catch (error) {
+      console.error('💥 Character creation error:', error);
       return result.failure(`Character creation failed: ${error.message}`);
     }
   }
@@ -314,6 +356,13 @@ class GameApp {
       // Perform the training
       const trainingResult = this.game.executeTraining(trainingType);
       
+      // Check for null/undefined result - this should not happen but let's be safe
+      if (!trainingResult) {
+        const errorMsg = `Training returned null/undefined result for ${trainingType}`;
+        console.error('🚨 ' + errorMsg);
+        return result.failure(errorMsg);
+      }
+      
       // Update UI message using DRY utility
       if (trainingResult.success) {
         let statusMessage;
@@ -328,12 +377,20 @@ class GameApp {
         }
         this.ui.updateStatus(statusMessage);
 
-        // Check if training phase is complete (turn > 12)
-        if (this.game.turnCount > 12) {
+        // Check if a race is scheduled after this training
+        if (trainingResult.raceReady && trainingResult.nextRace) {
+          console.log('🏁 Race scheduled after training:', trainingResult.nextRace);
           this.setState('race_results');
           this.ui.updateStatus('Race Day!');
-          // Auto-run first race
+          // Auto-run the scheduled race
           this.game.enterRacePhase();
+        }
+        
+        // Check if career is complete
+        if (trainingResult.careerComplete) {
+          console.log('🏆 Career complete after training!');
+          this.setState('career_complete');
+          this.ui.updateStatus('Career Complete!');
         }
       }
 
@@ -511,6 +568,9 @@ class GameApp {
         case 'character_creation':
           this.renderCharacterCreation();
           break;
+        case 'load_game':
+          this.renderLoadGame();
+          break;
         case 'training':
           this.renderTraining();
           break;
@@ -524,10 +584,7 @@ class GameApp {
           this.renderCareerComplete();
           break;
       }
-      
-      if (this.screen && this.screen.render) {
-        this.screen.render();
-      }
+      // Pure console output - no blessed rendering needed
     } catch (error) {
       console.error('Render error:', error);
       // Don't crash on render errors
@@ -535,71 +592,11 @@ class GameApp {
   }
 
   renderMainMenu() {
-    // Clear the screen first
-    if (this.ui.components.mainBox.children && this.ui.components.mainBox.remove) {
-      this.ui.components.mainBox.children.forEach(child => {
-        this.ui.components.mainBox.remove(child);
-      });
-    }
-
-    const menuContent = `{center}{bold}🐴 Uma Musume Text Clone 🐴{/bold}{/center}
-
-{center}Welcome to your horse racing career!{/center}
-
-{bold}Main Menu:{/bold}
-
-1. New Career - Start training a new horse
-2. Load Game - Continue a saved career  
-3. Help - Learn how to play
-4. Quit - Exit the game
-
-{center}Press 1-4 to select an option{/center}`;
-
-    // Only create blessed components if we have a real screen
-    const isRealBlessedScreen = this.screen && 
-                               this.screen.append && 
-                               this.screen.render && 
-                               this.screen.program && 
-                               this.screen.program.output;
-    
-    if (isRealBlessedScreen) {
-      try {
-        const menuBox = blessed.box({
-          parent: this.ui.components.mainBox,
-          top: 1,
-          left: 2,
-          width: '96%',
-          height: '90%',
-          content: menuContent,
-          tags: true,
-          style: {
-            fg: 'white'
-          }
-        });
-      } catch (error) {
-        console.error('Error creating menu box:', error.message);
-        // Fallback - set content directly on main box if it exists
-        if (this.ui.components.mainBox && this.ui.components.mainBox.setContent) {
-          this.ui.components.mainBox.setContent(menuContent);
-        }
-      }
-    } else {
-      // For testing - set content directly
-      if (this.ui.components.mainBox && this.ui.components.mainBox.setContent) {
-        this.ui.components.mainBox.setContent(menuContent);
-      }
-    }
-
-    this.ui.updateStatus('Select an option (1-4) or press Q to quit');
+    this.ui.showMainMenu();
   }
 
   renderCharacterCreation() {
-    this.ui.showCharacterCreation((name) => {
-      const result = this.createCharacter(name);
-      if (!result.success) {
-        this.ui.updateStatus(`❌ ${result.message}`);
-      }
-    });
+    this.ui.showCharacterCreation(this.characterNameBuffer);
   }
 
   renderTraining() {
@@ -608,30 +605,126 @@ class GameApp {
       return;
     }
 
-    const gameStatus = this.game.getGameStatus();
-    this.ui.showTrainingView(gameStatus, (trainingType) => {
-      this.performTraining(trainingType);
-    });
+    this.ui.showTraining(this.game.character);
   }
 
   renderRaceResults() {
     if (this.currentRaceResult) {
-      this.ui.showRaceResults(
-        this.currentRaceResult.raceResult,
-        this.currentRaceResult.effects
-      );
+      this.ui.showRaceResults(this.currentRaceResult);
     }
   }
 
+  renderLoadGame() {
+    // Get all save files and display them
+    this.loadSaveFiles().then(saves => {
+      this.ui.showSaveGameList(saves);
+    }).catch(error => {
+      this.ui.showError('Failed to load save files: ' + error.message);
+      this.setState('main_menu');
+    });
+  }
+
   renderHelp() {
-    const helpData = this.game.getHelp();
-    this.ui.showHelp(helpData);
+    this.ui.showHelp();
   }
 
   renderCareerComplete() {
-    const summary = this.getCareerSummary();
-    if (summary) {
-      this.ui.showCareerSummary(summary);
+    if (this.game.character) {
+      const finalGrade = this.calculateFinalGrade();
+      this.ui.showCareerComplete(this.game.character, finalGrade);
+    }
+  }
+
+  calculateFinalGrade() {
+    if (!this.game.character) return 'F';
+    
+    const stats = this.game.character.getCurrentStats();
+    const career = this.game.character.career;
+    
+    // Calculate grade based on stats and performance
+    const avgStats = (stats.speed + stats.stamina + stats.power) / 3;
+    const winRate = career.racesRun > 0 ? career.racesWon / career.racesRun : 0;
+    
+    const score = (avgStats * 0.6) + (winRate * 40);
+    
+    if (score >= 85) return 'S';
+    if (score >= 75) return 'A';
+    if (score >= 65) return 'B';  
+    if (score >= 55) return 'C';
+    if (score >= 45) return 'D';
+    return 'F';
+  }
+
+  async loadSaveFiles() {
+    try {
+      await this.ensureSaveDirectory();
+      const files = await fs.readdir(this.saveDirectory);
+      const saveFiles = files.filter(file => file.endsWith('.json'));
+      
+      const saves = [];
+      for (const filename of saveFiles) {
+        try {
+          const filePath = path.join(this.saveDirectory, filename);
+          const data = await fs.readFile(filePath, 'utf8');
+          const saveData = JSON.parse(data);
+          saves.push(saveData);
+        } catch (error) {
+          console.log('Failed to load save file:', filename, error.message);
+        }
+      }
+      
+      return saves;
+    } catch (error) {
+      throw new Error('Could not access save directory: ' + error.message);
+    }
+  }
+
+  handleLoadGameInput(key) {
+    // Handle quit
+    if (key === 'q') {
+      this.setState('main_menu');
+      return { success: true, action: 'back_to_menu' };
+    }
+
+    // Handle number selection
+    const choice = parseInt(key);
+    if (!isNaN(choice) && choice >= 1) {
+      this.loadGameByIndex(choice - 1).then(result => {
+        if (result.success) {
+          this.ui.showMessage('Game loaded successfully!');
+          this.setState('training');
+        } else {
+          this.ui.showError('Failed to load game: ' + result.message);
+        }
+        this.render();
+      }).catch(error => {
+        this.ui.showError('Load error: ' + error.message);
+        this.render();
+      });
+      
+      return { success: true, action: 'load_game', choice: choice };
+    }
+
+    return { success: false, action: 'invalid_key', key: key };
+  }
+
+  async loadGameByIndex(index) {
+    try {
+      const saves = await this.loadSaveFiles();
+      if (index < 0 || index >= saves.length) {
+        return { success: false, message: 'Invalid save file number' };
+      }
+
+      const saveData = saves[index];
+      const result = this.game.loadFromData(saveData);
+      
+      if (result.success) {
+        return { success: true, message: 'Game loaded successfully' };
+      } else {
+        return { success: false, message: result.message };
+      }
+    } catch (error) {
+      return { success: false, message: error.message };
     }
   }
 
@@ -690,8 +783,12 @@ class GameApp {
 
   // Application lifecycle
   quit() {
-    console.log('\n👋 Thanks for playing Uma Musume Text Clone!');
-    this.cleanup();
+    console.log('\nThanks for playing Uma Musume Text Clone!');
+    
+    // Close readline interface
+    if (this.rl) {
+      this.rl.close();
+    }
     
     // Only exit if not in test environment
     if (process.env.NODE_ENV !== 'test') {
@@ -699,30 +796,11 @@ class GameApp {
     }
   }
   
-  cleanup() {
-    // Clean up blessed screen
-    if (this.screen && this.screen.destroy) {
-      try {
-        this.screen.destroy();
-      } catch (e) {
-        // Screen might already be destroyed
-      }
-    }
-    
-    // Clear event handlers to prevent memory leaks
-    if (this.screen && this.screen.removeAllListeners) {
-      this.screen.removeAllListeners();
-    }
-    
-    // Clear references to prevent memory leaks
-    this.screen = null;
-    this.ui = null;
-    this.game = null;
-  }
 
   destroy() {
-    if (this.screen && this.screen.destroy) {
-      this.screen.destroy();
+    // Clean up readline interface
+    if (this.rl) {
+      this.rl.close();
     }
   }
 }
