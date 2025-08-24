@@ -147,7 +147,7 @@ Mood: {bold}${condition.mood.toUpperCase()}{/bold} | Friendship: ${character.fri
     ];
 
     // Only create blessed buttons if we have a real screen
-    if (this.screen && this.screen.smartCSR !== undefined) {
+    if (this.screen && this.screen.append && this.screen.render && this.screen.program && this.screen.program.output) {
       buttonData.forEach(btn => {
         const option = trainingOptions[btn.type];
         const available = option && option.available;
@@ -370,7 +370,7 @@ You'll have 12 turns to train and 3 races to prove yourself.
 Good luck!`;
 
     // Only create blessed components if we have a real screen
-    if (this.screen && this.screen.smartCSR !== undefined) {
+    if (this.screen && this.screen.append && this.screen.render && this.screen.program && this.screen.program.output) {
       const infoBox = blessed.box({
         parent: this.components.mainBox,
         top: 2,

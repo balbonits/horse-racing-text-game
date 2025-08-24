@@ -18,6 +18,7 @@ class GameApp {
     this.ui = new UISystem(this.screen);
     this.currentState = 'main_menu';
     this.saveDirectory = path.join(__dirname, '../data/saves');
+    this.characterNameBuffer = '';
     
     this.setupEventHandlers();
     this.render();
@@ -94,25 +95,67 @@ class GameApp {
     switch (key) {
       case '1':
         this.selectMainMenuOption('new_career');
-        break;
+        return { success: true, action: 'new_career' };
       case '2':
         this.selectMainMenuOption('load_game');
-        break;
+        return { success: true, action: 'load_game' };
       case '3':
         this.selectMainMenuOption('help');
-        break;
+        return { success: true, action: 'help' };
       case '4':
       case 'q':
         this.quit();
-        break;
+        return { success: true, action: 'quit' };
+      default:
+        return { success: false, action: 'invalid_key', key: key };
     }
   }
 
   handleCharacterCreationInput(key) {
-    // Character creation is handled by the UI textbox
+    // Handle quit
     if (key === 'q') {
       this.setState('main_menu');
+      return { success: true, action: 'quit' };
     }
+
+    // Fallback input handling when textbox doesn't work
+    if (!this.characterNameBuffer) {
+      this.characterNameBuffer = '';
+    }
+
+    // Handle character input
+    if (key.length === 1 && key.match(/[a-zA-Z0-9_-]/)) {
+      this.characterNameBuffer += key;
+      this.ui.updateStatus(`Enter name: ${this.characterNameBuffer}_`);
+      return { success: true, action: 'input', buffer: this.characterNameBuffer };
+    }
+    
+    // Handle backspace
+    else if (key === 'backspace' && this.characterNameBuffer.length > 0) {
+      this.characterNameBuffer = this.characterNameBuffer.slice(0, -1);
+      this.ui.updateStatus(`Enter name: ${this.characterNameBuffer}_`);
+      return { success: true, action: 'backspace', buffer: this.characterNameBuffer };
+    }
+    
+    // Handle enter/space to submit
+    else if (key === 'enter' || key === 'space') {
+      if (this.characterNameBuffer && this.characterNameBuffer.trim().length > 0) {
+        const result = this.createCharacter(this.characterNameBuffer.trim());
+        this.characterNameBuffer = '';
+        
+        if (!result.success) {
+          this.ui.updateStatus(`❌ ${result.message}`);
+          return { success: false, action: 'create_character', message: result.message };
+        }
+        
+        return { success: true, action: 'create_character', character: this.game.character };
+      } else {
+        this.ui.updateStatus('❌ Name must be 1-20 alphanumeric characters');
+        return { success: false, action: 'create_character', message: 'Name must be 1-20 alphanumeric characters' };
+      }
+    }
+    
+    return { success: false, action: 'unknown_key', key: key };
   }
 
   handleTrainingInput(key) {
@@ -191,6 +234,11 @@ class GameApp {
     }
     
     this.currentState = newState;
+    
+    // Clear character name buffer when leaving character creation
+    if (this.currentState !== 'character_creation') {
+      this.characterNameBuffer = '';
+    }
     
     // Auto-run first race when entering race phase
     if (newState === 'race_results' && this.game.getRaceResults().length === 0) {

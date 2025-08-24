@@ -11,7 +11,11 @@
       "Bash(timeout 3 npm run start:direct)",
       "Bash(timeout 10 npm run start:direct)",
       "Bash(npm run test:journeys:*)",
-      "Bash(timeout 10 npm run test:journeys:*)"
+      "Bash(timeout 10 npm run test:journeys:*)",
+      "Bash(git commit:*)",
+      "Bash(npm run wipe:saves:*)",
+      "Bash(timeout 15 npm run start:direct)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []
