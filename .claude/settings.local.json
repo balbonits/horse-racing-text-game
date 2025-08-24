@@ -15,7 +15,15 @@
       "Bash(git commit:*)",
       "Bash(npm run wipe:saves:*)",
       "Bash(timeout 15 npm run start:direct)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(git push:*)",
+      "Read(/C:\\d C:\\Users\\JD-PC\\Projects/**)",
+      "Bash(timeout 10s npm run start:direct)",
+      "Bash(timeout 15s npm run start:direct)",
+      "Bash(timeout 10s npm start)",
+      "Bash(timeout 8s npm start)",
+      "Bash(grep:*)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []
