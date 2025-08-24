@@ -28,9 +28,21 @@ npm test ui.test.js
 ### Integration Tests (`tests/integration/`)
 Test complete game flows and system interactions.
 
+**New Test Framework** (August 2025):
+- `user-input.test.js` - Physical input simulation with keyboard/mouse events
+- `ui-functionality.test.js` - Comprehensive UI component testing
+- `blessed-rendering.test.js` - Terminal rendering and compatibility
+- `gameApp.test.js` - Full application integration testing
+
 ```bash
 # Run integration tests
 npm test tests/integration
+
+# Physical input simulation
+npm test tests/integration/user-input.test.js
+
+# UI rendering tests  
+npm test tests/integration/blessed-rendering.test.js
 
 # Full career simulation
 npm test gameFlow.test.js
@@ -38,9 +50,13 @@ npm test gameFlow.test.js
 
 **Test Scenarios**:
 - Complete career progression (12 turns + 3 races)
+- Physical user input simulation (keyboard/mouse events)
+- Character creation with letter-by-letter typing
+- Fallback input handling for terminal compatibility
 - Save/load functionality
 - Cross-system data flow
 - Error recovery and state management
+- UI component rendering and interaction
 
 ### Balance Tests (`tests/balance/`)
 Validate game mechanics and progression curves.
@@ -88,6 +104,52 @@ const friendlyHorse = TestDataFactory.createHighFriendshipCharacter();
 const raceField = TestDataFactory.createTestRaceField(8, 0); // 8 horses, player at index 0
 const mockResult = TestDataFactory.createMockRaceResult(2); // 2nd place finish
 ```
+
+### Input Simulation Framework
+**NEW**: Physical user input testing system (`tests/utils/input-simulator.js`):
+
+```javascript
+const InputSimulator = require('../utils/input-simulator');
+
+describe('User Input Tests', () => {
+  let app, simulator;
+  
+  beforeEach(() => {
+    app = new GameApp();
+    simulator = new InputSimulator(app);
+  });
+
+  test('character creation flow', async () => {
+    // Navigate to character creation
+    await simulator.selectMenuOption(1);
+    
+    // Type character name letter by letter
+    await simulator.typeText('MyHorse');
+    
+    // Submit with Enter
+    await simulator.simulateKeyPress('enter');
+    
+    expect(app.game.character.name).toBe('MyHorse');
+  });
+
+  test('complete game playthrough', async () => {
+    const result = await simulator.fullGamePlaythrough(
+      'TestHorse', 
+      ['speed', 'stamina', 'power', 'rest']
+    );
+    
+    expect(result.success).toBe(true);
+    expect(result.finalState).toBe('career_complete');
+  });
+});
+```
+
+**Features**:
+- **Physical Input Simulation**: Mimics actual keyboard and mouse events
+- **Letter-by-letter Typing**: Tests character input as users experience it
+- **Complete Journey Testing**: Full game playthroughs with real input
+- **Error Scenario Testing**: Invalid inputs and edge cases
+- **Performance Timing**: Realistic delays between inputs
 
 ### Testing Utilities
 Advanced testing tools with spies, stubs, and mocks:

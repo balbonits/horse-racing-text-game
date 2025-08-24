@@ -2,6 +2,8 @@
 
 A terminal-based horse racing simulation game inspired by Uma Musume Pretty Derby. Train your horse through a 12-turn career, build stats, manage resources, and compete in races to achieve championship glory!
 
+**✅ FULLY PLAYABLE** - Complete game with robust input handling and comprehensive testing.
+
 ## 🎮 Quick Start
 
 ```bash
@@ -63,6 +65,9 @@ Final Result = Performance × Energy Factor × Mood × Random Variance
 
 ### Keyboard Controls
 - **1-5**: Select training options
+- **Character Creation**: Type name letter by letter, press Enter to submit
+- **Backspace**: Edit character name during creation
+- **Enter/Space**: Submit forms and continue through races
 - **R**: View race schedule and information  
 - **S**: Save current game progress
 - **L**: Load saved game
@@ -110,16 +115,18 @@ npm test ui.test.js         # UI system tests
 
 ### Test Categories
 - **Unit Tests**: Individual component validation (`tests/unit/`)
-- **Integration Tests**: Full game flow testing (`tests/integration/`)  
+- **Integration Tests**: Full game flow testing (`tests/integration/`)
+- **User Input Tests**: Physical keyboard/mouse simulation (`tests/integration/user-input.test.js`)
+- **UI Rendering Tests**: Terminal interface validation (`tests/integration/blessed-rendering.test.js`)
+- **Critical Path Tests**: Complete game journey validation (`tests/critical-path/`)
 - **Balance Tests**: Gameplay balance validation (`tests/balance/`)
 - **Performance Tests**: Memory and speed benchmarks
-- **UI Tests**: Terminal interface interaction testing
 
 ### Development Tools
 ```bash
 npm run dev          # Development with auto-restart
-npm run lint         # Code style checking (if configured)
-npm run build        # Production build (if configured)
+npm run wipe:saves   # Clear all save files (testing utility)
+node test-manual.js  # Manual game testing (if available)
 ```
 
 ## 📊 Technical Architecture
@@ -191,6 +198,13 @@ src/
 - **Terminal**: Any modern terminal with Unicode support
 - **OS**: Windows, macOS, or Linux
 - **Memory**: 50MB+ available RAM
+
+### Input System
+The game features a **dual input system** for maximum compatibility:
+- **Primary**: Rich blessed textbox interface (when supported)
+- **Fallback**: Direct keyboard input with letter-by-letter typing
+- **Visual Feedback**: Real-time display of typed characters
+- **Cross-Platform**: Works reliably across all terminal environments
 
 ## 🚀 Future Roadmap
 
