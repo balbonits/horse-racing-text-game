@@ -13,7 +13,7 @@ class Character {
     // Current condition
     this.condition = {
       energy: options.energy || 100,
-      mood: options.mood || 'good', // great, good, normal, bad
+      mood: options.mood || 'Normal', // Great, Good, Normal, Bad
       health: options.health || 100
     };
     
@@ -47,6 +47,23 @@ class Character {
   
   generateId() {
     return 'horse_' + Math.random().toString(36).substr(2, 9);
+  }
+
+  // Getters for test compatibility 
+  get energy() {
+    return this.condition.energy;
+  }
+
+  set energy(value) {
+    this.condition.energy = Math.max(0, Math.min(100, value));
+  }
+
+  get mood() {
+    return this.condition.mood;
+  }
+
+  set mood(value) {
+    this.condition.mood = value;
   }
   
   // Get current stat values including bonuses

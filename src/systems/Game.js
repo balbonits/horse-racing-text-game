@@ -10,12 +10,25 @@ class Game {
     this.gameState = 'menu'; // menu, character_creation, training, racing, results, game_over
     this.currentRace = null;
     this.raceSchedule = [];
+    this.currentRaceIndex = 0;
+    this.raceResults = [];
     this.gameHistory = {
       sessions: 0,
       totalWins: 0,
       bestTime: null,
       favoriteTraining: null
     };
+  }
+
+  // Getters for test compatibility
+  get turnCount() {
+    return this.character ? this.character.career.turn : 1;
+  }
+
+  set turnCount(value) {
+    if (this.character) {
+      this.character.career.turn = value;
+    }
   }
 
   // Initialize a new game session
@@ -359,6 +372,163 @@ class Game {
         'Rest when energy is low (below 30)'
       ]
     };
+  }
+
+  // Training system implementation
+  executeTraining(trainingType) {
+    if (!this.character) {
+      return { success: false, message: 'No character available' };
+    }
+
+    const { energy, stats } = require('../utils/gameUtils');
+    
+    // Handle different training types
+    switch (trainingType) {
+      case 'speed':
+        return this.performStatTraining('speed', 15);
+      case 'stamina':
+        return this.performStatTraining('stamina', 10);  
+      case 'power':
+        return this.performStatTraining('power', 15);
+      case 'rest':
+        return this.performRest();
+      case 'social':
+        return this.performSocial();
+      default:
+        return { success: false, message: 'Unknown training type' };
+    }
+  }
+
+  performStatTraining(statType, energyCost) {
+    // Deduct energy
+    this.character.energy -= energyCost;
+    
+    // Calculate stat gain (base 3-7, with modifiers)
+    const baseGain = 3 + Math.floor(Math.random() * 5);
+    const { stats } = require('../utils/gameUtils');
+    const finalGain = stats.calculateTrainingGain(
+      baseGain, 
+      this.character.mood, 
+      this.character.friendship
+    );
+    
+    // Apply stat gain
+    this.character.stats[statType] = stats.clampStat(
+      this.character.stats[statType] + finalGain
+    );
+    
+    // Advance turn
+    this.turnCount += 1;
+    
+    return {
+      success: true,
+      statGain: finalGain,
+      energyChange: -energyCost,
+      turnComplete: true
+    };
+  }
+
+  performRest() {
+    const { energy: energyUtil } = require('../utils/gameUtils');
+    const newEnergy = energyUtil.calculateRestEnergy(this.character.energy);
+    const energyGain = newEnergy - this.character.energy;
+    this.character.energy = newEnergy;
+    
+    // 30% chance to improve mood
+    if (Math.random() < 0.3) {
+      const moods = ['Bad', 'Normal', 'Good', 'Great'];
+      const currentIndex = moods.indexOf(this.character.mood);
+      if (currentIndex < moods.length - 1) {
+        this.character.mood = moods[currentIndex + 1];
+      }
+    }
+    
+    // Advance turn
+    this.turnCount += 1;
+    
+    return {
+      success: true,
+      energyChange: energyGain,
+      turnComplete: true
+    };
+  }
+
+  performSocial() {
+    this.character.energy -= 5;
+    
+    // Increase friendship
+    const friendshipGain = 10 + Math.floor(Math.random() * 6); // 10-15
+    this.character.friendship = Math.min(100, this.character.friendship + friendshipGain);
+    
+    // 50% chance to improve mood
+    if (Math.random() < 0.5) {
+      const moods = ['Bad', 'Normal', 'Good', 'Great'];
+      const currentIndex = moods.indexOf(this.character.mood);
+      if (currentIndex < moods.length - 1) {
+        this.character.mood = moods[currentIndex + 1];
+      }
+    }
+    
+    // Advance turn
+    this.turnCount += 1;
+    
+    return {
+      success: true,
+      friendshipGain,
+      energyChange: -5,
+      turnComplete: true
+    };
+  }
+
+  // P0 Critical Path Methods - Required by tests
+  getScheduledRaces() {
+    return this.raceSchedule || [
+      { name: 'Debut Race', distance: 1400, surface: 'Dirt' },
+      { name: 'Championship', distance: 1600, surface: 'Turf' },
+      { name: 'Final Stakes', distance: 2000, surface: 'Turf' }
+    ];
+  }
+
+  getRaceResults() {
+    return this.raceResults || [];
+  }
+
+  getCareerSummary() {
+    if (!this.careerResults) {
+      // Generate summary from current state
+      const racesWon = this.raceResults ? this.raceResults.filter(r => r.position === 1).length : 0;
+      const racesRun = this.raceResults ? this.raceResults.length : 0;
+      const winRate = racesRun > 0 ? Math.round((racesWon / racesRun) * 100) : 0;
+      
+      const totalStats = this.character ? 
+        this.character.stats.speed + this.character.stats.stamina + this.character.stats.power : 60;
+      
+      let grade = 'D';
+      if (racesWon === 3) grade = 'S';
+      else if (racesWon === 2) grade = 'A';
+      else if (racesWon === 1) grade = 'B';
+      else if (totalStats >= 180) grade = 'C';
+
+      let legacyBonuses = { speed: 0, stamina: 0, power: 0 };
+      if (grade === 'S') legacyBonuses = { speed: 5, stamina: 5, power: 5 };
+      else if (grade === 'A') legacyBonuses = { speed: 3, stamina: 0, power: 0 };
+      else if (grade === 'B') legacyBonuses = { speed: 2, stamina: 0, power: 0 };
+      else if (grade === 'C') legacyBonuses = { speed: 1, stamina: 0, power: 0 };
+
+      return {
+        finalStats: this.character ? this.character.stats : { speed: 20, stamina: 20, power: 20 },
+        performance: {
+          racesWon,
+          racesRun,
+          winRate,
+          totalStats,
+          progressPercent: Math.round((totalStats / 300) * 100)
+        },
+        grade,
+        legacyBonuses
+      };
+    }
+    return this.careerResults;
   }
 }
 

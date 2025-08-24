@@ -8,8 +8,11 @@ A terminal-based horse racing simulation game inspired by Uma Musume Pretty Derb
 # Install dependencies
 npm install
 
-# Run the game
+# Run the game (opens in new terminal window)
 npm start
+
+# Run directly in current terminal
+npm run start:direct
 
 # Development mode with auto-restart
 npm run dev
