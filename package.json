@@ -11,7 +11,8 @@
     "test:watch": "cross-env NODE_ENV=test jest --watch",
     "test:balance": "cross-env NODE_ENV=test jest tests/balance --verbose",
     "test:coverage": "cross-env NODE_ENV=test jest --coverage",
-    "test:journeys": "cross-env NODE_ENV=test jest tests/journeys --verbose"
+    "test:journeys": "cross-env NODE_ENV=test jest tests/journeys --verbose",
+    "wipe:saves": "node -e \"const fs=require('fs'); const path=require('path'); const saveDir=path.join(__dirname,'data','saves'); if(fs.existsSync(saveDir)){fs.rmSync(saveDir,{recursive:true})}; fs.mkdirSync(saveDir,{recursive:true}); console.log('All save files wiped for testing.')\""
   },
   "keywords": [
     "game",

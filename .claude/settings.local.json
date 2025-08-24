@@ -2,7 +2,16 @@
   "permissions": {
     "allow": [
       "Bash(npm install)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(npm test:*)",
+      "Bash(npm install:*)",
+      "Bash(npm start)",
+      "Bash(npm run start:direct:*)",
+      "Bash(timeout 5 npm run start:direct)",
+      "Bash(timeout 3 npm run start:direct)",
+      "Bash(timeout 10 npm run start:direct)",
+      "Bash(npm run test:journeys:*)",
+      "Bash(timeout 10 npm run test:journeys:*)"
     ],
     "deny": [],
     "ask": []

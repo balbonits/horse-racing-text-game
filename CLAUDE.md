@@ -191,6 +191,13 @@ module.exports = {
 
 ## Development Guidelines
 
+### CRITICAL: TDD-First Methodology (ALWAYS FOLLOW)
+- **NEVER write implementation code without tests first**
+- **ALWAYS plan and document behavior before coding**
+- **Plan → Write Tests → Make Tests Pass → Refactor**
+- **If tempted to code directly, STOP and write tests first**
+- **Every function must have a failing test before implementation**
+
 ### Code Quality Standards
 - **Keep formulas simple initially** - Add complexity later
 - **Test as you build** - Write tests for core mechanics immediately

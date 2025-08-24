@@ -143,10 +143,18 @@ class GameApp {
 
   handleRaceResultsInput(key) {
     if (key === 'enter' || key === ' ' || key === '1' || key === '2' || key === '3' || key === '4' || key === '5') {
-      if (this.isCareerComplete()) {
-        this.setState('career_complete');
+      // Check if there are more races to run
+      const scheduledRaces = this.game.getScheduledRaces();
+      const completedRaces = this.game.getRaceResults();
+      
+      if (completedRaces.length < scheduledRaces.length) {
+        // Run next race
+        const nextRaceData = scheduledRaces[completedRaces.length];
+        this.game.runRace(nextRaceData);
+        this.render();
       } else {
-        this.setState('training');
+        // All races complete - finish career
+        this.setState('career_complete');
       }
     }
   }
@@ -183,6 +191,12 @@ class GameApp {
     }
     
     this.currentState = newState;
+    
+    // Auto-run first race when entering race phase
+    if (newState === 'race_results' && this.game.getRaceResults().length === 0) {
+      this.game.enterRacePhase();
+    }
+    
     this.render();
   }
 
@@ -270,6 +284,8 @@ class GameApp {
         if (this.game.turnCount > 12) {
           this.setState('race_results');
           this.ui.updateStatus('Race Day!');
+          // Auto-run first race
+          this.game.enterRacePhase();
         }
       }
 

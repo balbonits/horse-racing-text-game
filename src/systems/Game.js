@@ -242,18 +242,29 @@ class Game {
     const stats = this.character.getCurrentStats();
     const performance = this.getProgressSummary();
     
+    // Calculate grade based on performance
+    let grade = 'D';
+    const winRate = performance.winRate || 0;
+    const avgStats = (stats.speed + stats.stamina + stats.power) / 3;
+    
+    if (winRate >= 80 && avgStats >= 80) grade = 'S';
+    else if (winRate >= 60 && avgStats >= 70) grade = 'A';
+    else if (winRate >= 40 && avgStats >= 60) grade = 'B';
+    else if (winRate >= 20 && avgStats >= 50) grade = 'C';
+
     // Calculate legacy bonuses based on final stats and performance
     const legacyBonuses = {
-      speedBonus: Math.floor(stats.speed * 0.1), // 10% of final stat
-      staminaBonus: Math.floor(stats.stamina * 0.1),
-      powerBonus: Math.floor(stats.power * 0.1),
-      energyBonus: Math.min(10, this.character.career.racesWon * 2) // 2 points per win, max 10
+      speed: Math.floor(stats.speed * 0.1), // 10% of final stat
+      stamina: Math.floor(stats.stamina * 0.1),
+      power: Math.floor(stats.power * 0.1),
+      energy: Math.min(10, this.character.career.racesWon * 2) // 2 points per win, max 10
     };
 
     const careerSummary = {
       characterName: this.character.name,
       finalStats: stats,
       performance: performance,
+      grade: grade,
       legacyBonuses: legacyBonuses,
       achievements: this.generateAchievements()
     };
@@ -480,13 +491,92 @@ class Game {
     };
   }
 
+  // TDD Race Implementation - Replaces old runRace for test compatibility
+  runRace(raceData) {
+    if (!this.character) {
+      return { success: false, message: 'No character available' };
+    }
+
+    const { race, ui } = require('../utils/gameUtils');
+    
+    // Generate AI competitors (7 horses with stats 40-80)
+    const aiCompetitors = [];
+    for (let i = 0; i < 7; i++) {
+      aiCompetitors.push({
+        name: `Horse ${i + 1}`,
+        stats: {
+          speed: 40 + Math.random() * 40,
+          stamina: 40 + Math.random() * 40,  
+          power: 40 + Math.random() * 40
+        }
+      });
+    }
+    
+    // Calculate performance for all participants
+    const participants = [
+      { name: this.character.name, stats: this.character.stats, isPlayer: true },
+      ...aiCompetitors
+    ];
+    
+    const distanceType = race.getDistanceType(raceData.distance || 1600);
+    
+    // Calculate performance scores
+    participants.forEach(p => {
+      p.performance = race.calculatePerformance(p.stats, distanceType, 1.0);
+    });
+    
+    // Sort by performance (highest first)
+    participants.sort((a, b) => b.performance - a.performance);
+    
+    // Assign positions
+    participants.forEach((p, index) => {
+      p.position = index + 1;
+    });
+    
+    // Find player result
+    const playerResult = participants.find(p => p.isPlayer);
+    
+    // Generate race time based on distance and performance
+    const baseTime = raceData.distance ? (raceData.distance / 15) : 106; // ~15 m/s average
+    const performanceModifier = (200 - playerResult.performance) / 100;
+    const totalSeconds = baseTime + performanceModifier;
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = (totalSeconds % 60).toFixed(2);
+    
+    const result = {
+      position: playerResult.position,
+      time: `${minutes}:${seconds.padStart(5, '0')}`,
+      performance: playerResult.performance,
+      commentary: ui.formatRaceCommentary(playerResult.position),
+      raceData: raceData,
+      participants: participants
+    };
+    
+    // Store result
+    this.raceResults.push(result);
+    
+    return result;
+  }
+
+  // Auto-run first race when entering race phase
+  enterRacePhase() {
+    if (this.raceResults.length === 0 && this.getScheduledRaces().length > 0) {
+      const firstRace = this.getScheduledRaces()[0];
+      this.runRace(firstRace);
+      this.currentRaceIndex = 1;
+    }
+  }
+
   // P0 Critical Path Methods - Required by tests
   getScheduledRaces() {
-    return this.raceSchedule || [
-      { name: 'Debut Race', distance: 1400, surface: 'Dirt' },
-      { name: 'Championship', distance: 1600, surface: 'Turf' },
-      { name: 'Final Stakes', distance: 2000, surface: 'Turf' }
-    ];
+    if (!this.raceSchedule || this.raceSchedule.length === 0) {
+      return [
+        { name: 'Debut Race', distance: 1400, surface: 'Dirt' },
+        { name: 'Championship', distance: 1600, surface: 'Turf' },
+        { name: 'Final Stakes', distance: 2000, surface: 'Turf' }
+      ];
+    }
+    return this.raceSchedule;
   }
 
   getRaceResults() {
@@ -494,7 +584,8 @@ class Game {
   }
 
   getCareerSummary() {
-    if (!this.careerResults) {
+    // Always generate summary from current state for now
+    if (true) {
       // Generate summary from current state
       const racesWon = this.raceResults ? this.raceResults.filter(r => r.position === 1).length : 0;
       const racesRun = this.raceResults ? this.raceResults.length : 0;
@@ -515,7 +606,7 @@ class Game {
       else if (grade === 'B') legacyBonuses = { speed: 2, stamina: 0, power: 0 };
       else if (grade === 'C') legacyBonuses = { speed: 1, stamina: 0, power: 0 };
 
-      return {
+      const summary = {
         finalStats: this.character ? this.character.stats : { speed: 20, stamina: 20, power: 20 },
         performance: {
           racesWon,
@@ -527,6 +618,8 @@ class Game {
         grade,
         legacyBonuses
       };
+      
+      return summary;
     }
     return this.careerResults;
   }
