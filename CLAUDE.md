@@ -273,3 +273,5 @@ node src/app.js          # Direct game launch
 *Keep this context updated as the project evolves. Focus on core mechanics first, then gradually add complexity and polish.*
 - always update `docs\DEV_JOURNEY.md` when completing a task/fix/update/etc.
 - update all `/docs` & `README.md` before committing.
+- create documented plans & tests before implementation.
+- follow DRY approach, and create modular functions & components to avoid/reduce repeating code.

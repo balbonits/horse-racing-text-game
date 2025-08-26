@@ -100,66 +100,59 @@ class GameApp {
 
   handleCharacterCreationInput(key) {
     console.log('⌨️ Character creation input:', JSON.stringify(key));
-    console.log('📝 Current buffer:', JSON.stringify(this.characterNameBuffer || ''));
     
-    // Handle quit
-    if (key === 'q') {
+    // Handle quit (single 'q' or 'Q')
+    if (key.toLowerCase() === 'q') {
       console.log('🚪 Quitting character creation');
       this.setState('main_menu');
       return { success: true, action: 'quit' };
     }
 
-    // Fallback input handling when textbox doesn't work
-    if (!this.characterNameBuffer) {
-      this.characterNameBuffer = '';
-      console.log('🆕 Initialized character name buffer');
-    }
-
-    // Handle character input
-    if (key.length === 1 && key.match(/[a-zA-Z0-9_-]/)) {
-      this.characterNameBuffer += key;
-      console.log('✏️ Added character, new buffer:', this.characterNameBuffer);
-      this.ui.updateStatus(`Enter name: ${this.characterNameBuffer}_`);
-      return { success: true, action: 'input', buffer: this.characterNameBuffer };
-    }
-    
-    // Handle backspace
-    else if (key === 'backspace' && this.characterNameBuffer.length > 0) {
-      const oldBuffer = this.characterNameBuffer;
-      this.characterNameBuffer = this.characterNameBuffer.slice(0, -1);
-      console.log('⌫ Backspace:', oldBuffer, '→', this.characterNameBuffer);
-      this.ui.updateStatus(`Enter name: ${this.characterNameBuffer}_`);
-      return { success: true, action: 'backspace', buffer: this.characterNameBuffer };
-    }
-    
-    // Handle enter/space to submit
-    else if (key === 'enter' || key === 'space') {
-      console.log('🔄 Submitting character name:', JSON.stringify(this.characterNameBuffer));
+    // Since we're using readline, we get full text input, not individual characters
+    // Treat the entire input as the horse name
+    if (key && key.trim().length > 0) {
+      const horseName = key.trim();
       
-      if (this.characterNameBuffer && this.characterNameBuffer.trim().length > 0) {
-        console.log('✅ Name is valid, creating character...');
-        const result = this.createCharacter(this.characterNameBuffer.trim());
-        console.log('🎯 Character creation result:', result);
-        
+      // Validate the name (1-20 characters, alphanumeric plus spaces, underscores, and hyphens)
+      if (!horseName.match(/^[a-zA-Z0-9_\- ]+$/)) {
+        console.log('❌ Invalid characters in name');
+        this.ui.updateStatus('❌ Invalid characters in name. Use only letters, numbers, spaces, _ and -');
+        this.render(); // Re-render to show the error
+        return { success: false, action: 'invalid_input', message: 'Invalid characters' };
+      }
+      
+      if (horseName.length > 20) {
+        console.log('❌ Name too long');
+        this.ui.updateStatus('❌ Name must be 20 characters or less');
+        this.render(); // Re-render to show the error
+        return { success: false, action: 'invalid_input', message: 'Name too long' };
+      }
+      
+      console.log('🔄 Creating character with name:', JSON.stringify(horseName));
+      
+      // Handle async character creation
+      this.createCharacter(horseName).then(result => {
         this.characterNameBuffer = '';
         
         if (!result.success) {
           console.log('❌ Character creation failed:', result.message);
           this.ui.updateStatus(`❌ ${result.message}`);
-          return { success: false, action: 'create_character', message: result.message };
+          this.render(); // Re-render to show the error
         }
-        
-        console.log('🎉 Character creation successful!');
-        return { success: true, action: 'create_character', character: this.game.character };
-      } else {
-        console.log('❌ Empty or invalid name');
-        this.ui.updateStatus('❌ Name must be 1-20 alphanumeric characters');
-        return { success: false, action: 'create_character', message: 'Name must be 1-20 alphanumeric characters' };
-      }
+        // Success case is handled in createCharacter method
+      }).catch(error => {
+        console.error('Character creation error:', error);
+        this.ui.updateStatus(`❌ ${error.message}`);
+        this.render();
+      });
+      
+      // Return immediately while async operation continues
+      return { success: true, action: 'creating_character' };
     }
     
-    console.log('❓ Unknown key pressed:', key);
-    return { success: false, action: 'unknown_key', key: key };
+    // Empty input, just re-render
+    this.render();
+    return { success: true, action: 'empty_input' };
   }
 
   handleTrainingInput(key) {
@@ -172,7 +165,22 @@ class GameApp {
     };
 
     if (trainingMap[key]) {
-      return this.performTraining(trainingMap[key]);
+      // Handle async training
+      this.performTraining(trainingMap[key]).then(result => {
+        if (result.success) {
+          this.render(); // Re-render after training completes
+        } else {
+          this.ui.updateStatus(`❌ ${result.message}`);
+          this.render();
+        }
+      }).catch(error => {
+        console.error('Training error:', error);
+        this.ui.updateStatus(`❌ Training failed: ${error.message}`);
+        this.render();
+      });
+      
+      // Return immediately while async operation continues
+      return { success: true, action: 'training' };
     } else if (key === 'r') {
       this.showRaceSchedule();
       return { success: true };
@@ -240,8 +248,6 @@ class GameApp {
 
   // State management
   setState(newState) {
-    console.log('🔄 setState() called:', this.currentState, '→', newState);
-    
     const validStates = [
       'main_menu', 'character_creation', 'load_game', 'training', 
       'race_results', 'help', 'career_complete'
@@ -254,25 +260,20 @@ class GameApp {
     
     const oldState = this.currentState;
     this.currentState = newState;
-    console.log('📍 State transition successful:', oldState, '→', this.currentState);
     
     // Clear character name buffer when leaving character creation
     if (this.currentState !== 'character_creation') {
       if (this.characterNameBuffer) {
-        console.log('🧹 Clearing character name buffer');
         this.characterNameBuffer = '';
       }
     }
     
     // Auto-run first race when entering race phase
     if (newState === 'race_results' && this.game.getRaceResults().length === 0) {
-      console.log('🏁 Auto-running first race...');
       this.game.enterRacePhase();
     }
     
-    console.log('🖼️ Rendering new state:', this.currentState);
     this.render();
-    console.log('✅ State transition complete');
   }
 
   // Main menu methods
@@ -298,7 +299,7 @@ class GameApp {
   }
 
   // Character creation
-  createCharacter(name) {
+  async createCharacter(name) {
     console.log('🎮 createCharacter() called with name:', JSON.stringify(name));
     
     try {
@@ -314,14 +315,10 @@ class GameApp {
 
       // If validation passes, create character
       console.log('🚀 Creating new game with name:', name.trim());
-      const gameResult = this.game.startNewGame(name.trim());
-      console.log('🎲 Game creation result:', gameResult);
+      const gameResult = await this.game.startNewGame(name.trim());
       
       if (gameResult.success) {
-        console.log('🏃 Transitioning to training state...');
-        console.log('🐎 Character created:', this.game.character ? this.game.character.name : 'null');
         this.setState('training');
-        console.log('📍 New state after transition:', this.currentState);
       } else {
         console.log('❌ Game creation failed:', gameResult);
       }
@@ -341,7 +338,7 @@ class GameApp {
     return this.game.getGameStatus().trainingOptions;
   }
 
-  performTraining(trainingType) {
+  async performTraining(trainingType) {
     try {
       if (!this.game.character) {
         return result.failure('No active character');
@@ -353,8 +350,8 @@ class GameApp {
         return result.failure('Not enough energy! You need rest.');
       }
 
-      // Perform the training
-      const trainingResult = this.game.executeTraining(trainingType);
+      // Perform the training (now async)
+      const trainingResult = await this.game.performTraining(trainingType);
       
       // Check for null/undefined result - this should not happen but let's be safe
       if (!trainingResult) {
@@ -380,8 +377,13 @@ class GameApp {
         // Check if a race is scheduled after this training
         if (trainingResult.raceReady && trainingResult.nextRace) {
           console.log('🏁 Race scheduled after training:', trainingResult.nextRace);
+          console.log('');
+          console.log('🚨 === RACE DAY! ===');
+          console.log(`🏇 It's time for the ${trainingResult.nextRace.name}!`);
+          console.log('🏃‍♂️ Your horse is heading to the starting line...');
+          console.log('================');
+          console.log('');
           this.setState('race_results');
-          this.ui.updateStatus('Race Day!');
           // Auto-run the scheduled race
           this.game.enterRacePhase();
         }

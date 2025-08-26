@@ -1,12 +1,17 @@
 const Character = require('../models/Character');
 const TrainingSystem = require('../models/Training');
 const RaceSimulator = require('../models/Race');
+const NPHRoster = require('../models/NPHRoster');
+const LoadingStates = require('./LoadingStates');
+const { CLASSIC_CAREER_RACES, calculateRacePerformance, getTrainingRecommendations } = require('../data/raceTypes');
 
 class Game {
   constructor() {
     this.character = null;
+    this.nphRoster = null; // NPH roster for this career
     this.trainingSystem = new TrainingSystem();
     this.raceSimulator = new RaceSimulator();
+    this.loadingStates = new LoadingStates();
     this.gameState = 'menu'; // menu, character_creation, training, racing, results, game_over
     this.currentRace = null;
     this.raceSchedule = [];
@@ -32,16 +37,30 @@ class Game {
   }
 
   // Initialize a new game session
-  startNewGame(characterName, options = {}) {
+  async startNewGame(characterName, options = {}) {
+    // Create player character
     this.character = new Character(characterName, options);
+    
+    // Generate NPH roster for this career
+    this.nphRoster = new NPHRoster();
+    
+    // Show loading for NPH generation
+    if (!options.skipLoadingStates) {
+      await this.loadingStates.showNPHGeneration(24);
+    }
+    
+    // Generate rival horses
+    this.nphRoster.generateRoster(this.character, 24);
+    
     this.gameState = 'training';
-    this.raceSchedule = this.raceSimulator.getCareerRaceSchedule();
+    this.raceSchedule = CLASSIC_CAREER_RACES; // Use new race system
     this.gameHistory.sessions++;
     
     return {
       success: true,
       message: `Welcome ${characterName}! Your racing career begins now!`,
-      character: this.character.getSummary()
+      character: this.character.getSummary(),
+      rivalCount: this.nphRoster.nphs.length
     };
   }
 
@@ -58,6 +77,18 @@ class Game {
     const nextRace = this.getNextRace();
     const trainingOptions = this.trainingSystem.getTrainingOptions(this.character);
     
+    // Get training recommendations for upcoming race
+    const recommendations = [];
+    if (nextRace) {
+      const turnsUntilRace = nextRace.turn - this.character.career.turn;
+      const raceRecommendations = getTrainingRecommendations(
+        nextRace.type, 
+        nextRace.surface, 
+        turnsUntilRace
+      );
+      recommendations.push(...raceRecommendations);
+    }
+
     return {
       state: this.gameState,
       turn: this.character.career.turn,
@@ -65,13 +96,14 @@ class Game {
       character: summary,
       nextRace: nextRace,
       trainingOptions: trainingOptions,
+      trainingRecommendations: recommendations,
       canContinue: this.character.canContinue(),
       progress: this.getProgressSummary()
     };
   }
 
   // Perform training action
-  performTraining(trainingType) {
+  async performTraining(trainingType) {
     if (!this.character || this.gameState !== 'training') {
       return {
         success: false,
@@ -82,6 +114,11 @@ class Game {
     const result = this.trainingSystem.performTraining(this.character, trainingType);
     
     if (result.success) {
+      // Progress NPH training alongside player
+      if (this.nphRoster) {
+        this.nphRoster.progressNPHs(this.character.career.turn);
+      }
+
       // Check if it's time for a race
       const raceTime = this.checkForScheduledRace();
       if (raceTime) {
@@ -110,15 +147,143 @@ class Game {
     return this.raceSchedule.find(race => race.turn >= this.character.career.turn);
   }
 
-  // Run a race
-  runRace(raceType = null) {
+  // Get race field including player and NPHs
+  getRaceField(raceInfo) {
+    if (!this.nphRoster) {
+      // Fallback to basic race if no NPHs
+      return [{ 
+        name: this.character.name, 
+        stats: this.character.getCurrentStats(), 
+        condition: this.character.condition,
+        type: 'player' 
+      }];
+    }
+
+    const field = [];
+
+    // Add player horse
+    field.push({
+      name: this.character.name,
+      stats: this.character.getCurrentStats(),
+      condition: this.character.condition,
+      strategy: 'MID', // Default, will be set by player choice
+      type: 'player'
+    });
+
+    // Add NPH competitors
+    const nphField = this.nphRoster.getRaceField(7); // 7 NPHs + 1 player = 8 total
+    nphField.forEach(nph => {
+      field.push({
+        name: nph.name,
+        stats: nph.stats,
+        condition: { energy: 90 + Math.random() * 10, mood: 'Normal' }, // NPHs always ready
+        strategy: nph.strategy,
+        type: 'nph',
+        id: nph.id
+      });
+    });
+
+    return field;
+  }
+
+  // Run enhanced race with new system
+  async runEnhancedRace(raceInfo, strategy = 'MID') {
+    if (!this.character) {
+      return { success: false, message: 'No character available' };
+    }
+
+    if (process.env.NODE_ENV !== 'test') {
+      console.log(`🏁 Running ${raceInfo.name} (${raceInfo.type} on ${raceInfo.surface})`);
+    }
+    
+    // Show race preparation loading
+    await this.loadingStates.showRacePreparation();
+
+    // Get race field
+    const field = this.getRaceField(raceInfo);
+    
+    // Set player strategy
+    const playerHorse = field.find(h => h.type === 'player');
+    if (playerHorse) {
+      playerHorse.strategy = strategy;
+    }
+
+    // Calculate performance for each horse
+    const results = field.map(horse => {
+      const performance = calculateRacePerformance(
+        horse, 
+        raceInfo.type, 
+        raceInfo.surface, 
+        horse.strategy, 
+        raceInfo.weather
+      );
+
+      return {
+        name: horse.name,
+        performance: performance,
+        strategy: horse.strategy,
+        type: horse.type,
+        horseId: horse.id || 'player',
+        stats: horse.stats
+      };
+    });
+
+    // Sort by performance (highest = 1st place)
+    results.sort((a, b) => b.performance - a.performance);
+
+    // Add race finishing details
+    const raceResults = results.map((result, index) => ({
+      ...result,
+      position: index + 1,
+      time: this.estimateRaceTime(result.performance, raceInfo.type),
+      prize: this.calculatePrize(index + 1, raceInfo.prize)
+    }));
+
+    // Record results with NPH roster
+    if (this.nphRoster) {
+      this.nphRoster.recordRaceResults(raceResults, raceInfo);
+    }
+
+    // Find player result
+    const playerResult = raceResults.find(r => r.type === 'player');
+    
+    return {
+      success: true,
+      raceInfo: raceInfo,
+      results: raceResults,
+      playerResult: playerResult,
+      fieldSize: raceResults.length
+    };
+  }
+
+  // Estimate race time based on performance
+  estimateRaceTime(performance, raceType) {
+    const { RACE_TYPES, estimateRaceTime } = require('../data/raceTypes');
+    return estimateRaceTime(performance, raceType);
+  }
+
+  // Calculate prize money
+  calculatePrize(position, basePrize) {
+    const prizeStructure = [1.0, 0.6, 0.3, 0.15, 0.1, 0.05, 0.02, 0.01];
+    const multiplier = prizeStructure[position - 1] || 0;
+    return Math.floor(basePrize * multiplier);
+  }
+
+  // Run a race (legacy method - enhanced with new system)
+  async runRace(strategy = 'MID') {
     if (!this.character) {
       return { success: false, message: 'No active character.' };
     }
 
-    // Determine race type
+    // Check for scheduled race with new system
     const scheduledRace = this.checkForScheduledRace();
-    const finalRaceType = raceType || (scheduledRace ? scheduledRace.raceType : 'sprint');
+    if (scheduledRace) {
+      // Use enhanced race system
+      return await this.runEnhancedRace(scheduledRace, strategy);
+    }
+
+    // Fallback to legacy system for backward compatibility
+    const finalRaceType = 'sprint';
 
     // Create competitors
     const playerAvgStat = (this.character.stats.speed + this.character.stats.stamina + this.character.stats.power) / 3;
@@ -317,15 +482,21 @@ class Game {
   }
 
   // Save game state (simplified JSON save)
-  saveGame() {
+  async saveGame() {
     if (!this.character) return { success: false, message: 'No character to save' };
+
+    // Show loading state for save operation
+    const filename = `${this.character.name}_${Date.now()}.json`;
+    await this.loadingStates.showSaveOperation(filename);
 
     const saveData = {
       character: this.character.toJSON(),
       gameState: this.gameState,
       raceSchedule: this.raceSchedule,
       gameHistory: this.gameHistory,
-      timestamp: new Date().toISOString()
+      nphRoster: this.nphRoster ? this.nphRoster.toJSON() : null,
+      timestamp: new Date().toISOString(),
+      version: '2.0.0' // Include NPH data
     };
 
     return {
@@ -336,17 +507,36 @@ class Game {
   }
 
   // Load game state
-  loadGame(saveData) {
+  async loadGame(saveData) {
     try {
+      // Show loading state for load operation
+      const filename = `${saveData.character?.name || 'save'}_${Date.now()}.json`;
+      await this.loadingStates.showLoadOperation(filename);
+
       this.character = Character.fromJSON(saveData.character);
       this.gameState = saveData.gameState || 'training';
-      this.raceSchedule = saveData.raceSchedule || this.raceSimulator.getCareerRaceSchedule();
+      this.raceSchedule = saveData.raceSchedule || CLASSIC_CAREER_RACES; // Use new system
       this.gameHistory = { ...this.gameHistory, ...saveData.gameHistory };
+      
+      // Load NPH roster if available (backward compatibility)
+      if (saveData.nphRoster) {
+        this.nphRoster = NPHRoster.fromJSON(saveData.nphRoster);
+      } else if (saveData.version && parseFloat(saveData.version) < 2.0) {
+        // Generate new NPH roster for old saves
+        console.log('📈 Upgrading save file - generating rival horses...');
+        this.nphRoster = new NPHRoster();
+        this.nphRoster.generateRoster(this.character, 24);
+        // Fast-forward NPH progress to match player's turn
+        for (let turn = 1; turn < this.character.career.turn; turn++) {
+          this.nphRoster.progressNPHs(turn);
+        }
+      }
 
       return {
         success: true,
         message: `${this.character.name} loaded successfully!`,
-        character: this.character.getSummary()
+        character: this.character.getSummary(),
+        rivalCount: this.nphRoster ? this.nphRoster.nphs.length : 0
       };
     } catch (error) {
       return {

@@ -43,12 +43,9 @@ class TextUI {
     console.log('CHARACTER CREATION');
     console.log('------------------');
     console.log('');
-    console.log('Enter your horse name:');
+    console.log('Enter your horse name and press ENTER:');
     console.log('');
-    console.log('> ' + (nameBuffer || '') + '_');
-    console.log('');
-    console.log('Type letters and press ENTER when done');
-    console.log('Press Q to go back to main menu');
+    console.log('(Type Q and press ENTER to go back to main menu)');
     console.log('');
   }
 
@@ -85,10 +82,22 @@ class TextUI {
     console.log('  Races Won: ' + career.racesWon + '/' + career.racesRun);
     console.log('');
     
-    // Next race info
-    const nextRace = this.getNextRace(career.turn);
-    if (nextRace) {
-      console.log('NEXT RACE: ' + nextRace);
+    // Next race info - make it more prominent
+    const nextRaceInfo = this.getNextRaceInfo(career.turn);
+    if (nextRaceInfo) {
+      console.log('=== UPCOMING RACE ===');
+      console.log('Race: ' + nextRaceInfo.name);
+      console.log('Turn: ' + nextRaceInfo.turn);
+      console.log('Distance: ' + nextRaceInfo.distance);
+      console.log('Focus: ' + nextRaceInfo.focus);
+      if (nextRaceInfo.turnsLeft === 0) {
+        console.log('*** RACE HAPPENS AFTER THIS TRAINING! ***');
+      } else if (nextRaceInfo.turnsLeft === 1) {
+        console.log('*** RACE HAPPENS NEXT TURN! ***');
+      } else {
+        console.log('Turns until race: ' + nextRaceInfo.turnsLeft);
+      }
+      console.log('=====================');
       console.log('');
     }
     
@@ -268,12 +277,36 @@ class TextUI {
   }
 
   /**
-   * Get next race info
+   * Get detailed next race info
    */
-  getNextRace(turn) {
-    if (turn < 4) return 'Sprint Race on Turn 4';
-    if (turn < 8) return 'Mile Race on Turn 8';  
-    if (turn < 12) return 'Championship on Turn 12';
+  getNextRaceInfo(turn) {
+    if (turn <= 4) {
+      return {
+        name: 'Debut Sprint',
+        turn: 4,
+        distance: '1200m',
+        focus: 'Speed & Power',
+        turnsLeft: 4 - turn
+      };
+    }
+    if (turn <= 8) {
+      return {
+        name: 'Mile Challenge',
+        turn: 8,
+        distance: '1600m',
+        focus: 'Balanced Stats',
+        turnsLeft: 8 - turn
+      };
+    }
+    if (turn <= 12) {
+      return {
+        name: 'Championship',
+        turn: 12,
+        distance: '2000m',
+        focus: 'Stamina & Endurance',
+        turnsLeft: 12 - turn
+      };
+    }
     return null;
   }
 

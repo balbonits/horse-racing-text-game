@@ -6,6 +6,43 @@ A chronicle of the development process, conversations, decisions, and learnings 
 
 ## 📅 **August 24, 2025**
 
+### **Session Updates**
+
+#### Character Creation Input Fix
+- **Issue**: Readline was capturing full strings but code expected single characters
+- **Solution**: Refactored `handleCharacterCreationInput()` to process complete text input
+- **Impact**: Character creation now works properly with full name entry
+
+#### Screen Clearing & State Transitions
+- **Issue**: Debug logs cluttering transitions between screens
+- **Solution**: Removed verbose logging from `setState()` and character creation flow
+- **Impact**: Clean screen transitions, better UX
+
+#### Race System UI Improvements
+- **Added**: Prominent upcoming race warnings in training screen
+- **Added**: Detailed race information (distance, focus, turns until race)
+- **Added**: Auto-trigger messaging when races start
+- **Impact**: Players now clearly understand when races will occur
+
+#### File Organization
+- **Issue**: Test files scattered in root directory
+- **Solution**: Moved all test files to `/tests/manual/` directory
+- **Impact**: Cleaner project structure following Node.js conventions
+
+#### Documentation Created
+- **New**: `docs/UX_FLOW_AND_RACING_MECHANICS.md` - Complete UX and racing reference
+- **New**: `docs/RACE_SYSTEM_V2_DESIGN.md` - Enhanced race system with strategy mechanics
+- **Impact**: Clear documentation for current and future development
+
+#### Race System V2 Design (Planned)
+- **Strategy Selection**: Front Runner / Stalker / Closer styles
+- **NPC Generation**: Balanced competition based on player strength  
+- **Race Visualization**: Terminal-based animation system
+- **Rewards System**: Podium ceremony with placement bonuses
+- **Status**: Design complete, awaiting implementation
+
+## 📅 **August 24, 2025**
+
 ### **Project Inception**
 **Time**: Morning  
 **Context**: User requested to start building a horse racing text game project based on complete project documentation.

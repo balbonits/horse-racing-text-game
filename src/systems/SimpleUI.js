@@ -52,16 +52,9 @@ class SimpleUI {
     console.log('');
     console.log('Time to create your racing horse!');
     console.log('');
-    console.log(chalk.yellow('Enter your horse\'s name:'));
-    
-    // Show the current name being typed
-    const displayName = nameBuffer || '_';
+    console.log(chalk.yellow('Enter your horse\'s name and press ENTER:'));
     console.log('');
-    console.log(chalk.bold.white(`> ${displayName}${nameBuffer ? '_' : ''}`));
-    console.log('');
-    console.log(chalk.gray('💡 Type letters to spell your horse\'s name'));
-    console.log(chalk.gray('💡 Press ENTER when done, BACKSPACE to edit'));
-    console.log(chalk.gray('💡 Press Q to go back to main menu'));
+    console.log(chalk.gray('(Type Q and press ENTER to go back to main menu)'));
     console.log('');
     
     this.currentPrompt = 'character_creation';
@@ -99,6 +92,24 @@ class SimpleUI {
     console.log(`   Races Won: ${career.racesWon}/${career.racesRun}`);
     console.log('');
     
+    // Show upcoming race info prominently
+    const nextRaceInfo = this.getNextRaceInfo(career.turn);
+    if (nextRaceInfo) {
+      console.log(chalk.bold.cyan('🏁 === UPCOMING RACE ==='));
+      console.log(chalk.yellow(`   ${nextRaceInfo.name} (Turn ${nextRaceInfo.turn})`));
+      console.log(`   Distance: ${nextRaceInfo.distance}`);
+      console.log(`   Focus: ${nextRaceInfo.focus}`);
+      if (nextRaceInfo.turnsLeft === 0) {
+        console.log(chalk.red.bold('   *** RACE HAPPENS AFTER THIS TRAINING! ***'));
+      } else if (nextRaceInfo.turnsLeft === 1) {
+        console.log(chalk.yellow.bold('   *** RACE HAPPENS NEXT TURN! ***'));
+      } else {
+        console.log(`   Turns until race: ${nextRaceInfo.turnsLeft}`);
+      }
+      console.log(chalk.bold.cyan('========================'));
+      console.log('');
+    }
+    
     // Training options
     console.log(chalk.bold('🎯 TRAINING OPTIONS:'));
     console.log('');
@@ -108,13 +119,6 @@ class SimpleUI {
     console.log(chalk.green('  [4]') + ' Rest Day         (+30 Energy)');
     console.log(chalk.magenta('  [5]') + ' Social Time      (-5 Energy, +Friendship)');
     console.log('');
-    
-    // Show upcoming race info
-    const upcomingRace = this.getUpcomingRace(career.turn);
-    if (upcomingRace) {
-      console.log(chalk.bold.yellow(`⚠️ UPCOMING: ${upcomingRace} (Turn ${this.getRaceTurn(upcomingRace)})`));
-      console.log('');
-    }
     
     console.log(chalk.gray('💡 Press 1-5 to train, R for race schedule, S to save, Q to quit'));
     console.log('');
@@ -328,12 +332,36 @@ class SimpleUI {
   }
 
   /**
-   * Get upcoming race info
+   * Get detailed next race info
    */
-  getUpcomingRace(turn) {
-    if (turn <= 4) return 'Sprint Race';
-    if (turn <= 8) return 'Mile Race';  
-    if (turn <= 12) return 'Championship';
+  getNextRaceInfo(turn) {
+    if (turn <= 4) {
+      return {
+        name: 'Debut Sprint',
+        turn: 4,
+        distance: '1200m',
+        focus: 'Speed & Power',
+        turnsLeft: 4 - turn
+      };
+    }
+    if (turn <= 8) {
+      return {
+        name: 'Mile Challenge',
+        turn: 8,
+        distance: '1600m',
+        focus: 'Balanced Stats',
+        turnsLeft: 8 - turn
+      };
+    }
+    if (turn <= 12) {
+      return {
+        name: 'Championship',
+        turn: 12,
+        distance: '2000m',
+        focus: 'Stamina & Endurance',
+        turnsLeft: 12 - turn
+      };
+    }
     return null;
   }
 
