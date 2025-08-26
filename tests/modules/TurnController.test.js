@@ -77,11 +77,13 @@ describe('TurnController Module', () => {
     test('should trigger all 4 races at correct turns', () => {
       const racesTriggered = [];
       
-      // Simulate complete career (12 turns)
+      // Simulate complete career (12 turns) with energy management
       for (let expectedTurn = 1; expectedTurn <= 12; expectedTurn++) {
         expect(character.career.turn).toBe(expectedTurn);
         
-        const result = controller.processTurn('speed');
+        // Choose training based on energy level
+        const trainingType = character.condition.energy < 20 ? 'rest' : 'speed';
+        const result = controller.processTurn(trainingType);
         
         if (result.raceTriggered) {
           racesTriggered.push({
