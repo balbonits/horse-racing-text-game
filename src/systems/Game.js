@@ -64,6 +64,29 @@ class Game {
     };
   }
 
+  // Synchronous version for tests and fast character creation
+  startNewGameSync(characterName, options = {}) {
+    // Create player character
+    this.character = new Character(characterName, options);
+    
+    // Generate NPH roster for this career
+    this.nphRoster = new NPHRoster();
+    
+    // Generate rival horses (skip loading states for sync version)
+    this.nphRoster.generateRoster(this.character, 24);
+    
+    this.gameState = 'training';
+    this.raceSchedule = CLASSIC_CAREER_RACES; // Use new race system
+    this.gameHistory.sessions++;
+    
+    return {
+      success: true,
+      message: `Welcome ${characterName}! Your racing career begins now!`,
+      character: this.character.getSummary(),
+      rivalCount: this.nphRoster.nphs.length
+    };
+  }
+
   // Get current game status
   getGameStatus() {
     if (!this.character) {
@@ -104,6 +127,11 @@ class Game {
 
   // Perform training action
   async performTraining(trainingType) {
+    return this.performTrainingSync(trainingType);
+  }
+
+  // Synchronous version for consistent API
+  performTrainingSync(trainingType) {
     if (!this.character || this.gameState !== 'training') {
       return {
         success: false,
@@ -150,37 +178,21 @@ class Game {
   // Get race field including player and NPHs
   getRaceField(raceInfo) {
     if (!this.nphRoster) {
-      // Fallback to basic race if no NPHs
-      return [{ 
-        name: this.character.name, 
-        stats: this.character.getCurrentStats(), 
-        condition: this.character.condition,
-        type: 'player' 
-      }];
+      // Fallback to basic race if no NPHs - return just the player
+      return [this.character];
     }
 
     const field = [];
 
-    // Add player horse
-    field.push({
-      name: this.character.name,
-      stats: this.character.getCurrentStats(),
-      condition: this.character.condition,
-      strategy: 'MID', // Default, will be set by player choice
-      type: 'player'
-    });
+    // Add player horse (Character extends Horse)
+    field.push(this.character);
 
-    // Add NPH competitors
+    // Add NPH competitors (NPH extends Horse)
     const nphField = this.nphRoster.getRaceField(7); // 7 NPHs + 1 player = 8 total
     nphField.forEach(nph => {
-      field.push({
-        name: nph.name,
-        stats: nph.stats,
-        condition: { energy: 90 + Math.random() * 10, mood: 'Normal' }, // NPHs always ready
-        strategy: nph.strategy,
-        type: 'nph',
-        id: nph.id
-      });
+      // Prepare NPH for race (sets optimal energy/mood)
+      nph.prepareForRace();
+      field.push(nph);
     });
 
     return field;

@@ -1,5 +1,6 @@
 const Game = require('./systems/Game');
 const TextUI = require('./systems/TextUI');
+const NameGenerator = require('./utils/NameGenerator');
 const fs = require('fs').promises;
 const path = require('path');
 const { validation, result, energy, ui } = require('./utils/gameUtils');
@@ -12,9 +13,11 @@ class GameApp {
   constructor() {
     this.game = new Game();
     this.ui = new TextUI(); // Use pure text UI for maximum simplicity
+    this.nameGenerator = new NameGenerator();
     this.currentState = 'main_menu';
     this.saveDirectory = path.join(__dirname, '../data/saves');
     this.characterNameBuffer = '';
+    this.nameOptions = [];
     
     // No blessed, no screen, just pure console input handling
     this.setupKeyboardInput();
@@ -104,8 +107,40 @@ class GameApp {
     // Handle quit (single 'q' or 'Q')
     if (key.toLowerCase() === 'q') {
       console.log('🚪 Quitting character creation');
+      this.nameOptions = [];
       this.setState('main_menu');
       return { success: true, action: 'quit' };
+    }
+
+    // Handle name generation
+    if (key.toLowerCase() === 'g') {
+      console.log('🎲 Generating name options...');
+      this.nameOptions = this.nameGenerator.generateNameOptions(6);
+      this.render();
+      return { success: true, action: 'generate_names' };
+    }
+
+    // Handle name selection from generated options
+    if (this.nameOptions.length > 0) {
+      const nameIndex = parseInt(key) - 1;
+      if (nameIndex >= 0 && nameIndex < this.nameOptions.length) {
+        const selectedName = this.nameOptions[nameIndex];
+        console.log('🔄 Creating character with selected name:', JSON.stringify(selectedName));
+        
+        // Handle synchronous character creation
+        const result = this.createCharacter(selectedName);
+        this.characterNameBuffer = '';
+        this.nameOptions = [];
+        
+        if (!result.success) {
+          console.log('❌ Character creation failed:', result.message);
+          this.ui.updateStatus(`❌ ${result.message}`);
+          this.render(); // Re-render to show the error
+        }
+        // Success case is handled in createCharacter method
+        
+        return { success: true, action: 'creating_character' };
+      }
     }
 
     // Since we're using readline, we get full text input, not individual characters
@@ -113,10 +148,10 @@ class GameApp {
     if (key && key.trim().length > 0) {
       const horseName = key.trim();
       
-      // Validate the name (1-20 characters, alphanumeric plus spaces, underscores, and hyphens)
-      if (!horseName.match(/^[a-zA-Z0-9_\- ]+$/)) {
+      // Validate the name (1-20 characters, alphanumeric plus spaces, underscores, hyphens, and apostrophes)
+      if (!horseName.match(/^[a-zA-Z0-9_\-' ]+$/)) {
         console.log('❌ Invalid characters in name');
-        this.ui.updateStatus('❌ Invalid characters in name. Use only letters, numbers, spaces, _ and -');
+        this.ui.updateStatus('❌ Invalid characters in name. Use only letters, numbers, spaces, _, -, and \'');
         this.render(); // Re-render to show the error
         return { success: false, action: 'invalid_input', message: 'Invalid characters' };
       }
@@ -130,23 +165,18 @@ class GameApp {
       
       console.log('🔄 Creating character with name:', JSON.stringify(horseName));
       
-      // Handle async character creation
-      this.createCharacter(horseName).then(result => {
-        this.characterNameBuffer = '';
-        
-        if (!result.success) {
-          console.log('❌ Character creation failed:', result.message);
-          this.ui.updateStatus(`❌ ${result.message}`);
-          this.render(); // Re-render to show the error
-        }
-        // Success case is handled in createCharacter method
-      }).catch(error => {
-        console.error('Character creation error:', error);
-        this.ui.updateStatus(`❌ ${error.message}`);
-        this.render();
-      });
+      // Handle synchronous character creation
+      const result = this.createCharacter(horseName);
+      this.characterNameBuffer = '';
+      this.nameOptions = [];
       
-      // Return immediately while async operation continues
+      if (!result.success) {
+        console.log('❌ Character creation failed:', result.message);
+        this.ui.updateStatus(`❌ ${result.message}`);
+        this.render(); // Re-render to show the error
+      }
+      // Success case is handled in createCharacter method
+      
       return { success: true, action: 'creating_character' };
     }
     
@@ -165,21 +195,15 @@ class GameApp {
     };
 
     if (trainingMap[key]) {
-      // Handle async training
-      this.performTraining(trainingMap[key]).then(result => {
-        if (result.success) {
-          this.render(); // Re-render after training completes
-        } else {
-          this.ui.updateStatus(`❌ ${result.message}`);
-          this.render();
-        }
-      }).catch(error => {
-        console.error('Training error:', error);
-        this.ui.updateStatus(`❌ Training failed: ${error.message}`);
+      // Handle synchronous training
+      const result = this.performTrainingSync(trainingMap[key]);
+      if (result.success) {
+        this.render(); // Re-render after training completes
+      } else {
+        this.ui.updateStatus(`❌ ${result.message}`);
         this.render();
-      });
+      }
       
-      // Return immediately while async operation continues
       return { success: true, action: 'training' };
     } else if (key === 'r') {
       this.showRaceSchedule();
@@ -299,7 +323,7 @@ class GameApp {
   }
 
   // Character creation
-  async createCharacter(name) {
+  createCharacter(name) {
     console.log('🎮 createCharacter() called with name:', JSON.stringify(name));
     
     try {
@@ -313,9 +337,9 @@ class GameApp {
         return result.failure(nameValidation.message);
       }
 
-      // If validation passes, create character
+      // If validation passes, create character synchronously
       console.log('🚀 Creating new game with name:', name.trim());
-      const gameResult = await this.game.startNewGame(name.trim());
+      const gameResult = this.game.startNewGameSync(name.trim());
       
       if (gameResult.success) {
         this.setState('training');
@@ -336,6 +360,58 @@ class GameApp {
       return {};
     }
     return this.game.getGameStatus().trainingOptions;
+  }
+
+  performTrainingSync(trainingType) {
+    try {
+      if (!this.game.character) {
+        return result.failure('No active character');
+      }
+
+      // Check energy using DRY utility
+      if (!energy.hasEnoughEnergy(this.game.character.energy, trainingType)) {
+        this.ui.updateStatus('Not enough energy! You need rest.');
+        return result.failure('Not enough energy! You need rest.');
+      }
+
+      // Perform the training synchronously
+      const trainingResult = this.game.performTrainingSync(trainingType);
+      
+      // Check for null/undefined result - this should not happen but let's be safe
+      if (!trainingResult) {
+        const errorMsg = `Training returned null/undefined result for ${trainingType}`;
+        console.error('🚨 ' + errorMsg);
+        return result.failure(errorMsg);
+      }
+      
+      // Update UI message using DRY utility
+      if (trainingResult.success) {
+        // Use the detailed messages from the training result
+        const message = (trainingResult.messages && trainingResult.messages.length > 0) 
+          ? trainingResult.messages[0] 
+          : trainingResult.message || `${trainingType} training completed!`;
+        this.ui.updateStatus(message);
+        
+        // Handle race transitions
+        if (trainingResult.raceReady) {
+          console.log('🏁 Race is ready after training!');
+          this.game.enterRacePhase();
+        }
+        
+        // Check if career is complete
+        if (trainingResult.careerComplete) {
+          console.log('🏆 Career complete after training!');
+          this.setState('career_complete');
+        }
+      } else {
+        this.ui.updateStatus(`❌ ${trainingResult.message}`);
+      }
+      
+      return trainingResult;
+    } catch (error) {
+      console.error('💥 Training error:', error);
+      return result.failure(`Training failed: ${error.message}`);
+    }
   }
 
   async performTraining(trainingType) {
@@ -598,7 +674,7 @@ class GameApp {
   }
 
   renderCharacterCreation() {
-    this.ui.showCharacterCreation(this.characterNameBuffer);
+    this.ui.showCharacterCreation(this.characterNameBuffer, this.nameOptions);
   }
 
   renderTraining() {
@@ -795,6 +871,13 @@ class GameApp {
     // Only exit if not in test environment
     if (process.env.NODE_ENV !== 'test') {
       process.exit(0);
+    }
+  }
+
+  cleanup() {
+    // Cleanup resources for tests
+    if (this.rl) {
+      this.rl.close();
     }
   }
   

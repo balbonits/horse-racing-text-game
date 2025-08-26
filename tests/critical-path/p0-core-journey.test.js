@@ -169,7 +169,7 @@ describe('P0 Critical Path: Complete Game Journey', () => {
       // THEN: Should show appropriate error messages
       expect(emptyResult.message).toContain('Name must be');
       expect(longResult.message).toContain('Name must be');
-      expect(specialResult.message).toContain('alphanumeric');
+      expect(specialResult.message).toContain('characters');
       
       // THEN: Should stay on character creation
       expect(app.currentState).toBe('character_creation');
@@ -240,7 +240,7 @@ describe('P0 Critical Path: Complete Game Journey', () => {
       expect(app.game.turnCount).toBe(initialTurn + 1);
       
       // THEN: Should show result message
-      expect(app.getLastMessage()).toMatch(/Speed increased by \d+/);
+      expect(app.getLastMessage()).toMatch(/speed increased by \d+/i);
     });
 
     test('GIVEN: Insufficient energy, WHEN: User tries expensive training, THEN: Show error and stay on turn', () => {

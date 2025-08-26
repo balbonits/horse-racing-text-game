@@ -38,14 +38,30 @@ class TextUI {
   /**
    * Display character creation screen
    */
-  showCharacterCreation(nameBuffer = '') {
+  showCharacterCreation(nameBuffer = '', nameOptions = []) {
     this.clear();
     console.log('CHARACTER CREATION');
     console.log('------------------');
     console.log('');
-    console.log('Enter your horse name and press ENTER:');
-    console.log('');
-    console.log('(Type Q and press ENTER to go back to main menu)');
+    
+    if (nameOptions.length > 0) {
+      console.log('Generated name suggestions:');
+      console.log('');
+      nameOptions.forEach((name, index) => {
+        console.log(`${index + 1}. ${name}`);
+      });
+      console.log('');
+      console.log('Enter a number (1-' + nameOptions.length + ') to select a name,');
+      console.log('OR type your own horse name and press ENTER,');
+      console.log('OR type "G" to generate new names:');
+      console.log('');
+      console.log('(Type Q and press ENTER to go back to main menu)');
+    } else {
+      console.log('Enter your horse name and press ENTER,');
+      console.log('OR type "G" to generate name suggestions:');
+      console.log('');
+      console.log('(Type Q and press ENTER to go back to main menu)');
+    }
     console.log('');
   }
 

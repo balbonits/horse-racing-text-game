@@ -127,6 +127,9 @@ class TrainingSystem {
     // Random events during training
     this.processRandomEvents(character, trainingType, results);
 
+    // Advance to next turn after training
+    character.nextTurn();
+
     return results;
   }
 

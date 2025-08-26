@@ -1,39 +1,31 @@
-class Character {
+/**
+ * Player Character Class
+ * Extends the base Horse class with player-specific functionality
+ */
+
+const Horse = require('./Horse');
+
+class Character extends Horse {
   constructor(name, options = {}) {
-    this.id = options.id || this.generateId();
-    this.name = name;
+    // Handle null options gracefully
+    options = options || {};
     
-    // Core stats (1-100 scale)
-    this.stats = {
-      speed: options.speed || 20,
-      stamina: options.stamina || 20, 
-      power: options.power || 20
-    };
+    // Call parent constructor
+    super(name, options);
     
-    // Current condition
-    this.condition = {
-      energy: options.energy || 100,
-      mood: options.mood || 'Normal', // Great, Good, Normal, Bad
-      health: options.health || 100
-    };
+    // Override ID generation for player horses
+    this.id = options.id || this.generatePlayerId();
     
-    // Growth potential (affects training gains)
-    this.growthRates = {
-      speed: options.speedGrowth || 'B',   // S, A, B, C, D
-      stamina: options.staminaGrowth || 'B',
-      power: options.powerGrowth || 'B'
-    };
-    
-    // Friendship system
+    // Player-specific systems
     this.friendship = options.friendship || 0; // 0-100
     
     // Career tracking
     this.career = {
-      turn: 1,
-      maxTurns: 12,
-      racesWon: 0,
-      racesRun: 0,
-      totalTraining: 0
+      turn: options.turn || 1,
+      maxTurns: options.maxTurns || 12,
+      racesWon: options.racesWon || 0,
+      racesRun: options.racesRun || 0,
+      totalTraining: options.totalTraining || 0
     };
     
     // Legacy bonuses from previous runs
@@ -43,13 +35,21 @@ class Character {
       powerBonus: 0,
       energyBonus: 0
     };
+    
+    // Set initial career state if provided
+    if (options.career) {
+      this.career = { ...this.career, ...options.career };
+    }
   }
   
-  generateId() {
-    return 'horse_' + Math.random().toString(36).substr(2, 9);
+  /**
+   * Generate player-specific ID
+   */
+  generatePlayerId() {
+    return 'player_' + Math.random().toString(36).substr(2, 9);
   }
 
-  // Getters for test compatibility 
+  // Getters for backward compatibility 
   get energy() {
     return this.condition.energy;
   }
@@ -66,7 +66,10 @@ class Character {
     this.condition.mood = value;
   }
   
-  // Get current stat values including bonuses
+  /**
+   * Get current stat values including legacy bonuses
+   * Overrides base Horse method to include legacy bonuses
+   */
   getCurrentStats() {
     return {
       speed: Math.min(100, this.stats.speed + this.legacyBonuses.speedBonus),
@@ -75,30 +78,9 @@ class Character {
     };
   }
   
-  // Get growth rate multiplier
-  getGrowthMultiplier(stat) {
-    const growthMap = {
-      'S': 1.5,
-      'A': 1.2,
-      'B': 1.0,
-      'C': 0.8,
-      'D': 0.6
-    };
-    return growthMap[this.growthRates[stat]] || 1.0;
-  }
-  
-  // Get mood multiplier for training
-  getMoodMultiplier() {
-    const moodMap = {
-      'great': 1.2,
-      'good': 1.0,
-      'normal': 0.9,
-      'bad': 0.7
-    };
-    return moodMap[this.condition.mood] || 1.0;
-  }
-  
-  // Get friendship bonus multiplier
+  /**
+   * Get friendship bonus multiplier
+   */
   getFriendshipBonus() {
     if (this.friendship >= 80) return 1.5;
     if (this.friendship >= 60) return 1.2;
@@ -106,49 +88,52 @@ class Character {
     return 1.0;
   }
   
-  // Increase a stat with all modifiers applied
+  /**
+   * Increase a stat with all modifiers applied
+   * Enhanced version with friendship bonus for player horses
+   */
   increaseStat(statName, baseGain) {
-    const growthMultiplier = this.getGrowthMultiplier(statName);
+    if (!this.stats.hasOwnProperty(statName)) {
+      console.warn(`Warning: Invalid stat "${statName}" - skipping stat increase`);
+      return 0;
+    }
+
+    // Get all multipliers
+    const growthMultiplier = this.getGrowthMultiplier(this.growthRates[statName]);
     const moodMultiplier = this.getMoodMultiplier();
     const friendshipBonus = this.getFriendshipBonus();
     
+    // Calculate final gain
     const finalGain = Math.round(baseGain * growthMultiplier * moodMultiplier * friendshipBonus);
     const randomVariance = Math.random() * 0.4 + 0.8; // ±20% variance
-    const actualGain = Math.round(finalGain * randomVariance);
+    const actualGain = Math.max(1, Math.round(finalGain * randomVariance));
     
+    // Apply the gain (capped at 100)
+    const oldValue = this.stats[statName];
     this.stats[statName] = Math.min(100, this.stats[statName] + actualGain);
     this.career.totalTraining++;
     
-    return actualGain;
+    return this.stats[statName] - oldValue; // Return actual gain
   }
   
-  // Modify energy
-  changeEnergy(amount) {
-    this.condition.energy = Math.max(0, Math.min(100, this.condition.energy + amount));
-    
-    // Update mood based on energy level
-    if (this.condition.energy >= 80) {
-      this.condition.mood = 'great';
-    } else if (this.condition.energy >= 60) {
-      this.condition.mood = 'good';  
-    } else if (this.condition.energy >= 30) {
-      this.condition.mood = 'normal';
-    } else {
-      this.condition.mood = 'bad';
-    }
-  }
-  
-  // Increase friendship
+  /**
+   * Increase friendship
+   */
   increaseFriendship(amount) {
     this.friendship = Math.min(100, this.friendship + amount);
+    return this.friendship;
   }
   
-  // Check if character can continue career
+  /**
+   * Check if character can continue career
+   */
   canContinue() {
     return this.career.turn <= this.career.maxTurns && this.condition.health > 0;
   }
   
-  // Advance to next turn
+  /**
+   * Advance to next turn
+   */
   nextTurn() {
     if (this.canContinue()) {
       this.career.turn++;
@@ -156,35 +141,54 @@ class Character {
     }
     return false;
   }
+
+  /**
+   * Record race completion
+   */
+  completeRace(position, fieldSize) {
+    this.career.racesRun++;
+    if (position === 1) {
+      this.career.racesWon++;
+    }
+    
+    // Apply race effects from parent class
+    this.applyRaceEffects(position, fieldSize);
+  }
   
-  // Get character summary for display
+  /**
+   * Get character summary for display
+   * Enhanced version with player-specific data
+   */
   getSummary() {
-    const currentStats = this.getCurrentStats();
+    const baseSummary = super.getSummary();
     return {
-      name: this.name,
-      stats: currentStats,
-      condition: { ...this.condition },
-      career: { ...this.career },
+      ...baseSummary,
       friendship: this.friendship,
-      canContinue: this.canContinue()
+      career: { ...this.career },
+      legacyBonuses: { ...this.legacyBonuses },
+      canContinue: this.canContinue(),
+      friendshipBonus: this.getFriendshipBonus()
     };
   }
   
-  // Serialize for save system
+  /**
+   * Serialize for save system
+   * Enhanced version with player-specific data
+   */
   toJSON() {
+    const baseData = super.toJSON();
     return {
-      id: this.id,
-      name: this.name,
-      stats: { ...this.stats },
-      condition: { ...this.condition },
-      growthRates: { ...this.growthRates },
+      ...baseData,
+      type: 'character', // Override to specify this is a player character
       friendship: this.friendship,
       career: { ...this.career },
       legacyBonuses: { ...this.legacyBonuses }
     };
   }
   
-  // Deserialize from save data
+  /**
+   * Deserialize from save data
+   */
   static fromJSON(data) {
     return new Character(data.name, {
       id: data.id,
@@ -197,9 +201,39 @@ class Character {
       speedGrowth: data.growthRates.speed,
       staminaGrowth: data.growthRates.stamina,
       powerGrowth: data.growthRates.power,
+      strategy: data.strategy,
+      created: data.created,
       friendship: data.friendship,
+      career: data.career,
       legacyBonuses: data.legacyBonuses
     });
+  }
+
+  /**
+   * Validate character data
+   * Enhanced version with player-specific validation
+   */
+  validate() {
+    const baseValidation = super.validate();
+    const errors = [...baseValidation.errors];
+    
+    // Player-specific validation
+    if (this.friendship < 0 || this.friendship > 100) {
+      errors.push('Invalid friendship: must be 0-100');
+    }
+    
+    if (this.career.turn < 1 || this.career.turn > this.career.maxTurns) {
+      errors.push('Invalid career turn');
+    }
+    
+    if (this.career.racesWon > this.career.racesRun) {
+      errors.push('Cannot have more races won than races run');
+    }
+    
+    return {
+      valid: errors.length === 0,
+      errors: errors
+    };
   }
 }
 

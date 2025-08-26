@@ -23,7 +23,10 @@
       "Bash(timeout 10s npm start)",
       "Bash(timeout 8s npm start)",
       "Bash(grep:*)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(find:*)",
+      "WebSearch",
+      "Bash(gtimeout:*)"
     ],
     "deny": [],
     "ask": []

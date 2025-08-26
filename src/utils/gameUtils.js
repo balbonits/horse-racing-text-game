@@ -14,21 +14,21 @@ const validation = {
     if (!name || name.trim().length === 0) {
       return {
         valid: false,
-        message: 'Name must be 1-20 alphanumeric characters'
+        message: 'Name must be 1-20 characters'
       };
     }
 
     if (name.length > 20) {
       return {
         valid: false,
-        message: 'Name must be 1-20 alphanumeric characters'
+        message: 'Name must be 1-20 characters'
       };
     }
 
-    if (!/^[a-zA-Z0-9]+$/.test(name)) {
+    if (!/^[a-zA-Z0-9\s'-]+$/.test(name)) {
       return {
         valid: false,
-        message: 'Name must be 1-20 alphanumeric characters'
+        message: 'Name must be 1-20 characters (letters, numbers, spaces, apostrophes, hyphens)'
       };
     }
 

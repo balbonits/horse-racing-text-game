@@ -1,7 +1,11 @@
 /**
  * NPH (Non-Player Horse) Roster Management
  * Handles generation, progression, and persistence of rival horses
+ * Now uses the NPH class instead of plain objects
  */
+
+const NPH = require('./NPH');
+const NameGenerator = require('../utils/NameGenerator');
 
 class NPHRoster {
   constructor(careerId = null) {
@@ -10,12 +14,20 @@ class NPHRoster {
     this.playerHorseName = null;
     this.currentTurn = 1;
     this.raceHistory = [];
+    this.nameGenerator = new NameGenerator();
   }
 
   /**
    * Generate a new roster of NPH horses at career start
    */
   generateRoster(playerHorse, rosterSize = 24) {
+    if (!playerHorse) {
+      throw new Error('Player horse is null or undefined');
+    }
+    if (!playerHorse.name) {
+      throw new Error(`Player horse exists but has no name. Horse: ${JSON.stringify(playerHorse)}`);
+    }
+    
     this.playerHorseName = playerHorse.name;
     this.nphs = [];
 
@@ -38,7 +50,7 @@ class NPHRoster {
   }
 
   /**
-   * Generate a single NPH with balanced stats and personality
+   * Generate a single NPH using the NPH class
    */
   generateNPH(index, playerBaseline) {
     // Power distribution around player baseline
@@ -49,18 +61,23 @@ class NPHRoster {
     const stats = this.distributeStats(targetPower);
     const strategy = this.assignStrategy(stats);
     const trainingPattern = this.assignTrainingPattern(strategy);
+    const growthRates = this.assignGrowthRates();
 
-    return {
-      id: `nph_${String(index + 1).padStart(3, '0')}`,
-      name: this.generateName(),
-      stats: stats,
-      strategy: strategy,           // Fixed for entire career
-      trainingPattern: trainingPattern, // AI behavior pattern
-      personality: this.generatePersonality(),
-      history: {},                 // Turn-by-turn progression
-      raceResults: [],            // Race performance history
-      created: Date.now()
-    };
+    // Create NPH instance with all the data
+    const nph = new NPH(this.nameGenerator.generateName(), {
+      index: index,
+      speed: stats.speed,
+      stamina: stats.stamina,
+      power: stats.power,
+      strategy: strategy,
+      trainingPattern: trainingPattern,
+      speedGrowth: growthRates.speed,
+      staminaGrowth: growthRates.stamina,
+      powerGrowth: growthRates.power,
+      personality: this.generatePersonality()
+    });
+
+    return nph;
   }
 
   /**
@@ -117,8 +134,21 @@ class NPHRoster {
       'LATE': ['stamina_focus', 'endurance_build', 'late_surge']
     };
 
-    const options = patterns[strategy];
+    const options = patterns[strategy] || patterns['MID'];
     return options[Math.floor(Math.random() * options.length)];
+  }
+
+  /**
+   * Assign growth rates for NPH
+   */
+  assignGrowthRates() {
+    const grades = ['S', 'A', 'B', 'B', 'C', 'C', 'D']; // Weighted toward average
+    
+    return {
+      speed: grades[Math.floor(Math.random() * grades.length)],
+      stamina: grades[Math.floor(Math.random() * grades.length)],
+      power: grades[Math.floor(Math.random() * grades.length)]
+    };
   }
 
   /**
@@ -147,15 +177,14 @@ class NPHRoster {
     this.currentTurn = currentTurn;
     
     this.nphs.forEach(nph => {
-      const trainingResult = this.simulateNPHTraining(nph, currentTurn);
+      // Let the NPH decide its training
+      const trainingType = nph.selectTraining(currentTurn, this.getUpcomingRace(currentTurn));
       
-      // Store history
-      nph.history[`turn${currentTurn}`] = {
-        stats: { ...nph.stats },
-        training: trainingResult.type,
-        gain: trainingResult.gain,
-        timestamp: Date.now()
-      };
+      // Apply the training
+      const trainingResult = nph.applyTraining(trainingType);
+      
+      // Record the training in NPH history
+      nph.recordTraining(currentTurn, trainingResult);
 
       if (process.env.NODE_ENV !== 'test') {
         console.log(`  ${nph.name}: ${trainingResult.type} (+${trainingResult.gain} ${trainingResult.stat})`);
@@ -164,100 +193,37 @@ class NPHRoster {
   }
 
   /**
-   * Simulate AI training decision and stat gain
+   * Get upcoming race information for training decisions
    */
-  simulateNPHTraining(nph, turn) {
-    const pattern = nph.trainingPattern;
-    const strategy = nph.strategy;
-    const currentStats = nph.stats;
+  getUpcomingRace(currentTurn) {
+    // This would ideally come from the game's race schedule
+    // For now, use default race schedule knowledge
+    const raceSchedule = [
+      { turn: 4, type: 'SPRINT' },
+      { turn: 8, type: 'MILE' },
+      { turn: 12, type: 'MEDIUM' }
+    ];
     
-    // Determine training focus based on pattern and turn
-    let trainingType = this.selectTraining(pattern, strategy, turn, currentStats);
-    
-    // Apply training result
-    const result = this.applyTraining(nph, trainingType);
-    
-    return result;
-  }
-
-  /**
-   * AI training selection logic
-   */
-  selectTraining(pattern, strategy, turn, stats) {
-    // Race preparation logic
-    if (turn === 3) { // Before first race (sprint)
-      if (strategy === 'FRONT') return 'speed';
-      if (strategy === 'LATE') return 'power';
-      return 'speed'; // Default sprint prep
+    const nextRace = raceSchedule.find(race => race.turn > currentTurn);
+    if (nextRace) {
+      return {
+        raceType: nextRace.type,
+        turnsUntilRace: nextRace.turn - currentTurn
+      };
     }
     
-    if (turn === 7) { // Before mile race
-      return 'stamina'; // Everyone needs stamina for mile
-    }
-    
-    if (turn === 11) { // Before championship
-      if (strategy === 'LATE') return 'stamina';
-      return 'stamina'; // Long race prep
-    }
-
-    // Pattern-based training
-    switch (pattern) {
-      case 'speed_focus':
-        return Math.random() > 0.3 ? 'speed' : 'power';
-      case 'stamina_focus':
-        return Math.random() > 0.3 ? 'stamina' : (Math.random() > 0.5 ? 'rest' : 'stamina');
-      case 'power_focus':
-        return Math.random() > 0.3 ? 'power' : 'speed';
-      case 'balanced':
-        const options = ['speed', 'stamina', 'power'];
-        return options[Math.floor(Math.random() * options.length)];
-      case 'endurance_build':
-        return Math.random() > 0.4 ? 'stamina' : 'rest';
-      default:
-        return 'stamina'; // Safe default
-    }
-  }
-
-  /**
-   * Apply training and calculate stat gain
-   */
-  applyTraining(nph, trainingType) {
-    const baseGains = {
-      speed: { speed: 3, stamina: 1, power: 1 },
-      stamina: { speed: 1, stamina: 3, power: 1 },
-      power: { speed: 1, stamina: 1, power: 3 },
-      rest: { speed: 0, stamina: 1, power: 0 } // Recovery training
-    };
-
-    const gains = baseGains[trainingType] || baseGains.stamina;
-    
-    // Add some variation (-1 to +2)
-    const variation = this.randomRange(-1, 2);
-    
-    // Apply gains to NPH stats
-    Object.keys(gains).forEach(stat => {
-      if (gains[stat] > 0) {
-        const actualGain = Math.max(1, gains[stat] + variation);
-        nph.stats[stat] = Math.min(100, nph.stats[stat] + actualGain);
-      }
-    });
-
-    // Return training result
-    const primaryStat = Object.keys(gains).find(stat => gains[stat] === 3) || 'stamina';
-    return {
-      type: trainingType,
-      stat: primaryStat,
-      gain: gains[primaryStat] + variation
-    };
+    return null;
   }
 
   /**
    * Get competitive field for a race
    */
   getRaceField(fieldSize = 7) {
-    // Sort NPHs by current power level
+    // Sort NPHs by current power level and racing readiness
     const sortedNPHs = [...this.nphs].sort((a, b) => {
-      return this.calculateHorsePower(b) - this.calculateHorsePower(a);
+      const aPower = a.getTotalPower() * a.getRacingReadiness();
+      const bPower = b.getTotalPower() * b.getRacingReadiness();
+      return bPower - aPower;
     });
 
     // Select varied field (mix of strong and weak horses)
@@ -281,17 +247,10 @@ class NPHRoster {
    */
   recordRaceResults(raceResults, raceInfo) {
     raceResults.forEach((result, index) => {
-      if (result.type === 'nph') {
+      if (result.type === 'nph' && result.horseId) {
         const nph = this.nphs.find(n => n.id === result.horseId);
         if (nph) {
-          nph.raceResults.push({
-            turn: this.currentTurn,
-            raceName: raceInfo.name,
-            position: index + 1,
-            time: result.time,
-            performance: result.performance,
-            strategy: result.strategy
-          });
+          nph.recordRaceResult(raceInfo, index + 1, result.time, result.performance);
         }
       }
     });
@@ -306,10 +265,50 @@ class NPHRoster {
   }
 
   /**
+   * Get roster statistics
+   */
+  getRosterStats() {
+    if (this.nphs.length === 0) return null;
+    
+    const stats = this.nphs.reduce((acc, nph) => {
+      const summary = nph.getSummary();
+      acc.totalPower += summary.totalPower;
+      acc.totalRaces += summary.raceCount;
+      acc.strategies[summary.strategy] = (acc.strategies[summary.strategy] || 0) + 1;
+      acc.patterns[summary.trainingPattern] = (acc.patterns[summary.trainingPattern] || 0) + 1;
+      
+      if (summary.averagePosition) {
+        acc.totalPositions += summary.averagePosition;
+        acc.horsesWithRaces++;
+      }
+      
+      return acc;
+    }, {
+      totalPower: 0,
+      totalRaces: 0,
+      totalPositions: 0,
+      horsesWithRaces: 0,
+      strategies: {},
+      patterns: {}
+    });
+    
+    return {
+      count: this.nphs.length,
+      averagePower: Math.round(stats.totalPower / this.nphs.length),
+      totalRaces: stats.totalRaces,
+      averagePosition: stats.horsesWithRaces > 0 ? 
+        Math.round((stats.totalPositions / stats.horsesWithRaces) * 10) / 10 : null,
+      strategyDistribution: stats.strategies,
+      patternDistribution: stats.patterns
+    };
+  }
+
+  /**
    * Utility methods
    */
   calculateHorsePower(horse) {
-    return horse.stats.speed + horse.stats.stamina + horse.stats.power;
+    const stats = horse.getCurrentStats ? horse.getCurrentStats() : horse.stats;
+    return stats.speed + stats.stamina + stats.power;
   }
 
   randomRange(min, max) {
@@ -320,24 +319,6 @@ class NPHRoster {
     return `career_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
-  generateName() {
-    const prefixes = [
-      'Thunder', 'Lightning', 'Storm', 'Wind', 'Fire', 'Ice', 'Shadow', 'Light',
-      'Golden', 'Silver', 'Crimson', 'Azure', 'Jade', 'Ruby', 'Diamond', 'Star',
-      'Wild', 'Noble', 'Brave', 'Swift', 'Mighty', 'Royal', 'Dancing', 'Flying'
-    ];
-    
-    const suffixes = [
-      'Strike', 'Bolt', 'Dash', 'Arrow', 'Blade', 'Wing', 'Heart', 'Soul',
-      'Runner', 'Racer', 'Champion', 'Legend', 'Spirit', 'Dream', 'Hope', 'Glory',
-      'Knight', 'Prince', 'King', 'Queen', 'Star', 'Moon', 'Sun', 'Dawn'
-    ];
-
-    const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-    const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
-    
-    return `${prefix} ${suffix}`;
-  }
 
   /**
    * Serialization for save/load
@@ -347,19 +328,43 @@ class NPHRoster {
       careerId: this.careerId,
       playerHorseName: this.playerHorseName,
       currentTurn: this.currentTurn,
-      nphs: this.nphs,
+      nphs: this.nphs.map(nph => nph.toJSON()), // Use NPH's toJSON method
       raceHistory: this.raceHistory,
-      version: '1.0.0',
+      version: '2.0.0',
       timestamp: Date.now()
     };
   }
 
+  /**
+   * Deserialize from save data
+   */
   static fromJSON(data) {
     const roster = new NPHRoster(data.careerId);
     roster.playerHorseName = data.playerHorseName;
     roster.currentTurn = data.currentTurn || 1;
-    roster.nphs = data.nphs || [];
     roster.raceHistory = data.raceHistory || [];
+    
+    // Convert saved NPH data back to NPH instances
+    roster.nphs = (data.nphs || []).map(nphData => {
+      if (nphData.type === 'nph') {
+        // New format with NPH class
+        return NPH.fromJSON(nphData);
+      } else {
+        // Legacy format - convert plain object to NPH
+        return new NPH(nphData.name, {
+          id: nphData.id,
+          speed: nphData.stats.speed,
+          stamina: nphData.stats.stamina,
+          power: nphData.stats.power,
+          strategy: nphData.strategy,
+          trainingPattern: nphData.trainingPattern,
+          personality: nphData.personality,
+          history: nphData.history || {},
+          raceResults: nphData.raceResults || []
+        });
+      }
+    });
+    
     return roster;
   }
 }
