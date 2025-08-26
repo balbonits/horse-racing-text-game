@@ -36,9 +36,12 @@ describe('Complete Career Integration', () => {
       
       let actionIndex = 0;
       
-      // Simulate career progression
-      while (character.career.turn <= 12 && actionIndex < trainingActions.length) {
-        const action = trainingActions[actionIndex] || 'speed';
+      // Simulate career progression with energy management
+      while (character.career.turn <= 12) {
+        // Choose action based on energy, otherwise cycle through planned actions
+        const plannedAction = trainingActions[actionIndex % trainingActions.length];
+        const action = character.condition.energy < 20 ? 'rest' : plannedAction;
+        
         const result = turnController.processTurn(action);
         
         if (result.raceTriggered) {
@@ -106,6 +109,8 @@ describe('Complete Career Integration', () => {
         gameState.transition('race_preview');
         expect(gameState.is('race_preview')).toBe(true);
         
+        gameState.transition('race_lineup');
+        gameState.transition('race_animation');
         gameState.transition('race_results');
         gameState.transition('training');
         expect(gameState.is('training')).toBe(true);
@@ -153,7 +158,7 @@ describe('Complete Career Integration', () => {
     test('should maintain data integrity across all operations', () => {
       const operations = ['speed', 'rest', 'stamina', 'power', 'social'];
       
-      operations.forEach(operation => {
+      for (const operation of operations) {
         const preOpTurn = character.career.turn;
         const preOpStats = { ...character.stats };
         
@@ -178,7 +183,7 @@ describe('Complete Career Integration', () => {
         }
         
         if (character.career.turn > 12) break;
-      });
+      }
     });
   });
 
