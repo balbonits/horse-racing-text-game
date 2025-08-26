@@ -316,6 +316,28 @@ node src/app.js          # Direct game launch
 - Clean up blessed components properly
 - Optimize race calculations for multiple simulations
 
+## Recent Major Updates ✅
+
+### Career Completion & Grading System (August 26, 2025)
+- **Career Grading**: S/A/B/C/D/F grades based on race performance (40%), placements (20%), stat development (30%), friendship (10%)
+- **Achievement System**: Perfect Record, Champion, Elite Athlete, Best Friends, Training Fanatic awards
+- **Dedicated Career Screen**: Separate completion screen with full career summary
+- **Enhanced Progress Bars**: Unicode █░ characters for better visual appeal
+- **Energy Display Fix**: Shows integers (24/100) instead of decimals (23.977/100)
+
+### Race Progression System Fixes (August 26, 2025)
+- **State Transition Bug**: Fixed race_running → race_results → career_complete flow
+- **Race Animation Cleanup**: Proper instance management prevents state conflicts between races
+- **Input Handling**: Fixed stuck race strategy selection for races 2, 3, and 4
+- **3,4,5,8 Pattern**: Career now properly schedules races on turns 4, 9, 15, 24
+- **Extended Careers**: Character maxTurns increased from 12 to 24 turns
+
+### CareerManager Architecture (August 26, 2025)
+- **Flexible Configuration**: `createCareer(playerHorse, nphs, races, training)` with 4 parameters
+- **Pattern Support**: Single numbers (uniform) or arrays (custom like [3,4,5,8])
+- **Race Generation**: Automatic race creation or custom race configurations
+- **Timeline Integration**: Proper race scheduling with career-specific timelines
+
 ## Recent Bug Fixes (All Resolved ✅)
 
 ### Race System Issues
