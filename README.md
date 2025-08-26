@@ -25,10 +25,17 @@ npm run dev
 **Core Experience**: 15-minute strategic sessions with addictive "one more run" gameplay.
 
 ### Game Flow
-1. **Character Creation** - Name your horse and begin your career
-2. **Training Phase** - 12 turns of strategic training choices
-3. **Racing Events** - Compete in 3 scheduled races to prove your progress
+1. **Character Creation** - Name your horse (with realistic name generator) and begin your career
+2. **Training Phase** - 12 turns of strategic training choices against intelligent AI rivals
+3. **Racing Events** - Compete in 3 scheduled races with sophisticated NPH competitors
 4. **Career Completion** - Earn legacy bonuses for your next run
+
+### Key Features
+- **🏇 Shared Horse Architecture**: Unified system for player and AI horses with consistent mechanics
+- **🤖 Intelligent NPH System**: 24 rival horses with unique training patterns, strategies, and personalities
+- **📝 Realistic Name Generation**: Authentic racehorse names following Jockey Club conventions
+- **🎯 Strategic Racing**: Different race types favor different stat combinations and strategies  
+- **💾 Robust Save System**: Compatible with legacy saves while supporting enhanced features
 
 ### Core Stats System
 - **Speed** (1-100): Sprint performance and final stretch power
@@ -93,6 +100,25 @@ Final Result = Performance × Energy Factor × Mood × Random Variance
 - **Good**: Slightly soft (98% performance)  
 - **Soft**: Slower ground (95% performance)
 - **Heavy**: Muddy and challenging (90% performance)
+
+## 🏗️ Technical Architecture
+
+### Horse Class System
+- **Base Horse Class**: Shared functionality for all horses (stats, conditions, racing mechanics)
+- **Character Class**: Player horses extending Horse with friendship and career progression
+- **NPH Class**: AI horses extending Horse with training patterns and strategies
+
+### NPH (Non-Player Horse) AI System
+- **Training Patterns**: 6 unique AI behaviors (speed_focus, stamina_focus, balanced, etc.)
+- **Racing Strategies**: Front runner, stalker, and closer styles affecting race performance
+- **Personalities**: 8 personality types influencing training and racing decisions
+- **Intelligence**: NPH horses make strategic decisions based on upcoming races
+
+### Name Generation System
+- **10 Naming Patterns**: Prefix-suffix, alliterative, possessive, location-based, etc.
+- **Jockey Club Compliance**: 18-character limit, prohibited terms, validation rules
+- **Style Options**: Classic, modern, powerful, elegant, and speed-focused names
+- **Pedigree Naming**: Generate names based on parent horse names
 
 ## 🧪 Development & Testing
 
