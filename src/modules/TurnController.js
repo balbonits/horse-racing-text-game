@@ -109,8 +109,8 @@ class TurnController {
         const result = this.processTurn(trainingType);
         results.push(result);
         
-        // Stop if career is complete (beyond turn 12)
-        if (this.character.career.turn > 12) {
+        // Stop if career is complete (beyond maxTurns)
+        if (this.character.career.turn > this.character.career.maxTurns) {
           break;
         }
       } catch (error) {
@@ -165,12 +165,12 @@ class TurnController {
 
     return {
       currentTurn: this.character.career.turn,
-      totalTurns: 12,
+      totalTurns: this.character.career.maxTurns,
       racesCompleted: completedRaces.length,
       totalRaces: this.timeline.getTotalRaces(),
       racesRemaining: upcomingRaces.length,
       nextRace: upcomingRaces[0] || null,
-      isCareerComplete: this.character.career.turn > 12
+      isCareerComplete: this.character.career.turn > this.character.career.maxTurns
     };
   }
 

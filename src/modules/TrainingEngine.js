@@ -144,11 +144,11 @@ class TrainingEngine {
       character.stats.power = Math.min(100, character.stats.power + gains.power);
     }
 
-    // Apply energy changes
+    // Apply energy changes (always round to integers)
     if (trainingType === 'rest') {
-      character.condition.energy = Math.min(100, character.condition.energy + gains.energy);
+      character.condition.energy = Math.round(Math.min(100, character.condition.energy + gains.energy));
     } else {
-      character.condition.energy = Math.max(0, character.condition.energy - config.energyCost);
+      character.condition.energy = Math.round(Math.max(0, character.condition.energy - config.energyCost));
     }
 
     // Apply mood improvements for stat training

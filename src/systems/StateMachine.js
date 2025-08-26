@@ -187,27 +187,44 @@ class StateMachine {
       'race_running': {
         transitions: ['race_results'],
         inputs: {
-          'auto': 'race_results' // Animation handles transition
+          'auto': 'race_results', // Animation handles transition
+          'enter': 'race_results', // Fast forward with enter key
+          '': 'race_results' // Fast forward with empty input (enter)
         },
         metadata: {
           allowEmpty: true,
-          description: 'Race in progress',
+          description: 'Race in progress - Press ENTER to fast forward',
           backEnabled: false,
           autoProgress: 'race_results'
         }
       },
       
       'race_results': {
-        transitions: ['training', 'career_complete'],
+        transitions: ['training', 'career_complete', 'main_menu'],
         inputs: {
-          'enter': 'training',
-          '': 'training'
+          'enter': (input, context, stateMachine) => {
+            // Check if career is complete (all races finished)
+            const racesCompleted = context.game?.character?.career?.racesRun || 0;
+            const totalRaces = 4; // We have 4 races in the career
+            if (racesCompleted >= totalRaces) {
+              return stateMachine.transitionTo('career_complete', context);
+            }
+            return stateMachine.transitionTo('training', context);
+          },
+          '': (input, context, stateMachine) => {
+            // Check if career is complete (all races finished)
+            const racesCompleted = context.game?.character?.career?.racesRun || 0;
+            const totalRaces = 4; // We have 4 races in the career
+            if (racesCompleted >= totalRaces) {
+              return stateMachine.transitionTo('career_complete', context);
+            }
+            return stateMachine.transitionTo('training', context);
+          }
         },
         metadata: {
           allowEmpty: true,
           description: 'Combined race results and ceremony',
-          backEnabled: false,
-          autoProgress: 'training'
+          backEnabled: false
         }
       },
       
@@ -225,6 +242,19 @@ class StateMachine {
         }
       },
       
+      'career_complete': {
+        transitions: ['main_menu'],
+        inputs: {
+          'enter': 'main_menu',
+          '': 'main_menu'
+        },
+        metadata: {
+          allowEmpty: true,
+          description: 'Career completion summary',
+          backEnabled: false
+        }
+      },
+
       'help': {
         transitions: ['training', 'main_menu'],
         inputs: {

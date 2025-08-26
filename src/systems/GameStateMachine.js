@@ -145,7 +145,13 @@ class GameStateMachine extends StateMachine {
    * Enhanced input handling with game context
    */
   processGameInput(input) {
-    const result = this.handleInput(input);
+    // Pass game context for function handlers
+    const context = {
+      game: this.gameApp.game,
+      gameApp: this.gameApp
+    };
+    
+    const result = this.handleInput(input, context);
     
     // Handle strategy selection data
     if (result.success && result.data) {

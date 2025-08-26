@@ -21,6 +21,12 @@ class GameApp {
     this.characterNameBuffer = '';
     this.nameOptions = [];
     
+    // Career data structures - established at career start
+    this.careerConfig = null;      // Career configuration (turns, races, training pattern)
+    this.careerNPHs = null;        // All rival horses for this career
+    this.careerRaces = null;       // All race configurations for this career
+    this.careerTimeline = null;    // Race schedule timeline
+    
     // Initialize state machine
     this.stateMachine.reset('main_menu');
     
@@ -60,8 +66,9 @@ class GameApp {
     // Handle line input
     this.rl.on('line', (input) => {
       const trimmed = input.trim();
-      // Allow empty input (ENTER key) for race states and other navigation
-      if (trimmed || this.isNavigationState()) {
+      
+      // Always process non-empty input, allow empty input for navigation states
+      if (trimmed !== '' || this.isNavigationState()) {
         this.handleKeyInput(trimmed || 'enter');
       }
     });
@@ -91,11 +98,18 @@ class GameApp {
         if (result.availableInputs) {
           console.log(`💡 Available inputs: ${result.availableInputs.join(', ')}`);
         }
+        // Re-render the current state to refresh the screen
+        this.render();
+      } else {
+        // If successful, render the new state
+        this.render();
       }
       
       return result;
     } catch (error) {
       this.displayError(`Input error: ${error.message}`);
+      // Re-render on error
+      this.render();
       return { success: false, message: 'Input error' };
     }
   }
@@ -181,6 +195,11 @@ class GameApp {
       const gameResult = this.game.startNewGameSync(name.trim());
       
       if (gameResult.success) {
+        // Store all career data structures for gameplay
+        this.careerConfig = gameResult.career;
+        this.careerNPHs = this.game.nphRoster.nphs;
+        this.careerRaces = this.game.timeline.getRaceScheduleSummary();
+        this.careerTimeline = this.game.timeline;
         this.setState('training');
       } else {
         console.log('❌ Game creation failed:', gameResult);
@@ -201,16 +220,35 @@ class GameApp {
     return this.game.getGameStatus().trainingOptions;
   }
 
+  /**
+   * Get energy cost for a training type
+   */
+  getTrainingEnergyCost(trainingType) {
+    const costs = {
+      'speed': 15,
+      'stamina': 10,
+      'power': 15,
+      'rest': 0,
+      'social': 5
+    };
+    return costs[trainingType] || 0;
+  }
+
   performTrainingSync(trainingType) {
     try {
       if (!this.game.character) {
         return result.failure('No active character');
       }
 
-      // Check energy using DRY utility
-      if (!energy.hasEnoughEnergy(this.game.character.energy, trainingType)) {
-        this.ui.updateStatus('Not enough energy! You need rest.');
-        return result.failure('Not enough energy! You need rest.');
+      // Check energy requirements with clear warning
+      const energyRequired = this.getTrainingEnergyCost(trainingType);
+      const currentEnergy = this.game.character.condition.energy;
+      
+      if (currentEnergy < energyRequired) {
+        const warningMsg = `❌ Not enough energy! You need ${energyRequired} energy but only have ${currentEnergy}. Try Rest Day to recover energy.`;
+        console.log(warningMsg);
+        console.log('Press ENTER to continue...');
+        return result.failure(warningMsg);
       }
 
       // Perform the training synchronously
@@ -509,9 +547,9 @@ class GameApp {
         ['strategy_select', () => this.renderStrategySelect()],
         ['race_running', () => this.renderRaceRunning()],
         ['race_results', () => this.renderRaceResults()],
+        ['career_complete', () => this.renderCareerComplete()],
         ['podium', () => this.renderPodium()],
-        ['help', () => this.renderHelp()],
-        ['career_complete', () => this.renderCareerComplete()]
+        ['help', () => this.renderHelp()]
       ]);
       
       const renderHandler = renderHandlers.get(currentState);
@@ -541,12 +579,29 @@ class GameApp {
       return;
     }
 
-    this.ui.showTraining(this.game.character);
+    // Get proper next race info from the game system
+    const nextRace = this.game.getNextRace();
+    this.ui.showTraining(this.game.character, nextRace);
   }
 
   renderRaceResults() {
+    // Clean up race animation now that race is complete
+    if (this.raceAnimation) {
+      this.raceAnimation.cleanup();
+      this.raceAnimation = null;
+    }
+    
     if (this.currentRaceResult) {
       this.ui.showRaceResults(this.currentRaceResult);
+      
+      // Check if this was the final race and prepare career completion data
+      const isLastRace = this.careerRaces && 
+                         this.game.character.career.racesRun >= this.careerRaces.length;
+      
+      if (isLastRace) {
+        // Store career summary for the dedicated career complete screen
+        this.careerSummary = this.generateCareerSummary();
+      }
     }
   }
 
@@ -560,15 +615,14 @@ class GameApp {
     });
   }
 
-  renderHelp() {
-    this.ui.showHelp();
+  renderCareerComplete() {
+    if (this.careerSummary) {
+      this.ui.showCareerCompletion(this.careerSummary);
+    }
   }
 
-  renderCareerComplete() {
-    if (this.game.character) {
-      const finalGrade = this.calculateFinalGrade();
-      this.ui.showCareerComplete(this.game.character, finalGrade);
-    }
+  renderHelp() {
+    this.ui.showHelp();
   }
 
   calculateFinalGrade() {
@@ -705,14 +759,15 @@ class GameApp {
 
   // New race flow render methods
   renderRacePreview() {
+    // Ensure we have fresh race data
+    this.refreshCurrentRaceData();
+    this.raceField = null; // Reset race field for new race
     this.ui.showRacePreview(this.upcomingRace, this.game.character);
   }
 
   renderHorseLineup() {
-    // Generate competition field
-    if (!this.raceField) {
-      this.raceField = this.generateRaceField();
-    }
+    // Generate fresh competition field for this race
+    this.raceField = this.generateRaceField();
     this.ui.showHorseLineup(this.raceField, this.game.character);
   }
 
@@ -721,9 +776,38 @@ class GameApp {
   }
 
   renderRaceRunning() {
-    // This will be handled with animation timing
+    // Ensure we have fresh race data for the current turn
+    this.refreshCurrentRaceData();
+    
+    // Start race animation if not already running
     if (!this.raceAnimation) {
       this.startRaceAnimation();
+    }
+  }
+
+  /**
+   * Refresh race data for current turn to prevent stale data issues
+   */
+  refreshCurrentRaceData() {
+    if (!this.game.character) return;
+    
+    // Get current race data from Timeline (this is the race for THIS turn)
+    const currentTurn = this.game.character.career.turn;
+    const currentRace = this.game.timeline.getRaceDetails(currentTurn);
+    
+    if (currentRace) {
+      this.upcomingRace = {
+        name: currentRace.name,
+        type: currentRace.type,
+        surface: currentRace.surface,
+        distance: currentRace.distance,
+        turn: currentRace.turn,
+        description: currentRace.description
+      };
+      
+      // Race data refreshed silently
+    } else {
+      console.warn(`⚠️ No race data found for turn ${currentTurn}`);
     }
   }
 
@@ -734,12 +818,23 @@ class GameApp {
   }
 
   generateRaceField() {
-    // Use the existing NPH roster to create realistic competition
+    // Use the pre-established career NPH data for consistent competition
+    if (this.careerNPHs && this.careerNPHs.length > 0) {
+      // Select a subset for this race (typically 7 competitors)
+      const fieldSize = Math.min(7, this.careerNPHs.length);
+      return this.careerNPHs.slice(0, fieldSize).map(horse => ({
+        name: horse.name,
+        stats: horse.getCurrentStats(),
+        icon: horse.icon || '🐎'
+      }));
+    }
+    
+    // Fallback to NPH roster if available
     if (this.game.nphRoster) {
       return this.game.nphRoster.getRaceField(7);
     }
     
-    // Fallback to simple AI generation
+    // Last resort fallback
     const field = [];
     for (let i = 0; i < 7; i++) {
       field.push({
@@ -756,7 +851,7 @@ class GameApp {
   }
 
   startRaceAnimation() {
-    // This will run the animated race progression
+    // Create race animation instance
     this.raceAnimation = new RaceAnimation(
       this.raceField,
       this.game.character,
@@ -770,13 +865,135 @@ class GameApp {
       this.isRaceAnimationRunning = false;
       this.currentRaceResult = result;
       
-      // Check if career is complete after race
-      if (this.game.character.career.turn >= this.game.character.career.maxTurns) {
-        this.setState('career_complete');
-      } else {
-        this.setState('race_results');
-      }
+      // Complete the race and update character stats
+      const playerPosition = result.results.findIndex(r => r.participant.isPlayer) + 1;
+      this.game.character.completeRace(playerPosition, result.results.length);
+      
+      // Advance to next turn after race
+      this.game.character.career.turn++;
+      
+      // Always go to race_results first, then check career completion there
+      this.setState('race_results');
     });
+  }
+
+  /**
+   * Generate career summary and grade for the player horse
+   */
+  generateCareerSummary() {
+    const character = this.game.character;
+    const raceResults = this.game.getRaceResults();
+    
+    // Calculate career statistics
+    const stats = {
+      finalStats: character.getCurrentStats(),
+      startingStats: { speed: 20, stamina: 20, power: 20 }, // Default starting stats
+      racesWon: character.career.racesWon,
+      racesRun: character.career.racesRun,
+      totalTraining: character.career.totalTraining,
+      friendship: character.friendship
+    };
+    
+    // Calculate grade based on performance
+    const grade = this.calculateCareerGrade(stats, raceResults);
+    
+    return {
+      stats: stats,
+      grade: grade,
+      achievements: this.calculateAchievements(stats, raceResults),
+      message: this.getGradeMessage(grade)
+    };
+  }
+
+  /**
+   * Calculate career grade (S, A, B, C, D, F)
+   */
+  calculateCareerGrade(stats, raceResults) {
+    let score = 0;
+    
+    // Race performance (40% of grade)
+    const winRate = stats.racesRun > 0 ? stats.racesWon / stats.racesRun : 0;
+    score += winRate * 40;
+    
+    // Average placement in races (20% of grade)
+    let avgPlacement = 0;
+    if (raceResults.length > 0) {
+      avgPlacement = raceResults.reduce((sum, race) => sum + race.playerPosition, 0) / raceResults.length;
+      score += Math.max(0, (8 - avgPlacement) / 7 * 20); // Better placement = higher score
+    }
+    
+    // Stat development (30% of grade)
+    const totalStatGain = (stats.finalStats.speed - stats.startingStats.speed) +
+                          (stats.finalStats.stamina - stats.startingStats.stamina) +
+                          (stats.finalStats.power - stats.startingStats.power);
+    score += Math.min(30, totalStatGain / 8); // Up to 240 total stat gain for max points
+    
+    // Friendship bonus (10% of grade)
+    score += (stats.friendship / 100) * 10;
+    
+    // Convert to letter grade
+    if (score >= 90) return 'S';
+    if (score >= 80) return 'A';
+    if (score >= 70) return 'B';
+    if (score >= 60) return 'C';
+    if (score >= 50) return 'D';
+    return 'F';
+  }
+
+  /**
+   * Calculate achievements earned during career
+   */
+  calculateAchievements(stats, raceResults) {
+    const achievements = [];
+    
+    // Race achievements
+    if (stats.racesWon === stats.racesRun && stats.racesRun > 0) {
+      achievements.push('🏆 Perfect Record - Won every race!');
+    } else if (stats.racesWon >= 3) {
+      achievements.push('🥇 Champion - Won 3+ races');
+    } else if (stats.racesWon >= 1) {
+      achievements.push('🥉 Winner - Won at least one race');
+    }
+    
+    // Stat achievements
+    const maxStat = Math.max(stats.finalStats.speed, stats.finalStats.stamina, stats.finalStats.power);
+    if (maxStat >= 100) {
+      achievements.push('⭐ Maxed Out - Reached 100 in a stat');
+    }
+    
+    const totalFinalStats = stats.finalStats.speed + stats.finalStats.stamina + stats.finalStats.power;
+    if (totalFinalStats >= 270) {
+      achievements.push('💎 Elite Athlete - Total stats over 270');
+    }
+    
+    // Friendship achievements
+    if (stats.friendship >= 100) {
+      achievements.push('❤️ Best Friends - Maximum friendship');
+    } else if (stats.friendship >= 80) {
+      achievements.push('😊 Close Bond - High friendship');
+    }
+    
+    // Training achievements
+    if (stats.totalTraining >= 20) {
+      achievements.push('🏃 Training Fanatic - 20+ training sessions');
+    }
+    
+    return achievements;
+  }
+
+  /**
+   * Get grade-specific message
+   */
+  getGradeMessage(grade) {
+    const messages = {
+      'S': 'Legendary career! Your horse is destined for greatness!',
+      'A': 'Outstanding performance! A truly exceptional horse!',
+      'B': 'Solid career with impressive achievements!',
+      'C': 'Good effort with room for improvement!',
+      'D': 'A decent start, but more training needed!',
+      'F': 'Tough career, but every champion starts somewhere!'
+    };
+    return messages[grade] || 'Career complete!';
   }
 
   cleanup() {

@@ -22,7 +22,7 @@ class Character extends Horse {
     // Career tracking
     this.career = {
       turn: options.turn || 1,
-      maxTurns: options.maxTurns || 12,
+      maxTurns: options.maxTurns || 24, // Updated to support longer careers with 3,4,5,8 pattern
       racesWon: options.racesWon || 0,
       racesRun: options.racesRun || 0,
       totalTraining: options.totalTraining || 0
@@ -55,7 +55,7 @@ class Character extends Horse {
   }
 
   set energy(value) {
-    this.condition.energy = Math.max(0, Math.min(100, value));
+    this.condition.energy = Math.round(Math.max(0, Math.min(100, value)));
   }
 
   get mood() {
@@ -234,6 +234,14 @@ class Character extends Horse {
       valid: errors.length === 0,
       errors: errors
     };
+  }
+
+  /**
+   * Check if character can perform training (has enough energy)
+   * Required by TrainingEngine module
+   */
+  canTrain(energyCost) {
+    return this.condition.energy >= energyCost;
   }
 }
 

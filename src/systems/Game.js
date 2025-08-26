@@ -1,31 +1,36 @@
 const Character = require('../models/Character');
-const TrainingSystem = require('../models/Training');
-const RaceSimulator = require('../models/Race');
 const NPHRoster = require('../models/NPHRoster');
 const LoadingStates = require('./LoadingStates');
 const { CLASSIC_CAREER_RACES, calculateRacePerformance, getTrainingRecommendations } = require('../data/raceTypes');
-const RaceGenerator = require('../models/RaceGenerator');
+
+// Use proper module system instead of legacy models
+const Timeline = require('../modules/Timeline');
+const TrainingEngine = require('../modules/TrainingEngine');
+const TurnController = require('../modules/TurnController');
+const GameState = require('../modules/GameState');
+const CareerManager = require('./CareerManager');
 
 class Game {
   constructor() {
     this.character = null;
     this.nphRoster = null; // NPH roster for this career
-    this.trainingSystem = new TrainingSystem();
-    this.raceSimulator = new RaceSimulator();
-    this.raceGenerator = new RaceGenerator();
     this.loadingStates = new LoadingStates();
-    this.gameState = 'menu'; // menu, character_creation, training, racing, results, game_over
     this.currentRace = null;
-    this.raceSchedule = [];
-    this.currentRaceIndex = 0;
     this.raceResults = [];
-    this.completedRaces = []; // Track which races have been completed
     this.gameHistory = {
       sessions: 0,
       totalWins: 0,
       bestTime: null,
       favoriteTraining: null
     };
+    
+    // Use proper module system
+    this.timeline = new Timeline();
+    this.trainingEngine = new TrainingEngine();
+    this.gameStateModule = new GameState();
+    this.careerManager = new CareerManager();
+    this.gameState = 'menu'; // Keep for backward compatibility
+    this.turnController = null; // Initialized after character creation
   }
 
   // Getters for test compatibility
@@ -55,9 +60,25 @@ class Game {
     // Generate rival horses
     this.nphRoster.generateRoster(this.character, 24);
     
+    // Create career with user's 3,4,5,8 training pattern
+    const career = this.careerManager.createCareer(
+      this.character,
+      this.nphRoster.nphs,
+      4, // 4 races
+      [3, 4, 5, 8] // 3,4,5,8 training pattern
+    );
+    
+    // Update character maxTurns based on career
+    this.character.career.maxTurns = career.totalTurns;
+    
+    // Use career timeline instead of default
+    this.timeline = career.timeline;
+    
+    // Initialize turn controller with proper modules
+    this.turnController = new TurnController(this.character, this.timeline, this.trainingEngine);
+    
     this.gameState = 'training';
-    // Generate unique race collection for this career
-    this.raceSchedule = this.raceGenerator.generateCareerRaces(characterName);
+    this.gameStateModule.transition('training');
     this.gameHistory.sessions++;
     
     return {
@@ -79,16 +100,37 @@ class Game {
     // Generate rival horses (skip loading states for sync version)
     this.nphRoster.generateRoster(this.character, 24);
     
+    // Create career with user's 3,4,5,8 training pattern
+    const career = this.careerManager.createCareer(
+      this.character,
+      this.nphRoster.nphs,
+      4, // 4 races
+      [3, 4, 5, 8] // 3,4,5,8 training pattern
+    );
+    
+    // Update character maxTurns based on career
+    this.character.career.maxTurns = career.totalTurns;
+    
+    // Use career timeline instead of default
+    this.timeline = career.timeline;
+    
+    // Initialize turn controller with proper modules
+    this.turnController = new TurnController(this.character, this.timeline, this.trainingEngine);
+    
     this.gameState = 'training';
-    // Generate unique race collection for this career
-    this.raceSchedule = this.raceGenerator.generateCareerRaces(characterName);
+    this.gameStateModule.transition('training');
     this.gameHistory.sessions++;
     
     return {
       success: true,
       message: `Welcome ${characterName}! Your racing career begins now!`,
       character: this.character.getSummary(),
-      rivalCount: this.nphRoster.nphs.length
+      rivalCount: this.nphRoster.nphs.length,
+      career: {
+        totalTurns: career.totalTurns,
+        raceTurns: career.raceTurns,
+        trainingPattern: career.trainingPattern
+      }
     };
   }
 
@@ -103,7 +145,7 @@ class Game {
 
     const summary = this.character.getSummary();
     const nextRace = this.getNextRace();
-    const trainingOptions = this.trainingSystem.getTrainingOptions(this.character);
+    const trainingOptions = this.trainingEngine.getAvailableTrainingTypes();
     
     // Get training recommendations for upcoming race
     const recommendations = [];
@@ -144,10 +186,15 @@ class Game {
       };
     }
 
-    // Check if there's a race scheduled for the CURRENT turn before training
-    // Note: We no longer trigger races BEFORE training, only AFTER
+    if (!this.turnController) {
+      return {
+        success: false,
+        message: 'Turn controller not initialized.'
+      };
+    }
 
-    const result = this.trainingSystem.performTraining(this.character, trainingType);
+    // Use proper module system - TurnController handles everything
+    const result = this.turnController.processTurn(trainingType);
     
     if (result.success) {
       // Progress NPH training alongside player
@@ -155,13 +202,13 @@ class Game {
         this.nphRoster.progressNPHs(this.character.career.turn);
       }
 
-      // Check if there's a race scheduled for the NEW turn (after turn advanced)
-      const raceAfterTraining = this.checkForScheduledRace();
-      if (raceAfterTraining) {
-        console.log(`🏁 Race scheduled for new turn ${this.character.career.turn}: ${raceAfterTraining.name}`);
-        // Don't change gameState here - let GameApp handle the state transition
+      // TurnController already handles race checking and provides raceTriggered/race
+      if (result.raceTriggered) {
         result.raceReady = true;
-        result.nextRace = raceAfterTraining;
+        result.nextRace = {
+          name: result.race,
+          ...result.raceDetails
+        };
       }
       
       // Check if career is complete
@@ -188,7 +235,8 @@ class Game {
 
   // Get next upcoming race
   getNextRace() {
-    return this.raceSchedule.find(race => race.turn >= this.character.career.turn);
+    if (!this.character) return null;
+    return this.timeline.getNextRaceInfo(this.character.career.turn);
   }
 
   // Get race field including player and NPHs

@@ -68,7 +68,7 @@ class TextUI {
   /**
    * Display training interface - simplified
    */
-  showTraining(character) {
+  showTraining(character, nextRace = null) {
     this.clear();
     
     const stats = character.getCurrentStats();
@@ -81,14 +81,14 @@ class TextUI {
     
     // Simple stats display
     console.log('STATS:');
-    console.log('  Speed:   ' + stats.speed + '/100  ' + this.makeBar(stats.speed));
-    console.log('  Stamina: ' + stats.stamina + '/100  ' + this.makeBar(stats.stamina));
-    console.log('  Power:   ' + stats.power + '/100  ' + this.makeBar(stats.power));
+    console.log('  Speed:   ' + stats.speed + '/100  ' + this.makeProgressBar(stats.speed));
+    console.log('  Stamina: ' + stats.stamina + '/100  ' + this.makeProgressBar(stats.stamina));
+    console.log('  Power:   ' + stats.power + '/100  ' + this.makeProgressBar(stats.power));
     console.log('');
     
     // Condition
     console.log('CONDITION:');
-    console.log('  Energy: ' + condition.energy + '/100  ' + this.makeBar(condition.energy));
+    console.log('  Energy: ' + Math.round(condition.energy) + '/100  ' + this.makeProgressBar(condition.energy));
     console.log('  Mood:   ' + condition.mood);
     console.log('');
     
@@ -98,20 +98,21 @@ class TextUI {
     console.log('  Races Won: ' + career.racesWon + '/' + career.racesRun);
     console.log('');
     
-    // Next race info - make it more prominent
-    const nextRaceInfo = this.getNextRaceInfo(career.turn);
-    if (nextRaceInfo) {
+    // Next race info using proper race data
+    if (nextRace) {
+      const turnsLeft = nextRace.turn - career.turn;
       console.log('=== UPCOMING RACE ===');
-      console.log('Race: ' + nextRaceInfo.name);
-      console.log('Turn: ' + nextRaceInfo.turn);
-      console.log('Distance: ' + nextRaceInfo.distance);
-      console.log('Focus: ' + nextRaceInfo.focus);
-      if (nextRaceInfo.turnsLeft === 0) {
+      console.log('Race: ' + nextRace.name);
+      console.log('Turn: ' + nextRace.turn);
+      console.log('Distance: ' + (nextRace.distance || 1600) + 'm');
+      console.log('Surface: ' + (nextRace.surface || 'DIRT'));
+      console.log('Type: ' + (nextRace.type || 'UNKNOWN'));
+      if (turnsLeft === 0) {
         console.log('*** RACE HAPPENS AFTER THIS TRAINING! ***');
-      } else if (nextRaceInfo.turnsLeft === 1) {
+      } else if (turnsLeft === 1) {
         console.log('*** RACE HAPPENS NEXT TURN! ***');
       } else {
-        console.log('Turns until race: ' + nextRaceInfo.turnsLeft);
+        console.log('Turns until race: ' + turnsLeft);
       }
       console.log('=====================');
       console.log('');
@@ -221,8 +222,64 @@ class TextUI {
     }
     
     console.log('');
-    console.log('Press ENTER to continue training');
+    console.log('Press ENTER to continue');
     console.log('');
+  }
+
+  /**
+   * Display career completion summary with grade
+   */
+  showCareerCompletion(careerSummary) {
+    console.log('═══════════════════════════════════════');
+    console.log('🏁 CAREER COMPLETE! 🏁');
+    console.log('═══════════════════════════════════════');
+    console.log('');
+    
+    // Show final grade
+    const gradeColors = {
+      'S': '🌟',
+      'A': '⭐',
+      'B': '🔸',
+      'C': '🔹',
+      'D': '📘',
+      'F': '📕'
+    };
+    
+    console.log(`${gradeColors[careerSummary.grade] || '📄'} FINAL GRADE: ${careerSummary.grade} ${gradeColors[careerSummary.grade] || '📄'}`);
+    console.log('');
+    console.log(`"${careerSummary.message}"`);
+    console.log('');
+    
+    // Show statistics
+    console.log('📊 CAREER STATISTICS:');
+    console.log('─────────────────────');
+    console.log(`Races Won: ${careerSummary.stats.racesWon}/${careerSummary.stats.racesRun}`);
+    console.log(`Win Rate: ${careerSummary.stats.racesRun > 0 ? Math.round((careerSummary.stats.racesWon / careerSummary.stats.racesRun) * 100) : 0}%`);
+    console.log(`Training Sessions: ${careerSummary.stats.totalTraining}`);
+    console.log(`Friendship Level: ${careerSummary.stats.friendship}/100`);
+    console.log('');
+    
+    // Show final stats
+    console.log('🏇 FINAL STATS:');
+    console.log('───────────────');
+    console.log(`Speed:   ${careerSummary.stats.startingStats.speed} → ${careerSummary.stats.finalStats.speed} (+${careerSummary.stats.finalStats.speed - careerSummary.stats.startingStats.speed})`);
+    console.log(`Stamina: ${careerSummary.stats.startingStats.stamina} → ${careerSummary.stats.finalStats.stamina} (+${careerSummary.stats.finalStats.stamina - careerSummary.stats.startingStats.stamina})`);
+    console.log(`Power:   ${careerSummary.stats.startingStats.power} → ${careerSummary.stats.finalStats.power} (+${careerSummary.stats.finalStats.power - careerSummary.stats.startingStats.power})`);
+    console.log('');
+    
+    // Show achievements
+    if (careerSummary.achievements.length > 0) {
+      console.log('🏆 ACHIEVEMENTS EARNED:');
+      console.log('───────────────────────');
+      careerSummary.achievements.forEach(achievement => {
+        console.log(`  ${achievement}`);
+      });
+      console.log('');
+    }
+    
+    console.log('═══════════════════════════════════════');
+    console.log('Thank you for playing Horse Racing Game!');
+    console.log('Press ENTER to return to main menu');
   }
 
   /**
@@ -318,47 +375,20 @@ class TextUI {
   }
 
   /**
-   * Get detailed next race info
+   * Create a more visually appealing progress bar
    */
-  getNextRaceInfo(turn) {
-    if (turn <= 4) {
-      return {
-        name: 'Maiden Sprint',
-        turn: 4,
-        distance: '1200m',
-        focus: 'Speed & Power',
-        turnsLeft: 4 - turn
-      };
-    }
-    if (turn <= 7) {
-      return {
-        name: 'Mile Championship',
-        turn: 7,
-        distance: '1600m',
-        focus: 'Balanced Stats',
-        turnsLeft: 7 - turn
-      };
-    }
-    if (turn <= 10) {
-      return {
-        name: 'Dirt Stakes',
-        turn: 10,
-        distance: '2000m',
-        focus: 'Endurance',
-        turnsLeft: 10 - turn
-      };
-    }
-    if (turn <= 12) {
-      return {
-        name: 'Turf Cup Final',
-        turn: 12,
-        distance: '2400m',
-        focus: 'Stamina & Endurance',
-        turnsLeft: 12 - turn
-      };
-    }
-    return null;
+  makeProgressBar(value, max = 100, width = 20) {
+    const percentage = Math.max(0, Math.min(100, (value / max) * 100));
+    const filled = Math.round((percentage / 100) * width);
+    const empty = width - filled;
+    
+    // Use different characters for a more appealing look
+    const filledChar = '█';
+    const emptyChar = '░';
+    
+    return '[' + filledChar.repeat(filled) + emptyChar.repeat(empty) + ']';
   }
+
 
   /**
    * Display race preview screen

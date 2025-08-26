@@ -63,7 +63,7 @@ class SimpleUI {
   /**
    * Display training interface
    */
-  showTraining(character) {
+  showTraining(character, nextRace = null) {
     this.clearAndShowHeader();
     
     const stats = character.getCurrentStats();
@@ -92,19 +92,20 @@ class SimpleUI {
     console.log(`   Races Won: ${career.racesWon}/${career.racesRun}`);
     console.log('');
     
-    // Show upcoming race info prominently
-    const nextRaceInfo = this.getNextRaceInfo(career.turn);
-    if (nextRaceInfo) {
+    // Show upcoming race info using proper race data
+    if (nextRace) {
+      const turnsLeft = nextRace.turn - career.turn;
       console.log(chalk.bold.cyan('🏁 === UPCOMING RACE ==='));
-      console.log(chalk.yellow(`   ${nextRaceInfo.name} (Turn ${nextRaceInfo.turn})`));
-      console.log(`   Distance: ${nextRaceInfo.distance}`);
-      console.log(`   Focus: ${nextRaceInfo.focus}`);
-      if (nextRaceInfo.turnsLeft === 0) {
+      console.log(chalk.yellow(`   ${nextRace.name} (Turn ${nextRace.turn})`));
+      console.log(`   Distance: ${nextRace.distance || 1600}m`);
+      console.log(`   Surface: ${nextRace.surface || 'DIRT'}`);
+      console.log(`   Type: ${nextRace.type || 'UNKNOWN'}`);
+      if (turnsLeft === 0) {
         console.log(chalk.red.bold('   *** RACE HAPPENS AFTER THIS TRAINING! ***'));
-      } else if (nextRaceInfo.turnsLeft === 1) {
+      } else if (turnsLeft === 1) {
         console.log(chalk.yellow.bold('   *** RACE HAPPENS NEXT TURN! ***'));
       } else {
-        console.log(`   Turns until race: ${nextRaceInfo.turnsLeft}`);
+        console.log(`   Turns until race: ${turnsLeft}`);
       }
       console.log(chalk.bold.cyan('========================'));
       console.log('');
@@ -331,39 +332,6 @@ class SimpleUI {
     return moodMap[mood] || `😐 ${mood}`;
   }
 
-  /**
-   * Get detailed next race info
-   */
-  getNextRaceInfo(turn) {
-    if (turn <= 4) {
-      return {
-        name: 'Maiden Sprint',
-        turn: 4,
-        distance: '1200m',
-        focus: 'Speed & Power',
-        turnsLeft: 4 - turn
-      };
-    }
-    if (turn <= 8) {
-      return {
-        name: 'Mile Challenge',
-        turn: 8,
-        distance: '1600m',
-        focus: 'Balanced Stats',
-        turnsLeft: 8 - turn
-      };
-    }
-    if (turn <= 12) {
-      return {
-        name: 'Championship',
-        turn: 12,
-        distance: '2000m',
-        focus: 'Stamina & Endurance',
-        turnsLeft: 12 - turn
-      };
-    }
-    return null;
-  }
 
   /**
    * Get race turn

@@ -5,8 +5,7 @@
 
 class Timeline {
   constructor() {
-    // Fixed race schedule based on user requirements
-    // Races happen on turns 4, 7, 10, 12 with proper spacing
+    // Default race schedule (3,4,5,8 pattern as requested)
     this.raceSchedule = [
       {
         turn: 4,
@@ -17,7 +16,7 @@ class Timeline {
         description: 'Your debut race - a dirt sprint testing raw speed and power'
       },
       {
-        turn: 7, 
+        turn: 9, 
         name: 'Mile Championship',
         type: 'MILE',
         surface: 'DIRT',
@@ -25,7 +24,7 @@ class Timeline {
         description: 'Mid-career balanced test on dirt requiring all-around ability'
       },
       {
-        turn: 10,
+        turn: 15,
         name: 'Dirt Stakes', 
         type: 'MEDIUM',
         surface: 'DIRT',
@@ -33,7 +32,7 @@ class Timeline {
         description: 'Endurance test on dirt - stamina and tactical racing'
       },
       {
-        turn: 12,
+        turn: 24,
         name: 'Turf Cup Final',
         type: 'LONG',
         surface: 'TURF', 
@@ -41,6 +40,13 @@ class Timeline {
         description: 'The ultimate test - long distance championship on turf'
       }
     ];
+  }
+
+  /**
+   * Set custom race schedule (used by CareerManager)
+   */
+  setCustomSchedule(raceSchedule) {
+    this.raceSchedule = raceSchedule || [];
   }
 
   /**
