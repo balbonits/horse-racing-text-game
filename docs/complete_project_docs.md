@@ -1,6 +1,6 @@
-# Uma Musume Text-Based Clone - Complete Documentation
+# Horse Racing Text-Based Clone - Complete Documentation
 
-A comprehensive guide for building a terminal-based horse racing simulation game inspired by Uma Musume Pretty Derby.
+A comprehensive guide for building a terminal-based horse racing simulation game inspired by horse racing simulation games.
 
 ---
 
@@ -231,7 +231,7 @@ MIT License - see LICENSE file for details
 
 ## Credits
 
-Inspired by Uma Musume Pretty Derby by Cygames. This is a fan project and not affiliated with the original game.
+Inspired by horse racing simulation games by Cygames. This is a fan project and not affiliated with the original game.
 
 ---
 
@@ -436,13 +436,13 @@ module.exports = { createTestCharacter };
 **Date**: August 20, 2025
 
 ### Why This Project?
-- Love the strategic depth of Uma Musume but want something I can play in terminal
+- Love the strategic depth of Horse Racing but want something I can play in terminal
 - Perfect for learning Node.js while building something engaging
 - Text-based games have a special charm - focus on mechanics over graphics
 - Good portfolio piece showing game logic and terminal UI skills
 
 ### Initial Challenges
-- **Complexity**: Original Uma Musume has 100+ interconnected systems
+- **Complexity**: Original Horse Racing has 100+ interconnected systems
 - **Balance**: Need to capture the addictive "one more run" feeling
 - **Scope**: Easy to over-engineer - need to stay focused on MVP
 
@@ -804,7 +804,7 @@ There's something special about a well-crafted terminal application. Feels like 
 # AI Context Reference
 
 ## Project Overview
-Build a text-based horse racing simulation game inspired by Uma Musume Pretty Derby. Focus on **training mechanics**, **stat progression**, and **race simulation** with ASCII/terminal interface.
+Build a text-based horse racing simulation game inspired by horse racing simulation games. Focus on **training mechanics**, **stat progression**, and **race simulation** with ASCII/terminal interface.
 
 ## Core Game Loop (15-minute sessions)
 1. **Setup** - Select horse, assign bonuses from previous runs
@@ -913,4 +913,4 @@ final_performance = score × stamina_factor × random(0.85, 1.15)
 
 ---
 
-*This complete documentation serves as your comprehensive guide for building the Uma Musume text-based clone. Keep this as reference throughout development and update sections as the project evolves.*
+*This complete documentation serves as your comprehensive guide for building the Horse Racing text-based clone. Keep this as reference throughout development and update sections as the project evolves.*

@@ -60,7 +60,7 @@ class LoadingStates {
     if (process.env.NODE_ENV !== 'test') {
       console.clear();
       console.log('===============================================');
-      console.log('           UMA MUSUME TEXT CLONE             ');
+      console.log('           HORSE RACING TEXT GAME            ');
       console.log('===============================================');
       console.log('');
       console.log(chalk.cyan.bold(message));
@@ -139,7 +139,15 @@ class LoadingStates {
 
     console.log('');
     console.log(chalk.green.bold(`💾 Saved as ${filename}`));
-    await this.delay(600);
+    console.log('');
+    console.log(chalk.yellow('Press ENTER to return to game...'));
+    
+    // Wait for user input to continue
+    await new Promise((resolve) => {
+      process.stdin.once('data', () => {
+        resolve();
+      });
+    });
   }
 
   async showLoadOperation(filename) {
@@ -170,7 +178,7 @@ class LoadingStates {
 
     console.clear();
     console.log('===============================================');
-    console.log('           UMA MUSUME TEXT CLONE             ');
+    console.log('           HORSE RACING TEXT GAME            ');
     console.log('===============================================');
     console.log('');
 
@@ -203,7 +211,7 @@ class LoadingStates {
   showError(message, duration = 2000) {
     console.clear();
     console.log('===============================================');
-    console.log('           UMA MUSUME TEXT CLONE             ');
+    console.log('           HORSE RACING TEXT GAME            ');
     console.log('===============================================');
     console.log('');
     console.log(chalk.red.bold('❌ ERROR'));

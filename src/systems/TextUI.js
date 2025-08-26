@@ -13,7 +13,7 @@ class TextUI {
   clear() {
     console.clear();
     console.log('===============================================');
-    console.log('           UMA MUSUME TEXT CLONE             ');
+    console.log('           HORSE RACING TEXT GAME            ');
     console.log('===============================================');
     console.log('');
   }
@@ -176,27 +176,52 @@ class TextUI {
       const position = index + 1;
       const isPlayer = result.participant.isPlayer;
       const name = result.participant.character.name + (isPlayer ? ' (YOU)' : '');
-      const time = result.time.toFixed(2) + 's';
+      const timeValue = result.performance?.time || result.time || 0;
+      const time = (typeof timeValue === 'number' ? timeValue : parseFloat(timeValue) || 0).toFixed(2) + 's';
+      const placing = this.getHorseRacingPlacing(position);
       
-      console.log(position + '. ' + name + ' - ' + time);
+      console.log(`${placing} ${name} - ${time}`);
     });
     
     console.log('');
     
-    // Simple performance message
+    // Combined podium ceremony with race results
     const playerResult = raceResult.results.find(r => r.participant.isPlayer);
     const playerPosition = raceResult.results.indexOf(playerResult) + 1;
     
+    console.log('🏆 RACE CEREMONY 🏆');
+    console.log('====================');
+    console.log('');
+    
     if (playerPosition === 1) {
-      console.log('VICTORY! Great job!');
-    } else if (playerPosition <= 3) {
-      console.log('Good performance! Top 3 finish!');
+      console.log('        🥇 WINNER! 🥇');
+      console.log(`       ${playerResult.participant.character.name}`);
+      const playerTimeValue = playerResult.performance?.time || playerResult.time || 0;
+      const playerTime = (typeof playerTimeValue === 'number' ? playerTimeValue : parseFloat(playerTimeValue) || 0).toFixed(2);
+      console.log(`       Time: ${playerTime}s`);
+      console.log('');
+      console.log('🎉 CONGRATULATIONS! 🎉');
+      console.log('Amazing performance!');
+    } else if (playerPosition === 2) {
+      console.log('        🥈 2nd Place 🥈');
+      console.log(`       ${playerResult.participant.character.name}`);
+      console.log('');
+      console.log('Great race! So close to victory!');
+    } else if (playerPosition === 3) {
+      console.log('        🥉 3rd Place 🥉');
+      console.log(`       ${playerResult.participant.character.name}`);
+      console.log('');
+      console.log('Good job! A podium finish!');
     } else {
-      console.log('Keep training to improve your performance!');
+      const placing = this.getHorseRacingPlacing(playerPosition).replace(/🏆|🥈|🥉/g, '').trim();
+      console.log(`        ${placing} Place`);
+      console.log(`       ${playerResult.participant.character.name}`);
+      console.log('');
+      console.log('Keep training to improve!');
     }
     
     console.log('');
-    console.log('Press ENTER to continue');
+    console.log('Press ENTER to continue training');
     console.log('');
   }
 
@@ -298,32 +323,194 @@ class TextUI {
   getNextRaceInfo(turn) {
     if (turn <= 4) {
       return {
-        name: 'Debut Sprint',
+        name: 'Maiden Sprint',
         turn: 4,
         distance: '1200m',
         focus: 'Speed & Power',
         turnsLeft: 4 - turn
       };
     }
-    if (turn <= 8) {
+    if (turn <= 7) {
       return {
-        name: 'Mile Challenge',
-        turn: 8,
+        name: 'Mile Championship',
+        turn: 7,
         distance: '1600m',
         focus: 'Balanced Stats',
-        turnsLeft: 8 - turn
+        turnsLeft: 7 - turn
+      };
+    }
+    if (turn <= 10) {
+      return {
+        name: 'Dirt Stakes',
+        turn: 10,
+        distance: '2000m',
+        focus: 'Endurance',
+        turnsLeft: 10 - turn
       };
     }
     if (turn <= 12) {
       return {
-        name: 'Championship',
+        name: 'Turf Cup Final',
         turn: 12,
-        distance: '2000m',
+        distance: '2400m',
         focus: 'Stamina & Endurance',
         turnsLeft: 12 - turn
       };
     }
     return null;
+  }
+
+  /**
+   * Display race preview screen
+   */
+  showRacePreview(raceInfo, character) {
+    this.clear();
+    console.log('🏁 RACE PREVIEW 🏁');
+    console.log('==================');
+    console.log('');
+    console.log(`Race: ${raceInfo.name}`);
+    console.log(`Distance: ${raceInfo.distance || '1600m'}`);
+    console.log(`Surface: ${raceInfo.surface || 'Dirt'}`);
+    console.log(`Weather: ${raceInfo.weather || 'Clear'}`);
+    console.log('');
+    console.log('YOUR HORSE:');
+    console.log(`Name: ${character.name}`);
+    const stats = character.getCurrentStats();
+    console.log(`Speed:   ${stats.speed}/100`);
+    console.log(`Stamina: ${stats.stamina}/100`);
+    console.log(`Power:   ${stats.power}/100`);
+    console.log(`Energy:  ${character.condition.energy}/100`);
+    console.log('');
+    console.log('🏇 Ready to race? Press ENTER to see the competition');
+    console.log('');
+  }
+
+  /**
+   * Display horse lineup screen
+   */
+  showHorseLineup(raceField, character) {
+    this.clear();
+    console.log('🐎 HORSE LINEUP 🐎');
+    console.log('===================');
+    console.log('');
+    console.log('Today\'s Competitors:');
+    console.log('');
+    
+    // Show player horse first
+    console.log(`${character.name} (YOU) 🟢`);
+    const playerStats = character.getCurrentStats();
+    console.log(`  Stats: Speed ${playerStats.speed}, Stamina ${playerStats.stamina}, Power ${playerStats.power}`);
+    console.log('');
+    
+    // Show competition
+    raceField.forEach((horse, index) => {
+      console.log(`${horse.name} ${horse.icon || '🐎'}`);
+      console.log(`  Stats: Speed ${Math.round(horse.stats.speed)}, Stamina ${Math.round(horse.stats.stamina)}, Power ${Math.round(horse.stats.power)}`);
+      console.log('');
+    });
+    
+    console.log('Press ENTER to select your racing strategy');
+    console.log('');
+  }
+
+  /**
+   * Display strategy selection screen
+   */
+  showStrategySelect() {
+    this.clear();
+    console.log('🎯 RACING STRATEGY 🎯');
+    console.log('======================');
+    console.log('');
+    console.log('Choose your racing style:');
+    console.log('');
+    console.log('1. FRONT RUNNER 🔥');
+    console.log('   Take the early lead and hold it');
+    console.log('   Best for: High Speed & Power');
+    console.log('');
+    console.log('2. STALKER 🎯');
+    console.log('   Stay with the pack, surge late');
+    console.log('   Best for: Balanced stats');
+    console.log('');
+    console.log('3. CLOSER 💨');
+    console.log('   Save energy for final sprint');
+    console.log('   Best for: High Stamina');
+    console.log('');
+    console.log('Enter your choice (1-3):');
+    console.log('');
+  }
+
+  /**
+   * Display podium ceremony
+   */
+  showPodium(raceResult) {
+    this.clear();
+    console.log('🏆 RACE CEREMONY 🏆');
+    console.log('====================');
+    console.log('');
+    
+    // Find player result
+    const playerResult = raceResult.results.find(r => r.participant.isPlayer);
+    const position = raceResult.results.indexOf(playerResult) + 1;
+    
+    if (position === 1) {
+      console.log('        🥇 WINNER! 🥇');
+      console.log(`       ${playerResult.participant.character.name}`);
+      const playerTimeValue = playerResult.performance?.time || playerResult.time || 0;
+      const playerTime = (typeof playerTimeValue === 'number' ? playerTimeValue : parseFloat(playerTimeValue) || 0).toFixed(2);
+      console.log(`       Time: ${playerTime}s`);
+      console.log('');
+      console.log('🎉 CONGRATULATIONS! 🎉');
+      console.log('Amazing performance!');
+    } else if (position === 2) {
+      console.log('        🥈 2nd Place 🥈');
+      console.log(`       ${playerResult.participant.character.name}`);
+      console.log('');
+      console.log('Great race! So close to victory!');
+    } else if (position === 3) {
+      console.log('        🥉 3rd Place 🥉');
+      console.log(`       ${playerResult.participant.character.name}`);
+      console.log('');
+      console.log('Good job! A podium finish!');
+    } else {
+      const placing = this.getHorseRacingPlacing(position).replace(/🏆|🥈|🥉/g, '').trim();
+      console.log(`        ${placing} Place`);
+      console.log(`       ${playerResult.participant.character.name}`);
+      console.log('');
+      console.log('Keep training to improve!');
+    }
+    
+    console.log('');
+    console.log('🏁 Final Standings:');
+    raceResult.results.forEach((result, index) => {
+      const pos = index + 1;
+      const name = result.participant.character.name + (result.participant.isPlayer ? ' (YOU)' : '');
+      const resultTimeValue = result.performance?.time || result.time || 0;
+      const resultTime = (typeof resultTimeValue === 'number' ? resultTimeValue : parseFloat(resultTimeValue) || 0).toFixed(2);
+      const placing = this.getHorseRacingPlacing(pos);
+      console.log(`${placing} ${name} - ${resultTime}s`);
+    });
+    
+    console.log('');
+    console.log('Press ENTER to continue training');
+    console.log('');
+  }
+
+  /**
+   * Get horse racing placing terminology
+   */
+  getHorseRacingPlacing(position) {
+    const placings = {
+      1: '🏆 1st',
+      2: '🥈 2nd', 
+      3: '🥉 3rd',
+      4: '4th',
+      5: '5th',
+      6: '6th',
+      7: '7th',
+      8: '8th'
+    };
+    
+    return placings[position] || `${position}th`;
   }
 
   /**

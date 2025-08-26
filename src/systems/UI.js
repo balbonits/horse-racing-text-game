@@ -36,7 +36,7 @@ class UISystem {
       left: 'center', 
       width: '80%',
       height: 3,
-      content: '{center}{bold}🐴 Uma Musume Text Clone 🐴{/bold}{/center}',
+      content: '{center}{bold}🐴 Horse Racing Text Game 🐴{/bold}{/center}',
       tags: true,
       style: {
         fg: 'yellow',

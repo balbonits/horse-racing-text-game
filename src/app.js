@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Uma Musume Text-Based Clone - Main Application Entry Point
+ * Horse Racing Text Game - Main Application Entry Point
  * A terminal-based horse racing simulation game
  */
 
@@ -9,7 +9,7 @@ const GameApp = require('./GameApp');
 
 function main() {
   try {
-    console.log('Uma Musume Text Clone - Starting...');
+    console.log('Horse Racing Text Game - Starting...');
     console.log('Use number keys (1-5) for options, Q to quit\n');
     
     // Create and start the game application
@@ -25,7 +25,7 @@ function main() {
 
 // Handle graceful shutdown
 process.on('SIGINT', () => {
-  console.log('\n👋 Thanks for playing Uma Musume Text Clone!');
+  console.log('\n👋 Thanks for playing Horse Racing Text Game!');
   process.exit(0);
 });
 

@@ -1,384 +1,149 @@
-# Modular Architecture for Platform Independence
+# Modular Career System Architecture
 
 ## Overview
-This document outlines the modular architecture design to decouple the core game system from the terminal UI, enabling deployment across multiple platforms (terminal, web, mobile native, etc.).
+This document outlines the new modular architecture for the career mode system, designed to address all issues encountered with race timing, state management, and data persistence.
 
-## Core Principles
+## Design Philosophy
+- **Single Responsibility**: Each module has one clear purpose
+- **Test-First Development**: All modules are defined by their tests first
+- **Clear Interfaces**: Modules communicate through well-defined APIs
+- **No Side Effects**: Pure functions where possible, clear mutation points
+- **Comprehensive Testing**: Unit tests for modules, integration tests for flow
 
-### 1. Separation of Concerns
-- **Game Core**: Pure business logic, no UI dependencies
-- **Platform Adapters**: Interface implementations for specific platforms
-- **Shared Interfaces**: Common contracts between core and adapters
+## Module Structure
 
-### 2. Platform Independence
-- Core game logic is platform-agnostic
-- UI/presentation layer is pluggable
-- Data persistence is abstracted
-- Input/output is abstracted through interfaces
+### Core Data Modules
 
-### 3. Modular Design
-- Each system is self-contained with clear boundaries
-- Systems communicate through well-defined interfaces
-- Easy to test, maintain, and extend
-
-## Architecture Layers
-
-```
-┌─────────────────────────────────────────┐
-│             Platform Layer              │
-├─────────────────┬───────────────────────┤
-│   Terminal UI   │   Web UI   │ Native  │
-├─────────────────┼────────────┼─────────┤
-│             Interface Layer             │
-├─────────────────────────────────────────┤
-│              Game Core                  │
-├─────────────────────────────────────────┤
-│              Data Layer                 │
-└─────────────────────────────────────────┘
-```
-
-## Proposed Structure
-
-```
-src/
-├── core/                    # Platform-agnostic game logic
-│   ├── GameEngine.js        # Main game controller
-│   ├── models/              # Game entities
-│   │   ├── Character.js
-│   │   ├── NPHRoster.js
-│   │   └── RaceSystem.js
-│   ├── systems/             # Business logic systems
-│   │   ├── TrainingSystem.js
-│   │   ├── RaceEngine.js
-│   │   └── SaveSystem.js
-│   └── data/                # Game configuration
-│       ├── raceTypes.js
-│       └── gameConfig.js
-├── interfaces/              # Contracts and abstractions
-│   ├── IRenderer.js         # UI rendering interface
-│   ├── IInputHandler.js     # Input handling interface
-│   ├── IDataStore.js        # Data persistence interface
-│   └── ILoadingStates.js    # Loading/progress interface
-├── adapters/                # Platform-specific implementations
-│   ├── terminal/            # Terminal/CLI implementation
-│   │   ├── TerminalRenderer.js
-│   │   ├── TerminalInput.js
-│   │   ├── TerminalLoader.js
-│   │   └── FileDataStore.js
-│   ├── web/                 # Future web implementation
-│   │   ├── WebRenderer.js
-│   │   ├── WebInput.js
-│   │   └── BrowserStore.js
-│   └── native/              # Future native implementation
-├── platforms/               # Platform entry points
-│   ├── terminal/
-│   │   └── index.js         # Terminal app launcher
-│   ├── web/
-│   │   └── index.js         # Web app launcher
-│   └── shared/
-│       └── GameFactory.js   # Platform-aware game factory
-└── utils/                   # Shared utilities
-    ├── calculations.js
-    └── validators.js
-```
-
-## Core Interfaces
-
-### IRenderer Interface
+#### Character Module (`src/modules/Character.js`)
+**Responsibility**: Character state and basic queries
 ```javascript
-/**
- * Platform-agnostic rendering interface
- */
-class IRenderer {
-  async renderGameState(state) { throw new Error('Not implemented'); }
-  async renderCharacterStats(character) { throw new Error('Not implemented'); }
-  async renderRacePreview(raceInfo, field) { throw new Error('Not implemented'); }
-  async renderRaceResults(results) { throw new Error('Not implemented'); }
-  async renderTrainingOptions(options) { throw new Error('Not implemented'); }
-  async showMessage(message, type = 'info') { throw new Error('Not implemented'); }
-  async clear() { throw new Error('Not implemented'); }
+class Character {
+  constructor(name)
+  canTrain(energyCost) -> boolean
+  getStatTotal() -> number
+  isExhausted() -> boolean
 }
 ```
+**Tests**: `tests/modules/Character.test.js`
 
-### IInputHandler Interface
+#### Timeline Module (`src/modules/Timeline.js`)  
+**Responsibility**: Race scheduling and timing logic
 ```javascript
-/**
- * Platform-agnostic input handling interface
- */
-class IInputHandler {
-  async getTextInput(prompt, validation) { throw new Error('Not implemented'); }
-  async getChoice(prompt, options) { throw new Error('Not implemented'); }
-  async getConfirmation(prompt) { throw new Error('Not implemented'); }
-  async waitForKeyPress() { throw new Error('Not implemented'); }
-  onKeyPress(callback) { throw new Error('Not implemented'); }
+class Timeline {
+  getRaceForTurn(turn) -> string|null
+  getNextRaceInfo(currentTurn) -> object|null
+  isRaceTurn(turn) -> boolean
+  getTotalRaces() -> number
 }
 ```
+**Tests**: `tests/modules/Timeline.test.js`
 
-### IDataStore Interface
+#### GameState Module (`src/modules/GameState.js`)
+**Responsibility**: Game state transitions and validation  
 ```javascript
-/**
- * Platform-agnostic data persistence interface
- */
-class IDataStore {
-  async save(key, data) { throw new Error('Not implemented'); }
-  async load(key) { throw new Error('Not implemented'); }
-  async exists(key) { throw new Error('Not implemented'); }
-  async delete(key) { throw new Error('Not implemented'); }
-  async list() { throw new Error('Not implemented'); }
+class GameState {
+  transition(newState) -> result
+  is(state) -> boolean
+  getValidNextStates() -> array
+  getHistory() -> array
+  goBack() -> result
 }
 ```
+**Tests**: `tests/modules/GameState.test.js`
 
-### ILoadingStates Interface
+### Business Logic Modules
+
+#### TrainingEngine Module (`src/modules/TrainingEngine.js`)
+**Responsibility**: Training mechanics and calculations
 ```javascript
-/**
- * Platform-agnostic loading/progress interface
- */
-class ILoadingStates {
-  async showProgress(message, progress) { throw new Error('Not implemented'); }
-  async showSpinner(message) { throw new Error('Not implemented'); }
-  async hideLoading() { throw new Error('Not implemented'); }
-  async showTransition(fromState, toState) { throw new Error('Not implemented'); }
+class TrainingEngine {
+  calculateGains(character, trainingType) -> gains
+  applyTraining(character, trainingType) -> gains
 }
 ```
+**Tests**: `tests/modules/TrainingEngine.test.js`
 
-## Game Core Refactor
-
-### GameEngine (Platform-Agnostic)
+#### TurnController Module (`src/modules/TurnController.js`)
+**Responsibility**: Turn progression and race triggering
 ```javascript
-class GameEngine {
-  constructor(renderer, inputHandler, dataStore, loadingStates) {
-    this.renderer = renderer;
-    this.input = inputHandler;
-    this.dataStore = dataStore;
-    this.loading = loadingStates;
-    
-    // Core systems
-    this.character = null;
-    this.nphRoster = null;
-    this.trainingSystem = new TrainingSystem();
-    this.raceEngine = new RaceEngine();
-  }
-  
-  async startNewGame(characterName) {
-    await this.loading.showProgress('Creating character...', 0.2);
-    this.character = new Character(characterName);
-    
-    await this.loading.showProgress('Generating rivals...', 0.5);
-    this.nphRoster = new NPHRoster();
-    this.nphRoster.generateRoster(this.character, 24);
-    
-    await this.loading.showProgress('Game ready!', 1.0);
-    return { success: true };
-  }
-  
-  async performTraining(type) {
-    const result = this.trainingSystem.train(this.character, type);
-    this.nphRoster.progressNPHs(this.character.career.turn);
-    
-    await this.renderer.renderCharacterStats(this.character.getSummary());
-    return result;
-  }
-  
-  async runRace(raceInfo, strategy) {
-    await this.renderer.renderRacePreview(raceInfo, this.getRaceField(raceInfo));
-    const strategy = await this.input.getChoice('Select strategy:', ['FRONT', 'MID', 'LATE']);
-    
-    await this.loading.showProgress('Race starting...', 0.8);
-    const results = await this.raceEngine.runEnhancedRace(raceInfo, strategy);
-    
-    await this.renderer.renderRaceResults(results);
-    return results;
-  }
-  
-  // ... other core methods without UI dependencies
+class TurnController {
+  constructor(character, timeline, trainingEngine)
+  processTurn(action) -> result
 }
-```
-
-## Platform Implementations
-
-### Terminal Adapter
-```javascript
-// adapters/terminal/TerminalRenderer.js
-const blessed = require('blessed');
-const chalk = require('chalk');
-
-class TerminalRenderer extends IRenderer {
-  constructor() {
-    super();
-    this.screen = blessed.screen({
-      smartCSR: true,
-      title: 'Uma Musume Text Clone'
-    });
-  }
-  
-  async renderGameState(state) {
-    // Terminal-specific rendering using blessed
-  }
-  
-  async renderCharacterStats(character) {
-    // ASCII progress bars and blessed components
-  }
-  
-  async renderRacePreview(raceInfo, field) {
-    // Terminal race preview layout
-  }
-  
-  // ... other terminal-specific rendering
-}
-
-// adapters/terminal/TerminalInput.js
-class TerminalInput extends IInputHandler {
-  async getTextInput(prompt, validation) {
-    // Use inquirer or blessed input
-  }
-  
-  async getChoice(prompt, options) {
-    // Terminal choice menu
-  }
-}
-```
-
-### Web Adapter (Future)
-```javascript
-// adapters/web/WebRenderer.js
-class WebRenderer extends IRenderer {
-  constructor(domContainer) {
-    super();
-    this.container = domContainer;
-  }
-  
-  async renderGameState(state) {
-    // React/Vue/HTML rendering
-  }
-  
-  async renderCharacterStats(character) {
-    // HTML progress bars and styled components
-  }
-  
-  // ... other web-specific rendering
-}
-
-// adapters/web/WebInput.js
-class WebInput extends IInputHandler {
-  async getTextInput(prompt, validation) {
-    // HTML form inputs, modal dialogs
-  }
-  
-  async getChoice(prompt, options) {
-    // Button groups, dropdown menus
-  }
-}
-```
-
-## Platform Factory
-
-### GameFactory
-```javascript
-// platforms/shared/GameFactory.js
-class GameFactory {
-  static createGame(platform, options = {}) {
-    switch (platform) {
-      case 'terminal':
-        return this.createTerminalGame(options);
-      case 'web':
-        return this.createWebGame(options);
-      case 'native':
-        return this.createNativeGame(options);
-      default:
-        throw new Error(`Unsupported platform: ${platform}`);
-    }
-  }
-  
-  static createTerminalGame(options) {
-    const renderer = new TerminalRenderer(options);
-    const input = new TerminalInput(options);
-    const dataStore = new FileDataStore('./data/saves');
-    const loading = new TerminalLoader(renderer);
-    
-    return new GameEngine(renderer, input, dataStore, loading);
-  }
-  
-  static createWebGame(options) {
-    const renderer = new WebRenderer(options.container);
-    const input = new WebInput(options.container);
-    const dataStore = new BrowserStore();
-    const loading = new WebLoader(renderer);
-    
-    return new GameEngine(renderer, input, dataStore, loading);
-  }
-}
-```
-
-## Migration Strategy
-
-### Phase 1: Interface Definition
-1. Define all core interfaces (IRenderer, IInputHandler, etc.)
-2. Create base abstract classes
-3. Document contracts and expected behaviors
-
-### Phase 2: Core Extraction
-1. Extract pure game logic from existing systems
-2. Remove direct UI dependencies from core systems
-3. Create GameEngine as main coordinator
-
-### Phase 3: Terminal Adapter
-1. Implement terminal-specific adapters
-2. Migrate existing blessed/inquirer code
-3. Test terminal implementation thoroughly
-
-### Phase 4: Platform Factory
-1. Create factory system for platform selection
-2. Update entry points to use factory
-3. Ensure backward compatibility
-
-### Phase 5: Additional Platforms
-1. Implement web adapters (HTML/CSS/JS)
-2. Create native adapters (React Native, Electron)
-3. Test cross-platform compatibility
-
-## Benefits
-
-### 1. Platform Independence
-- Same game logic runs everywhere
-- Easy to add new platforms
-- Consistent gameplay across platforms
-
-### 2. Maintainability
-- Clear separation of concerns
-- Easier testing (mock interfaces)
-- Reduced coupling between systems
-
-### 3. Scalability
-- Platform-specific optimizations
-- Independent deployment
-- Team specialization (core vs UI)
-
-### 4. User Experience
-- Native feel on each platform
-- Platform-appropriate interactions
-- Consistent game state/progress
-
-## Testing Strategy
-
-### Core System Tests
-- Unit tests for pure game logic
-- Mock all interface dependencies
-- Test game state transitions
-
-### Adapter Tests
-- Test each platform adapter independently
-- Mock core game engine
-- Test platform-specific behaviors
+```  
+**Tests**: `tests/modules/TurnController.test.js`
 
 ### Integration Tests
-- Test complete workflows
-- Test cross-platform save compatibility
-- Performance testing per platform
 
-## Implementation Priority
+#### Complete Career Flow (`tests/integration/CompleteCareer.test.js`)
+**Responsibility**: End-to-end career simulation testing
+- Full 12-turn career progression
+- All 4 races trigger correctly (turns 4, 7, 10, 12)
+- Character stats persist throughout
+- State management integration
+- Energy management over time
+- Data consistency validation
 
-1. **High Priority**: Terminal adapter (maintain current functionality)
-2. **Medium Priority**: Web adapter (expand user base)
-3. **Low Priority**: Native mobile adapter (future expansion)
+## Development Phases
 
-This modular architecture ensures the game core remains pure and reusable while providing excellent platform-specific user experiences.
+### Phase 1: Test Creation ✅ COMPLETED
+- [x] Write all module tests first
+- [x] Define expected interfaces through tests
+- [x] Create integration test scenarios
+- [x] Update documentation
+
+### Phase 2: Core Data Module Implementation
+- [ ] Implement Character module to pass tests
+- [ ] Implement Timeline module to pass tests  
+- [ ] Implement GameState module to pass tests
+- [ ] Commit after each module passes tests
+
+### Phase 3: Business Logic Module Implementation
+- [ ] Implement TrainingEngine module to pass tests
+- [ ] Implement TurnController module to pass tests
+- [ ] Commit after modules pass tests
+
+### Phase 4: Integration Testing
+- [ ] Run complete career integration tests
+- [ ] Fix any integration issues
+- [ ] Verify all race timing works correctly
+- [ ] Final commit
+
+## Race Schedule Fixed
+Based on user feedback, races now properly spaced:
+- **Turn 4**: Maiden Sprint (after 3 training turns)
+- **Turn 7**: Mile Championship (after 3 more training turns)  
+- **Turn 10**: Dirt Stakes (after 3 more training turns)
+- **Turn 12**: Turf Cup Final (after 2 more training turns)
+
+## Key Benefits
+
+### Eliminates Previous Issues
+1. **Race Timing Bugs**: Timeline module provides single source of truth
+2. **State Transition Errors**: GameState module prevents duplicate transitions
+3. **Data Persistence**: Clear separation of concerns ensures stats always persist
+4. **Testing Gaps**: Comprehensive test coverage at unit and integration levels
+
+### Enables Future Development
+- Easy to add new training types (extend TrainingEngine)
+- Easy to add new race types (extend Timeline)
+- Easy to add new UI screens (consume existing modules)
+- Easy to add save/load (modules have clear data structures)
+
+## Dependencies
+```
+TurnController
+├── Character (data)
+├── Timeline (data)  
+└── TrainingEngine (logic)
+
+GameState (independent)
+```
+
+## Testing Strategy
+- **Unit Tests**: Each module tested in isolation with mocks
+- **Integration Tests**: Modules tested together for complete flows
+- **TDD Process**: Tests written first, implementation follows
+- **Commit Between Phases**: Ensures working state at each step
+
+This architecture addresses all issues raised and provides a solid foundation for the complete career mode system.

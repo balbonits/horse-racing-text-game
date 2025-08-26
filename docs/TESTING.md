@@ -1,6 +1,6 @@
 # Testing Guide
 
-Comprehensive testing framework for Uma Musume Text-Based Clone with automated unit tests, integration tests, performance validation, and UI testing.
+Comprehensive testing framework for Horse Racing Text-Based Clone with automated unit tests, integration tests, performance validation, and UI testing.
 
 ## 🧪 Test Categories
 

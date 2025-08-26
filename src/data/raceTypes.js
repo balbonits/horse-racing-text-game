@@ -1,6 +1,6 @@
 /**
  * Race Types and Track Surface Configurations
- * Based on Uma Musume Pretty Derby mechanics
+ * Horse racing mechanics and race type configurations
  */
 
 const RACE_TYPES = {
@@ -131,26 +131,31 @@ const CLASSIC_CAREER_RACES = [
     type: 'SPRINT',
     surface: 'DIRT',
     weather: 'CLEAR',
-    prize: 1000,
     description: 'Your debut race - a dirt sprint testing raw speed and power'
   },
   {
-    turn: 8,
-    name: 'Turf Mile Classic', 
+    turn: 7,
+    name: 'Mile Championship',
     type: 'MILE',
-    surface: 'TURF',
+    surface: 'DIRT',
     weather: 'CLEAR',
-    prize: 3000,
-    description: 'Mid-career test on grass requiring balanced ability'
+    description: 'Mid-career balanced test on dirt requiring all-around ability'
+  },
+  {
+    turn: 10,
+    name: 'Dirt Stakes',
+    type: 'MEDIUM',
+    surface: 'DIRT',
+    weather: 'CLEAR',
+    description: 'Endurance test on dirt - stamina and tactical racing'
   },
   {
     turn: 12,
-    name: 'Championship Stakes',
-    type: 'MEDIUM',
-    surface: 'TURF', 
+    name: 'Turf Cup Final',
+    type: 'LONG',
+    surface: 'TURF',
     weather: 'CLEAR',
-    prize: 10000,
-    description: 'The ultimate test - championship distance on turf'
+    description: 'The ultimate test - long distance championship on turf'
   }
 ];
 

@@ -4,6 +4,7 @@ const RaceSimulator = require('../models/Race');
 const NPHRoster = require('../models/NPHRoster');
 const LoadingStates = require('./LoadingStates');
 const { CLASSIC_CAREER_RACES, calculateRacePerformance, getTrainingRecommendations } = require('../data/raceTypes');
+const RaceGenerator = require('../models/RaceGenerator');
 
 class Game {
   constructor() {
@@ -11,12 +12,14 @@ class Game {
     this.nphRoster = null; // NPH roster for this career
     this.trainingSystem = new TrainingSystem();
     this.raceSimulator = new RaceSimulator();
+    this.raceGenerator = new RaceGenerator();
     this.loadingStates = new LoadingStates();
     this.gameState = 'menu'; // menu, character_creation, training, racing, results, game_over
     this.currentRace = null;
     this.raceSchedule = [];
     this.currentRaceIndex = 0;
     this.raceResults = [];
+    this.completedRaces = []; // Track which races have been completed
     this.gameHistory = {
       sessions: 0,
       totalWins: 0,
@@ -53,7 +56,8 @@ class Game {
     this.nphRoster.generateRoster(this.character, 24);
     
     this.gameState = 'training';
-    this.raceSchedule = CLASSIC_CAREER_RACES; // Use new race system
+    // Generate unique race collection for this career
+    this.raceSchedule = this.raceGenerator.generateCareerRaces(characterName);
     this.gameHistory.sessions++;
     
     return {
@@ -76,7 +80,8 @@ class Game {
     this.nphRoster.generateRoster(this.character, 24);
     
     this.gameState = 'training';
-    this.raceSchedule = CLASSIC_CAREER_RACES; // Use new race system
+    // Generate unique race collection for this career
+    this.raceSchedule = this.raceGenerator.generateCareerRaces(characterName);
     this.gameHistory.sessions++;
     
     return {
@@ -139,6 +144,9 @@ class Game {
       };
     }
 
+    // Check if there's a race scheduled for the CURRENT turn before training
+    // Note: We no longer trigger races BEFORE training, only AFTER
+
     const result = this.trainingSystem.performTraining(this.character, trainingType);
     
     if (result.success) {
@@ -147,12 +155,13 @@ class Game {
         this.nphRoster.progressNPHs(this.character.career.turn);
       }
 
-      // Check if it's time for a race
-      const raceTime = this.checkForScheduledRace();
-      if (raceTime) {
-        this.gameState = 'pre_race';
+      // Check if there's a race scheduled for the NEW turn (after turn advanced)
+      const raceAfterTraining = this.checkForScheduledRace();
+      if (raceAfterTraining) {
+        console.log(`🏁 Race scheduled for new turn ${this.character.career.turn}: ${raceAfterTraining.name}`);
+        // Don't change gameState here - let GameApp handle the state transition
         result.raceReady = true;
-        result.nextRace = raceTime;
+        result.nextRace = raceAfterTraining;
       }
       
       // Check if career is complete
@@ -167,7 +176,14 @@ class Game {
 
   // Check if there's a scheduled race this turn
   checkForScheduledRace() {
-    return this.raceSchedule.find(race => race.turn === this.character.career.turn);
+    const race = this.raceSchedule.find(race => race.turn === this.character.career.turn);
+    
+    // Only return race if it hasn't been completed yet
+    if (race && !this.completedRaces.includes(race.turn)) {
+      return race;
+    }
+    
+    return null;
   }
 
   // Get next upcoming race
@@ -258,6 +274,41 @@ class Game {
 
     // Find player result
     const playerResult = raceResults.find(r => r.type === 'player');
+    
+    // CRITICAL FIX: Process race results to update character stats
+    if (playerResult) {
+      const legacyResult = {
+        playerResult: {
+          position: playerResult.position,
+          time: playerResult.time,
+          performance: playerResult.performance
+        },
+        participants: raceResults
+      };
+      
+      // Update character stats using the legacy system method
+      const effects = this.raceSimulator.processRaceResults(this.character, legacyResult);
+      console.log(`🔄 Character updated after race: racesRun=${this.character.career.racesRun}, racesWon=${this.character.career.racesWon}`);
+    }
+    
+    // Mark race as completed and store results within the race object
+    if (!this.completedRaces.includes(raceInfo.turn)) {
+      this.completedRaces.push(raceInfo.turn);
+      
+      // Find the race in the schedule and add results to it
+      const raceInSchedule = this.raceSchedule.find(r => r.turn === raceInfo.turn);
+      if (raceInSchedule) {
+        raceInSchedule.completed = true;
+        raceInSchedule.results = raceResults;
+        raceInSchedule.playerResult = playerResult;
+        raceInSchedule.completedAt = new Date().toISOString();
+        console.log(`✅ Race on turn ${raceInfo.turn} completed and results saved`);
+      }
+      
+      // CRITICAL: Race IS the turn - advance turn after race completion
+      this.character.nextTurn();
+      console.log(`🏁 Race consumed turn ${raceInfo.turn}, now on turn ${this.character.career.turn}`);
+    }
     
     return {
       success: true,
@@ -505,6 +556,7 @@ class Game {
       character: this.character.toJSON(),
       gameState: this.gameState,
       raceSchedule: this.raceSchedule,
+      completedRaces: this.completedRaces,
       gameHistory: this.gameHistory,
       nphRoster: this.nphRoster ? this.nphRoster.toJSON() : null,
       timestamp: new Date().toISOString(),
@@ -528,6 +580,7 @@ class Game {
       this.character = Character.fromJSON(saveData.character);
       this.gameState = saveData.gameState || 'training';
       this.raceSchedule = saveData.raceSchedule || CLASSIC_CAREER_RACES; // Use new system
+      this.completedRaces = saveData.completedRaces || []; // Load completed races
       this.gameHistory = { ...this.gameHistory, ...saveData.gameHistory };
       
       // Load NPH roster if available (backward compatibility)
@@ -806,9 +859,11 @@ class Game {
   enterRacePhase() {
     if (this.raceResults.length === 0 && this.getScheduledRaces().length > 0) {
       const firstRace = this.getScheduledRaces()[0];
-      this.runRace(firstRace);
+      const raceResult = this.runRace(firstRace);
       this.currentRaceIndex = 1;
+      return raceResult;
     }
+    return null;
   }
 
   // P0 Critical Path Methods - Required by tests

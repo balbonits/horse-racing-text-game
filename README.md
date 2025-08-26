@@ -1,6 +1,6 @@
-# Uma Musume Text-Based Clone
+# Horse Racing Text Game
 
-A terminal-based horse racing simulation game inspired by Uma Musume Pretty Derby. Train your horse through a 12-turn career, build stats, manage resources, and compete in races to achieve championship glory!
+A terminal-based horse racing simulation game. Train your horse through a 12-turn career, build stats, manage resources, and compete in races to achieve championship glory!
 
 **✅ FULLY PLAYABLE** - Complete game with robust input handling and comprehensive testing.
 
@@ -27,8 +27,8 @@ npm run dev
 ### Game Flow
 1. **Character Creation** - Name your horse (with realistic name generator) and begin your career
 2. **Training Phase** - 12 turns of strategic training choices against intelligent AI rivals
-3. **Racing Events** - Compete in 3 scheduled races with sophisticated NPH competitors
-4. **Career Completion** - Earn legacy bonuses for your next run
+3. **Racing Events** - Compete in 4 scheduled races with sophisticated NPH competitors
+4. **Career Completion** - Finish your career with comprehensive stats and achievements
 
 ### Key Features
 - **🏇 Shared Horse Architecture**: Unified system for player and AI horses with consistent mechanics
@@ -75,6 +75,7 @@ Final Result = Performance × Energy Factor × Mood × Random Variance
 - **Character Creation**: Type name letter by letter, press Enter to submit
 - **Backspace**: Edit character name during creation
 - **Enter/Space**: Submit forms and continue through races
+- **Enter (during race)**: Fast forward race animation to results
 - **R**: View race schedule and information  
 - **S**: Save current game progress
 - **L**: Load saved game
@@ -88,18 +89,41 @@ Final Result = Performance × Energy Factor × Mood × Random Variance
 
 ## 🏁 Race Types & Schedule
 
-### Career Race Schedule
-| Turn | Race Type | Distance | Focus | Description |
-|------|-----------|----------|-------|-------------|
-| 4 | Sprint Race | 1200m | Speed/Power | Debut race introduction |
-| 8 | Mile Race | 1600m | Balanced | Classic test of all abilities |
-| 12 | Long Distance | 2000m | Stamina | Championship finale |
+### Career Race Schedule (4 Static Races)
+| Turn | Race Type | Surface | Distance | Focus | Prize |
+|------|-----------|---------|----------|-------|-------|
+| 4 | Sprint | Turf | 1200m | Speed/Power | $2,000 |
+| 6 | Mile | Dirt | 1600m | Balanced | $5,000 |
+| 9 | Medium | Dirt | 2000m | Endurance | $8,000 |
+| 12 | Long | Turf | 2400m | Stamina | $15,000 |
 
 ### Track Conditions
 - **Firm**: Perfect conditions (100% performance)
 - **Good**: Slightly soft (98% performance)  
 - **Soft**: Slower ground (95% performance)
 - **Heavy**: Muddy and challenging (90% performance)
+
+## 🎯 Recent Updates & Improvements
+
+### State Machine Architecture (O(1) Performance)
+- **Efficient Input Handling**: Replaced O(n) switch-case patterns with O(1) Map lookups
+- **Graph-based Navigation**: BFS pathfinding for state transitions
+- **Event-driven System**: Command pattern integration for clean action handling
+- **Memory Management**: Proper resource cleanup and state history tracking
+
+### Race System Enhancements
+- **Race Collection Generator**: Static 4-race career with future expansion support
+- **Result Persistence**: Race results saved within race objects
+- **Completion Tracking**: Prevents race re-triggering after completion
+- **Fast Forward**: Skip race animations with ENTER key
+- **Proper Terminology**: Professional horse racing placings (🏆 1st, 🥈 2nd, 🥉 3rd)
+
+### UX Improvements
+- **Training Feedback**: Immediate ✅ success and ❌ failure notifications
+- **Turn Updates**: UI refreshes immediately after training
+- **Combined Screens**: Race results and podium ceremony on single display
+- **Clean NPH Output**: Rival training hidden during normal gameplay
+- **Career Completion**: Proper end-game detection and flow
 
 ## 🏗️ Technical Architecture
 
@@ -270,7 +294,7 @@ MIT License - feel free to use this project as learning material or build upon i
 
 ## 🙏 Acknowledgments
 
-- **Uma Musume Pretty Derby** by Cygames - Original inspiration
+- **Classic horse racing simulation games** - General inspiration
 - **blessed** community - Excellent terminal UI framework
 - **Node.js** ecosystem - Robust development platform
 

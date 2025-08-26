@@ -16,7 +16,7 @@ class SimpleUI {
   clearAndShowHeader() {
     console.clear();
     console.log(chalk.yellow.bold('═'.repeat(60)));
-    console.log(chalk.yellow.bold('🐴        Uma Musume Text Clone        🐴'));
+    console.log(chalk.yellow.bold('🐴        Horse Racing Text Game       🐴'));
     console.log(chalk.yellow.bold('═'.repeat(60)));
     console.log('');
   }
@@ -337,7 +337,7 @@ class SimpleUI {
   getNextRaceInfo(turn) {
     if (turn <= 4) {
       return {
-        name: 'Debut Sprint',
+        name: 'Maiden Sprint',
         turn: 4,
         distance: '1200m',
         focus: 'Speed & Power',

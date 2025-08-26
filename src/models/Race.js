@@ -240,7 +240,7 @@ class RaceSimulator {
       {
         turn: 4,
         raceType: 'sprint',
-        name: 'Debut Sprint',
+        name: 'Maiden Sprint',
         description: 'Your first race - a good introduction to competition'
       },
       {

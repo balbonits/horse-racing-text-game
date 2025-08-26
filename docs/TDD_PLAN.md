@@ -1,5 +1,5 @@
 # Test-Driven Development Plan
-## Uma Musume Text Clone - Complete Behavior Specification
+## Horse Racing Text Game - Complete Behavior Specification
 
 ## Philosophy
 **Define WHAT the app should do before HOW it does it**

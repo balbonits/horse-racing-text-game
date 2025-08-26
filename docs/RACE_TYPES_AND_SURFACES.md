@@ -1,4 +1,4 @@
-# Race Types and Track Surfaces - Uma Musume Style
+# Race Types and Track Surfaces
 
 ## Race Distance Categories
 

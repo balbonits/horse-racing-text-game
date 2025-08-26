@@ -1,10 +1,209 @@
-# Development Journey - Uma Musume Text-Based Clone
+# Development Journey - Horse Racing Text-Based Clone
 
 A chronicle of the development process, conversations, decisions, and learnings throughout the creation of this terminal-based horse racing game.
 
 ---
 
 ## 📅 **August 26, 2025**
+
+### **Modular Career System Architecture - Phase 1 Complete**
+**Status: TEST-DRIVEN DEVELOPMENT FOUNDATION**
+
+#### **Major Architectural Redesign**
+After encountering multiple race timing bugs and state transition issues, initiated a complete modular redesign using Test-Driven Development principles.
+
+**Key Decisions:**
+- **"Eat the elephant piece by piece"** approach - break system into focused modules
+- **Tests first, implementation second** - define expected behavior through comprehensive tests
+- **Single responsibility principle** - each module has one clear purpose
+- **Commit between phases** - ensure working state at each development step
+
+#### **Phase 1 Completed: Test Foundation**
+✅ **Core Data Module Tests Created:**
+- `tests/modules/Character.test.js` - Character state and basic queries (28 test scenarios)
+- `tests/modules/Timeline.test.js` - Race scheduling logic (20+ test scenarios)  
+- `tests/modules/GameState.test.js` - State transition management (15+ test scenarios)
+
+✅ **Business Logic Module Tests Created:**
+- `tests/modules/TrainingEngine.test.js` - Training mechanics (25+ test scenarios)
+- `tests/modules/TurnController.test.js` - Turn progression and race triggering (20+ test scenarios)
+
+✅ **Integration Tests Created:**
+- `tests/integration/CompleteCareer.test.js` - End-to-end career simulation
+
+✅ **Documentation Updated:**
+- `docs/MODULAR_ARCHITECTURE.md` - Complete architectural specification
+- Clear module interfaces and dependencies defined
+- Development phases planned
+
+#### **Architecture Benefits**
+This modular approach directly addresses all previous issues:
+- **Race Timing**: Timeline module provides single source of truth for race scheduling
+- **State Transitions**: GameState module prevents duplicate state errors  
+- **Data Persistence**: Clear separation ensures character stats always persist
+- **Testing Coverage**: Comprehensive unit and integration test coverage
+
+**Next Phase**: Implement Character, Timeline, and GameState modules to pass their tests.
+
+---
+
+### **Complete Race System Overhaul & Bug Resolution**
+**Status: PRODUCTION-READY IMPLEMENTATION** (Previous work)
+
+#### Critical Fixes Deployed:
+- **Race Timing Logic Fixed** - Resolved premature race triggering by checking AFTER turn advancement
+- **Race Name Consistency** - Fixed "Maiden Sprint" vs "Debut Sprint" conflicts across UI files
+- **Race Results Display** - Robust time formatting with type checking prevents crashes
+- **Turn Progression Fixed** - UI now refreshes after training to show correct turn numbers
+- **Race Completion Tracking** - Added `completedRaces` array prevents race re-triggering
+- **Post-Race Flow** - Direct race_results → training transition without podium state
+- **Career Completion** - Proper detection when reaching max turns (12)
+
+#### Race Collection System:
+- **RaceGenerator Class** - Creates static 4-race careers with future expansion support
+- **Static Race Schedule**:
+  - Turn 4: Sprint on Turf (1200m) - Speed/Power focus - $2,000
+  - Turn 6: Mile on Dirt (1600m) - Balanced stats - $5,000
+  - Turn 9: Medium on Dirt (2000m) - Endurance test - $8,000
+  - Turn 12: Long on Turf (2400m) - Stamina challenge - $15,000
+- **Result Persistence** - Race results stored within race objects with timestamps
+- **Save/Load Support** - Completed races preserved across game sessions
+
+#### UX Enhancements:
+- **Fast Forward Racing** - Press ENTER during animations to skip to results
+- **Training Notifications** - Immediate ✅ success and ❌ failure messages
+- **Professional Placings** - 🏆 1st, 🥈 2nd, 🥉 3rd terminology in results
+- **Combined Ceremony** - Race results and podium on single screen
+- **NPH Training Hidden** - Rival training only visible with DEBUG_NPH flag
+- **Turn Counter Updates** - Training screen refreshes immediately after actions
+
+#### Future Architecture Prepared:
+- **Specialization System** - Placeholder for Horse Racing-style career paths
+- **Dynamic Race Generation** - Structure for varied races between careers
+- **G1/G2/G3 Progression** - Foundation for tiered race championships
+- **Seasonal Campaigns** - Framework for story-driven race arcs
+
+### **State Machine Architecture Revolution - O(1) Performance Upgrade**
+**Status: MAJOR ARCHITECTURAL OVERHAUL**
+
+#### Revolutionary Changes:
+- **Complete replacement of switch-case patterns** with efficient data structures
+- **State Machine Pattern implementation** using Maps and Sets for O(1) lookups  
+- **Graph-based navigation** with BFS pathfinding algorithms
+- **Event-driven architecture** with command pattern integration
+- **Clean resource management** for proper console application lifecycle
+
+#### Performance Improvements:
+- **Input handling**: O(n) switch-case → O(1) Map lookup
+- **State transitions**: O(n) validation → O(1) Set membership test
+- **Navigation**: O(n) hardcoded logic → O(V+E) graph algorithms  
+- **Memory usage**: O(V+E) efficient state storage vs scattered switch statements
+
+#### New Architecture Components:
+```
+src/systems/
+├── StateMachine.js          # Core state management (O(1) operations)
+├── GameStateMachine.js      # Game-specific business logic integration  
+└── GameFlowValidator.js     # Comprehensive validation system
+```
+
+#### Key Technical Achievements:
+```javascript
+// OLD: O(n) switch-case pattern
+switch(this.currentState) {
+  case 'training': /* handle */ break;
+  case 'race_preview': /* handle */ break;
+  // ... n cases to scan through  
+}
+
+// NEW: O(1) Map lookup
+const renderHandlers = new Map([
+  ['training', () => this.renderTraining()],
+  ['race_preview', () => this.renderRacePreview()]
+]);
+renderHandlers.get(currentState)(); // Direct O(1) access
+```
+
+#### Data Structures Used:
+- **Map<string, Set<string>>**: State transitions (O(1) validation)
+- **Map<string, Map<string, any>>**: Input routing (O(1) command dispatch)
+- **Map<string, Function>**: Action handlers (O(1) execution)
+- **Event system**: Loose coupling with O(1) listener dispatch
+
+#### Files Transformed:
+- `src/GameApp.js`: Complete input handling overhaul
+- `src/systems/StateMachine.js`: NEW - Core state management engine
+- `src/systems/GameStateMachine.js`: NEW - Game-specific integration
+- Removed all switch-case patterns throughout codebase
+
+#### Impact & Benefits:
+✅ **Scalability**: Adding new states/transitions is O(1) vs O(n) refactoring
+✅ **Performance**: Hash table lookups vs linear switch-case scans
+✅ **Maintainability**: Declarative configuration vs hardcoded logic
+✅ **Robustness**: Graph validation prevents invalid state transitions
+✅ **Clean Exit**: Proper resource cleanup with console clearing
+✅ **Developer Experience**: Human-readable complexity documentation
+✅ **Future-Proof**: BFS pathfinding enables complex navigation features
+
+### **Complete Race Flow Implementation**
+
+#### Multi-Screen Race Experience 
+- **Challenge**: User feedback indicated the race jumped directly to results, missing the progressive race experience
+- **Solution**: Implemented complete race flow with multiple screens and animated progression
+- **New Flow**: `training → race_preview → horse_lineup → strategy_select → race_running → race_results → podium → training`
+
+#### Race Animation System
+- **Created**: `RaceAnimation` class with real-time horse movement visualization
+- **Features**: ASCII track with horse emojis (🐎, 🏇, 🐴), player highlighting (🟢), phase progression
+- **Animation**: 12-second races with 200ms frame updates showing horses moving across 50-character track
+- **Phases**: Starting Gate 🚪 → Early Pace 🏃 → Middle Stretch 🔥 → Final Sprint! 💨
+
+#### New Race States & UI Screens
+- **race_preview**: Shows race details, player horse stats, weather conditions
+- **horse_lineup**: Displays all 8 competitors with stats and racing colors
+- **strategy_select**: Interactive strategy selection (Front Runner 🔥, Stalker 🎯, Closer 💨)
+- **race_running**: Animated race progression with real-time position updates
+- **podium**: Victory ceremony with placement-specific celebrations
+
+#### Technical Implementation
+- **GameApp State Management**: Added 6 new valid states with proper input handling
+- **UI Components**: New TextUI methods for each race screen with clear visual hierarchy
+- **Race Field Generation**: Integration with NPH roster for realistic competition
+- **Strategy System**: Player choice affects racing style and performance modifiers
+- **Animation Cleanup**: Proper interval management to prevent memory leaks in tests
+
+#### Test Coverage
+- **Unit Tests**: `RaceAnimation` class with 14 test cases covering initialization, performance calculation, race execution
+- **Integration Tests**: Complete race flow validation with 11 test scenarios
+- **End-to-End**: Manual testing confirms smooth transitions and visual appeal
+
+### **Race Transition System Fix**
+
+#### Critical Race Transition Bug Resolution
+- **Issue**: Players stuck on training screen after completing training on turn 4 when race should begin
+- **Root Cause**: Race checking happened AFTER turn advancement, causing race detection to fail
+- **Solution**: Modified `Game.js` to check upcoming race BEFORE training completes and turn advances
+- **Files Modified**: 
+  - `src/systems/Game.js:142-158` - Fixed race timing logic
+  - `src/GameApp.js:395-415, 478-496` - Added race result capture and data transformation
+
+#### Race Results Display Implementation
+- **Problem**: Race results not displaying due to data structure mismatch
+- **Fix**: Added data transformation in GameApp to convert Game.js race format to UI format
+- **Enhancement**: Proper screen clearing when transitioning from training to race results
+- **Result**: Clean race results screen with player highlighting "(YOU)" 
+
+#### Data Structure Alignment
+- **Game.js Output**: `{participants, raceData, position, time, performance}`
+- **UI Expected**: `{results, raceType, distance, trackCondition}`
+- **Transformation**: Added mapping in GameApp race transition handlers
+- **Impact**: Seamless UI display with proper race information
+
+#### User Experience Improvements
+- **Screen Management**: Race results now properly clear previous training content
+- **Player Identification**: Player horse clearly highlighted in race standings
+- **State Transitions**: Smooth flow from training → race detection → race results
+- **Race Execution**: Automatic race execution with immediate results display
 
 ### **Major Architectural Refactor - Horse Class System**
 
@@ -119,7 +318,7 @@ A chronicle of the development process, conversations, decisions, and learnings 
    - Jest for comprehensive testing
 
 2. **Game Mechanics Simplified**:
-   - 3-stat system (Speed/Stamina/Power) instead of Uma Musume's 5-stat system
+   - 3-stat system (Speed/Stamina/Power) instead of Horse Racing's 5-stat system
    - 12-turn career structure with 3 scheduled races
    - Energy and friendship systems for resource management
 

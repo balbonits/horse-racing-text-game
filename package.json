@@ -1,7 +1,7 @@
 {
-  "name": "uma-musume-text-clone",
+  "name": "horse-racing-text-game",
   "version": "0.1.0",
-  "description": "A text-based horse racing simulation game inspired by Uma Musume Pretty Derby",
+  "description": "A text-based horse racing simulation and training game",
   "main": "src/app.js",
   "scripts": {
     "start": "node src/launcher.js",

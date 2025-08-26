@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
 /**
- * Simple Launcher for Uma Musume Text-Based Clone
+ * Simple Launcher for Horse Racing Text Game
  * Just runs the game directly for maximum compatibility
  */
 
 const GameApp = require('./GameApp');
 
 console.log('===============================================');
-console.log('           UMA MUSUME TEXT CLONE             ');
+console.log('           HORSE RACING TEXT GAME           ');
 console.log('===============================================');
 console.log('Starting game...\n');
 

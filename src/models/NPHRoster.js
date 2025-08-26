@@ -35,7 +35,9 @@ class NPHRoster {
     const playerPower = this.calculateHorsePower(playerHorse);
     
     if (process.env.NODE_ENV !== 'test') {
-      console.log(`🏇 Generating ${rosterSize} rival horses for ${playerHorse.name}`);
+      if (process.env.NODE_ENV === 'development' && process.env.DEBUG_NPH) {
+        console.log(`🏇 Generating ${rosterSize} rival horses for ${playerHorse.name}`);
+      }
     }
 
     for (let i = 0; i < rosterSize; i++) {
@@ -44,7 +46,9 @@ class NPHRoster {
     }
 
     if (process.env.NODE_ENV !== 'test') {
-      console.log(`✅ Generated roster with ${this.nphs.length} rival horses`);
+      if (process.env.NODE_ENV === 'development' && process.env.DEBUG_NPH) {
+        console.log(`✅ Generated roster with ${this.nphs.length} rival horses`);
+      }
     }
     return this.nphs;
   }
@@ -170,7 +174,7 @@ class NPHRoster {
    * Simulate NPH training progression each turn
    */
   progressNPHs(currentTurn) {
-    if (process.env.NODE_ENV !== 'test') {
+    if (process.env.NODE_ENV === 'development' && process.env.DEBUG_NPH) {
       console.log(`🤖 Simulating NPH training for turn ${currentTurn}`);
     }
     
@@ -186,7 +190,7 @@ class NPHRoster {
       // Record the training in NPH history
       nph.recordTraining(currentTurn, trainingResult);
 
-      if (process.env.NODE_ENV !== 'test') {
+      if (process.env.NODE_ENV === 'development' && process.env.DEBUG_NPH) {
         console.log(`  ${nph.name}: ${trainingResult.type} (+${trainingResult.gain} ${trainingResult.stat})`);
       }
     });

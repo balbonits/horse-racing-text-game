@@ -26,7 +26,10 @@
       "Bash(timeout:*)",
       "Bash(find:*)",
       "WebSearch",
-      "Bash(gtimeout:*)"
+      "Bash(gtimeout:*)",
+      "Bash(npm run test:*)",
+      "Bash(npx jest:*)",
+      "Bash(sed:*)"
     ],
     "deny": [],
     "ask": []

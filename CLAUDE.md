@@ -1,7 +1,7 @@
-# AI Context for Uma Musume Text-Based Clone
+# AI Context for Horse Racing Text Game
 
 ## Project Overview
-Build a text-based horse racing simulation game inspired by Uma Musume Pretty Derby. This is a **Node.js terminal application** focused on training mechanics, stat progression, and race simulation with ASCII/terminal interface.
+Build a text-based horse racing simulation game inspired by horse racing simulation games. This is a **Node.js terminal application** focused on training mechanics, stat progression, and race simulation with ASCII/terminal interface.
 
 **Target Experience**: 15-minute addictive sessions with "one more run" appeal.
 
@@ -17,6 +17,7 @@ Build a text-based horse racing simulation game inspired by Uma Musume Pretty De
 - **Storage**: JSON files (no database needed for MVP)
 - **Language**: JavaScript
 - **Testing**: Jest framework
+- **Architecture**: State Machine Pattern for O(1) input handling and robust navigation
 
 ## Essential Dependencies
 ```json
@@ -67,6 +68,52 @@ uma-musume-clone/
     └── *.md                # Other documentation
 ```
 
+## Advanced State Machine Architecture
+
+### Efficient Data Structures & Algorithms Implementation
+The game now uses a sophisticated state machine system that replaces repetitive switch-case patterns with efficient data structures:
+
+**Time & Space Complexity Analysis:**
+- **State transition validation**: O(1) average - uses Map + Set lookup vs O(n) switch-case
+- **Input handling**: O(1) average - direct Map lookup vs O(n) linear scan
+- **Path finding**: O(V + E) BFS algorithm for complex navigation
+- **Memory usage**: O(V + E) where V = states, E = transitions
+
+**Key Components:**
+- `StateMachine.js` - Core state management with graph-based navigation
+- `GameStateMachine.js` - Game-specific business logic integration
+- Map<string, Set<string>> for state transitions
+- Map<string, Map<string, any>> for input routing
+- Event-driven architecture with command pattern
+
+**Performance Benefits:**
+- Scalable: Adding states/transitions is O(1) vs O(n) refactoring
+- Maintainable: Declarative configuration vs hardcoded logic
+- Robust: Validation prevents invalid state transitions
+- Efficient: Hash table lookups vs linear searches
+
+## Current State & Documentation
+
+### 📚 Core Documentation Files
+- **docs/RACE_SYSTEM.md** - Single source of truth for race system
+- **docs/TEST_INVENTORY.md** - Complete list of all tests
+- **docs/DEV_JOURNEY.md** - Development history and decisions
+
+### ✅ Production Ready Features
+- **State Machine Architecture** - O(1) input handling with Map/Set data structures
+- **Race System** - 4 static races per career (see docs/RACE_SYSTEM.md)
+- **NPH AI System** - 24 intelligent rival horses with unique behaviors
+- **Save/Load System** - Full game state persistence including race results
+- **Test Coverage** - 24 test files across unit, integration, E2E (see docs/TEST_INVENTORY.md)
+
+### 🏁 Race Schedule (Static 4-Race Career)
+| Turn | Race Name | Type | Surface | Distance | Prize |
+|------|-----------|------|---------|----------|-------|
+| 4 | Maiden Sprint | Sprint | Turf | 1200m | $2,000 |
+| 6 | Mile Championship | Mile | Dirt | 1600m | $5,000 |
+| 9 | Dirt Stakes | Medium | Dirt | 2000m | $8,000 |
+| 12 | Turf Cup Final | Long | Turf | 2400m | $15,000 |
+
 ## Core Data Models
 
 ### Character Stats (simplified from 5 to 3 stats)
@@ -85,6 +132,12 @@ uma-musume-clone/
 
 - Energy system: 100 max, training costs 10-20, rest restores 30
 - Friendship bonuses: 3x training gains at 80% friendship
+
+### Race Schedule (4 Races per Career)
+- **Turn 3**: Maiden Sprint (Dirt, 1200m) - Speed/Power focus
+- **Turn 4**: Mile Championship (Dirt, 1600m) - Balanced stats
+- **Turn 5**: Dirt Stakes (Dirt, 2000m) - Endurance focus  
+- **Turn 8**: Turf Cup Final (Turf, 2400m) - Stamina focus
 
 ### Race Mechanics
 ```javascript
@@ -199,11 +252,14 @@ module.exports = {
 - **Every function must have a failing test before implementation**
 
 ### Code Quality Standards
+- **Use efficient data structures** - O(1) Map lookups over O(n) switch-case patterns
+- **State machine architecture** - All navigation through validated state transitions
 - **Keep formulas simple initially** - Add complexity later
 - **Test as you build** - Write tests for core mechanics immediately
 - **Focus on engagement** - Prioritize "one more run" addiction loop
 - **Use console.log liberally** - Debug race calculations thoroughly
 - **Balance early and often** - Test with different stat combinations
+- **Clean resource management** - Proper cleanup for console applications
 
 ### Testing Workflow
 - **Run `npm run test:watch` during development**
@@ -260,13 +316,55 @@ node src/app.js          # Direct game launch
 - Clean up blessed components properly
 - Optimize race calculations for multiple simulations
 
+## Recent Bug Fixes (All Resolved ✅)
+
+### Race System Issues
+- **Fixed**: Races triggering prematurely before turn advancement
+- **Fixed**: Races re-triggering after completion (stuck on turn 4)
+- **Fixed**: Race name inconsistencies ("Maiden Sprint" vs "Debut Sprint")
+- **Fixed**: Race results time formatting crashes (`toFixed()` on non-numbers)
+
+### UI/UX Issues
+- **Fixed**: Turn counter not updating after training
+- **Fixed**: NPH training output cluttering UI
+- **Fixed**: Missing training success/failure notifications
+- **Fixed**: Race results and podium on separate screens
+
+### Game Flow Issues
+- **Fixed**: Post-race flow not returning to training
+- **Fixed**: Career completion not triggering at turn 12
+- **Fixed**: Save/Load not preserving completed races
+
+## Future Roadmap
+
+### Phase 1: Specialization System (Horse Racing Style)
+- Horse specializations: Sprinter, Miler, Stayer
+- Surface preferences: Turf specialist, Dirt specialist
+- Racing styles: Front runner, Stalker, Closer
+- Specialized training paths and race recommendations
+
+### Phase 2: Dynamic Race Generation
+- Procedurally generated race names and venues
+- Variable weather conditions affecting performance
+- G1/G2/G3 race tiers with qualification requirements
+- Seasonal campaigns and story arcs
+
+### Phase 3: Enhanced NPH System
+- Rival relationships and narratives
+- Dynamic NPH generation based on player progress
+- Special rival events and challenges
+- Team/stable management features
+
 ## Success Metrics for MVP
-- [ ] Can complete a full career run (12 training turns + 3 races)
-- [ ] Training choices feel meaningful and impactful
-- [ ] Race results clearly reflect training decisions  
-- [ ] Can save and resume progress reliably
-- [ ] Session length stays within 10-15 minutes
-- [ ] Player wants to immediately start another run
+- [x] Can complete a full career run (12 training turns + 4 races)
+- [x] Training choices feel meaningful and impactful
+- [x] Race results clearly reflect training decisions  
+- [x] Can save and resume progress reliably
+- [x] Session length stays within 10-15 minutes
+- [x] Player wants to immediately start another run
+- [x] State machine provides O(1) input handling performance
+- [x] Clean exit/cleanup handling for console applications
+- [x] Robust navigation prevents getting stuck on screens
 
 ---
 
@@ -275,3 +373,4 @@ node src/app.js          # Direct game launch
 - update all `/docs` & `README.md` before committing.
 - create documented plans & tests before implementation.
 - follow DRY approach, and create modular functions & components to avoid/reduce repeating code.
+- when adding tests, check & update the test inventory first, then create/update/remove the tests.

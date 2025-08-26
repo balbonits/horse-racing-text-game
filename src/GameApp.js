@@ -1,5 +1,7 @@
 const Game = require('./systems/Game');
 const TextUI = require('./systems/TextUI');
+const RaceAnimation = require('./systems/RaceAnimation');
+const GameStateMachine = require('./systems/GameStateMachine');
 const NameGenerator = require('./utils/NameGenerator');
 const fs = require('fs').promises;
 const path = require('path');
@@ -14,20 +16,35 @@ class GameApp {
     this.game = new Game();
     this.ui = new TextUI(); // Use pure text UI for maximum simplicity
     this.nameGenerator = new NameGenerator();
-    this.currentState = 'main_menu';
+    this.stateMachine = new GameStateMachine(this); // Replace validator with state machine
     this.saveDirectory = path.join(__dirname, '../data/saves');
     this.characterNameBuffer = '';
     this.nameOptions = [];
     
+    // Initialize state machine
+    this.stateMachine.reset('main_menu');
+    
     // No blessed, no screen, just pure console input handling
     this.setupKeyboardInput();
+  }
+
+  // Property accessor for backward compatibility
+  get currentState() {
+    return this.stateMachine ? this.stateMachine.getCurrentState() : 'main_menu';
+  }
+  
+  set currentState(state) {
+    // This setter is mainly for backward compatibility
+    if (this.stateMachine) {
+      this.stateMachine.transitionTo(state);
+    }
   }
 
   /**
    * Start the game application with pure console input
    */
   start() {
-    console.log('Starting Uma Musume Text Clone...\n');
+    console.log('Starting Horse Racing Text Game...\n');
     this.render();
   }
 
@@ -43,250 +60,71 @@ class GameApp {
     // Handle line input
     this.rl.on('line', (input) => {
       const trimmed = input.trim();
-      if (trimmed) {
-        this.handleKeyInput(trimmed);
+      // Allow empty input (ENTER key) for race states and other navigation
+      if (trimmed || this.isNavigationState()) {
+        this.handleKeyInput(trimmed || 'enter');
       }
     });
     
-    // Handle Ctrl+C
+    // Handle Ctrl+C with clean shutdown
     this.rl.on('SIGINT', () => {
-      this.quit();
+      console.log('\n\n👋 Received interrupt signal, cleaning up...');
+      this.cleanup();
+      process.exit(0);
     });
   }
 
   handleKeyInput(key) {
     try {
-      switch (this.currentState) {
-        case 'main_menu':
-          return this.handleMainMenuInput(key);
-        case 'character_creation':
-          return this.handleCharacterCreationInput(key);
-        case 'load_game':
-          return this.handleLoadGameInput(key);
-        case 'training':
-          return this.handleTrainingInput(key);
-        case 'race_results':
-          return this.handleRaceResultsInput(key);
-        case 'help':
-          return this.handleHelpInput(key);
-        case 'career_complete':
-          return this.handleCareerCompleteInput(key);
-        default:
-          return this.handleGlobalInput(key);
+      // Handle fast forward during race animation
+      if (this.isRaceAnimationRunning && (key === 'enter' || key === '')) {
+        console.log('⚡ Fast forwarding to race results...');
+        this.raceAnimation.enableFastForward();
+        return { success: true, message: 'Fast forwarding...' };
       }
+      
+      // Use state machine for O(1) input handling vs O(n) switch-case
+      const result = this.stateMachine.processGameInput(key);
+      
+      if (!result.success) {
+        console.log(`❌ ${result.error}`);
+        if (result.availableInputs) {
+          console.log(`💡 Available inputs: ${result.availableInputs.join(', ')}`);
+        }
+      }
+      
+      return result;
     } catch (error) {
       this.displayError(`Input error: ${error.message}`);
       return { success: false, message: 'Input error' };
     }
   }
 
-  handleMainMenuInput(key) {
-    switch (key) {
-      case '1':
-        this.selectMainMenuOption('new_career');
-        return { success: true, action: 'new_career' };
-      case '2':
-        this.selectMainMenuOption('load_game');
-        return { success: true, action: 'load_game' };
-      case '3':
-      case 'h':
-        this.selectMainMenuOption('help');
-        return { success: true, action: 'help' };
-      case '4':
-      case 'q':
-        this.quit();
-        return { success: true, action: 'quit' };
-      default:
-        return { success: false, action: 'invalid_key', key: key };
-    }
+  // Input handlers now managed by GameStateMachine for O(1) performance
+
+  // Character creation input now handled by GameStateMachine
+
+  // All input handlers moved to GameStateMachine for O(1) lookup vs O(n) switch-case
+
+  // Helper method to check if current state expects navigation input
+  isNavigationState() {
+    const currentState = this.stateMachine.getCurrentState();
+    const metadata = this.stateMachine.getStateMetadata(currentState);
+    return metadata.allowEmpty || false;
   }
 
-  handleCharacterCreationInput(key) {
-    console.log('⌨️ Character creation input:', JSON.stringify(key));
-    
-    // Handle quit (single 'q' or 'Q')
-    if (key.toLowerCase() === 'q') {
-      console.log('🚪 Quitting character creation');
-      this.nameOptions = [];
-      this.setState('main_menu');
-      return { success: true, action: 'quit' };
-    }
-
-    // Handle name generation
-    if (key.toLowerCase() === 'g') {
-      console.log('🎲 Generating name options...');
-      this.nameOptions = this.nameGenerator.generateNameOptions(6);
-      this.render();
-      return { success: true, action: 'generate_names' };
-    }
-
-    // Handle name selection from generated options
-    if (this.nameOptions.length > 0) {
-      const nameIndex = parseInt(key) - 1;
-      if (nameIndex >= 0 && nameIndex < this.nameOptions.length) {
-        const selectedName = this.nameOptions[nameIndex];
-        console.log('🔄 Creating character with selected name:', JSON.stringify(selectedName));
-        
-        // Handle synchronous character creation
-        const result = this.createCharacter(selectedName);
-        this.characterNameBuffer = '';
-        this.nameOptions = [];
-        
-        if (!result.success) {
-          console.log('❌ Character creation failed:', result.message);
-          this.ui.updateStatus(`❌ ${result.message}`);
-          this.render(); // Re-render to show the error
-        }
-        // Success case is handled in createCharacter method
-        
-        return { success: true, action: 'creating_character' };
-      }
-    }
-
-    // Since we're using readline, we get full text input, not individual characters
-    // Treat the entire input as the horse name
-    if (key && key.trim().length > 0) {
-      const horseName = key.trim();
-      
-      // Validate the name (1-20 characters, alphanumeric plus spaces, underscores, hyphens, and apostrophes)
-      if (!horseName.match(/^[a-zA-Z0-9_\-' ]+$/)) {
-        console.log('❌ Invalid characters in name');
-        this.ui.updateStatus('❌ Invalid characters in name. Use only letters, numbers, spaces, _, -, and \'');
-        this.render(); // Re-render to show the error
-        return { success: false, action: 'invalid_input', message: 'Invalid characters' };
-      }
-      
-      if (horseName.length > 20) {
-        console.log('❌ Name too long');
-        this.ui.updateStatus('❌ Name must be 20 characters or less');
-        this.render(); // Re-render to show the error
-        return { success: false, action: 'invalid_input', message: 'Name too long' };
-      }
-      
-      console.log('🔄 Creating character with name:', JSON.stringify(horseName));
-      
-      // Handle synchronous character creation
-      const result = this.createCharacter(horseName);
-      this.characterNameBuffer = '';
-      this.nameOptions = [];
-      
-      if (!result.success) {
-        console.log('❌ Character creation failed:', result.message);
-        this.ui.updateStatus(`❌ ${result.message}`);
-        this.render(); // Re-render to show the error
-      }
-      // Success case is handled in createCharacter method
-      
-      return { success: true, action: 'creating_character' };
-    }
-    
-    // Empty input, just re-render
-    this.render();
-    return { success: true, action: 'empty_input' };
-  }
-
-  handleTrainingInput(key) {
-    const trainingMap = {
-      '1': 'speed',
-      '2': 'stamina', 
-      '3': 'power',
-      '4': 'rest',
-      '5': 'social'
-    };
-
-    if (trainingMap[key]) {
-      // Handle synchronous training
-      const result = this.performTrainingSync(trainingMap[key]);
-      if (result.success) {
-        this.render(); // Re-render after training completes
-      } else {
-        this.ui.updateStatus(`❌ ${result.message}`);
-        this.render();
-      }
-      
-      return { success: true, action: 'training' };
-    } else if (key === 'r') {
-      this.showRaceSchedule();
-      return { success: true };
-    } else if (key === 's') {
-      return this.saveGame();
-    } else if (key === 'h') {
-      this.setState('help');
-      return { success: true };
-    } else if (key === 'q') {
-      this.setState('main_menu');
-      return { success: true };
-    }
-    return { success: false, message: 'Invalid input' };
-  }
-
-  handleRaceResultsInput(key) {
-    if (key === 'enter' || key === ' ' || key === '1' || key === '2' || key === '3' || key === '4' || key === '5') {
-      // Check if there are more races to run
-      const scheduledRaces = this.game.getScheduledRaces();
-      const completedRaces = this.game.getRaceResults();
-      
-      if (completedRaces.length < scheduledRaces.length) {
-        // Check if there are more scheduled races in the near future
-        // If not, return to training
-        this.setState('training');
-        return { success: true, action: 'continue_training' };
-      } else {
-        // All races complete - finish career
-        this.setState('career_complete');
-        return { success: true, action: 'career_complete' };
-      }
-    } else {
-      // Return to training
-      this.setState('training');
-      return { success: true, action: 'continue_training' };
-    }
-  }
-
-  handleHelpInput(key) {
-    this.setState('training');
-    return { success: true, action: 'return_to_training' };
-  }
-
-  handleCareerCompleteInput(key) {
-    if (key === 'enter') {
-      this.startNewCareer();
-      return { success: true, action: 'new_career' };
-    } else if (key === 'q') {
-      this.quit();
-      return { success: true, action: 'quit' };
-    }
-    return { success: false, message: 'Invalid input. Press Enter for new career or Q to quit.' };
-  }
-
-  handleGlobalInput(key) {
-    if (key === 'q') {
-      this.quit();
-      return { success: true, action: 'quit' };
-    } else if (key === 'h') {
-      this.setState('help');
-      return { success: true, action: 'help' };
-    }
-    return { success: false, message: 'Invalid input' };
-  }
-
-  // State management
+  // State management using O(1) state machine
   setState(newState) {
-    const validStates = [
-      'main_menu', 'character_creation', 'load_game', 'training', 
-      'race_results', 'help', 'career_complete'
-    ];
+    const result = this.stateMachine.transitionTo(newState);
     
-    if (!validStates.includes(newState)) {
-      console.error('❌ Invalid state:', newState);
-      throw new Error(`Invalid state: ${newState}`);
+    if (!result.success) {
+      console.error('❌ Invalid state transition:', result.error);
+      console.log(`💡 Allowed transitions: ${result.allowedTransitions?.join(', ') || 'none'}`);
+      throw new Error(`Invalid state transition: ${result.error}`);
     }
-    
-    const oldState = this.currentState;
-    this.currentState = newState;
     
     // Clear character name buffer when leaving character creation
-    if (this.currentState !== 'character_creation') {
+    if (newState !== 'character_creation') {
       if (this.characterNameBuffer) {
         this.characterNameBuffer = '';
       }
@@ -297,6 +135,9 @@ class GameApp {
       this.game.enterRacePhase();
     }
     
+    // Check for auto-transitions
+    this.stateMachine.checkAutoTransitions();
+    
     this.render();
   }
 
@@ -306,19 +147,17 @@ class GameApp {
   }
 
   selectMainMenuOption(option) {
-    switch (option) {
-      case 'new_career':
-        this.setState('character_creation');
-        break;
-      case 'load_game':
-        this.setState('load_game');
-        break;
-      case 'help':
-        this.setState('help');
-        break;
-      case 'quit':
-        this.quit();
-        break;
+    // Use Map lookup for O(1) performance vs O(n) switch-case
+    const optionHandlers = new Map([
+      ['new_career', () => this.setState('character_creation')],
+      ['load_game', () => this.setState('load_game')],
+      ['help', () => this.setState('help')],
+      ['quit', () => this.quit()]
+    ]);
+    
+    const handler = optionHandlers.get(option);
+    if (handler) {
+      handler();
     }
   }
 
@@ -392,10 +231,16 @@ class GameApp {
           : trainingResult.message || `${trainingType} training completed!`;
         this.ui.updateStatus(message);
         
-        // Handle race transitions
-        if (trainingResult.raceReady) {
+        // Display success message immediately
+        console.log('');
+        console.log(`✅ ${message}`);
+        console.log('');
+        
+        // Handle race transitions - Start with race preview (only if not already in race flow)
+        if (trainingResult.raceReady && this.currentState !== 'race_preview') {
           console.log('🏁 Race is ready after training!');
-          this.game.enterRacePhase();
+          this.upcomingRace = trainingResult.nextRace;
+          this.setState('race_preview');
         }
         
         // Check if career is complete
@@ -403,8 +248,20 @@ class GameApp {
           console.log('🏆 Career complete after training!');
           this.setState('career_complete');
         }
+        
+        // Re-render the training screen to show updated turn and stats
+        if (!trainingResult.raceReady && !trainingResult.careerComplete) {
+          this.render();
+        }
       } else {
         this.ui.updateStatus(`❌ ${trainingResult.message}`);
+        
+        // Display failure message immediately
+        console.log('');
+        console.log(`❌ ${trainingResult.message}`);
+        console.log('');
+        
+        this.render(); // Re-render even on failure to show current state
       }
       
       return trainingResult;
@@ -450,8 +307,8 @@ class GameApp {
         }
         this.ui.updateStatus(statusMessage);
 
-        // Check if a race is scheduled after this training
-        if (trainingResult.raceReady && trainingResult.nextRace) {
+        // Check if a race is scheduled after this training (only if not already in race flow)
+        if (trainingResult.raceReady && trainingResult.nextRace && this.currentState !== 'race_preview') {
           console.log('🏁 Race scheduled after training:', trainingResult.nextRace);
           console.log('');
           console.log('🚨 === RACE DAY! ===');
@@ -459,9 +316,9 @@ class GameApp {
           console.log('🏃‍♂️ Your horse is heading to the starting line...');
           console.log('================');
           console.log('');
-          this.setState('race_results');
-          // Auto-run the scheduled race
-          this.game.enterRacePhase();
+          this.setState('race_preview');
+          // Store upcoming race info for race flow
+          this.upcomingRace = trainingResult.nextRace;
         }
         
         // Check if career is complete
@@ -639,28 +496,29 @@ class GameApp {
   // UI rendering
   render() {
     try {
-      switch (this.currentState) {
-        case 'main_menu':
-          this.renderMainMenu();
-          break;
-        case 'character_creation':
-          this.renderCharacterCreation();
-          break;
-        case 'load_game':
-          this.renderLoadGame();
-          break;
-        case 'training':
-          this.renderTraining();
-          break;
-        case 'race_results':
-          this.renderRaceResults();
-          break;
-        case 'help':
-          this.renderHelp();
-          break;
-        case 'career_complete':
-          this.renderCareerComplete();
-          break;
+      const currentState = this.stateMachine.getCurrentState();
+      
+      // Use Map for O(1) lookup vs O(n) switch-case
+      const renderHandlers = new Map([
+        ['main_menu', () => this.renderMainMenu()],
+        ['character_creation', () => this.renderCharacterCreation()],
+        ['load_game', () => this.renderLoadGame()],
+        ['training', () => this.renderTraining()],
+        ['race_preview', () => this.renderRacePreview()],
+        ['horse_lineup', () => this.renderHorseLineup()],
+        ['strategy_select', () => this.renderStrategySelect()],
+        ['race_running', () => this.renderRaceRunning()],
+        ['race_results', () => this.renderRaceResults()],
+        ['podium', () => this.renderPodium()],
+        ['help', () => this.renderHelp()],
+        ['career_complete', () => this.renderCareerComplete()]
+      ]);
+      
+      const renderHandler = renderHandlers.get(currentState);
+      if (renderHandler) {
+        renderHandler();
+      } else {
+        console.warn(`⚠️ No render handler for state: ${currentState}`);
       }
       // Pure console output - no blessed rendering needed
     } catch (error) {
@@ -757,34 +615,7 @@ class GameApp {
     }
   }
 
-  handleLoadGameInput(key) {
-    // Handle quit
-    if (key === 'q') {
-      this.setState('main_menu');
-      return { success: true, action: 'back_to_menu' };
-    }
-
-    // Handle number selection
-    const choice = parseInt(key);
-    if (!isNaN(choice) && choice >= 1) {
-      this.loadGameByIndex(choice - 1).then(result => {
-        if (result.success) {
-          this.ui.showMessage('Game loaded successfully!');
-          this.setState('training');
-        } else {
-          this.ui.showError('Failed to load game: ' + result.message);
-        }
-        this.render();
-      }).catch(error => {
-        this.ui.showError('Load error: ' + error.message);
-        this.render();
-      });
-      
-      return { success: true, action: 'load_game', choice: choice };
-    }
-
-    return { success: false, action: 'invalid_key', key: key };
-  }
+  // Load game input now handled by GameStateMachine
 
   async loadGameByIndex(index) {
     try {
@@ -859,14 +690,12 @@ class GameApp {
     return this.ui.lastMessage || '';
   }
 
-  // Application lifecycle
+  // Application lifecycle with clean shutdown
   quit() {
-    console.log('\nThanks for playing Uma Musume Text Clone!');
+    console.log('\n\n🌟 Thanks for playing Horse Racing Text Game!');
+    console.log('👋 Goodbye!');
     
-    // Close readline interface
-    if (this.rl) {
-      this.rl.close();
-    }
+    this.cleanup();
     
     // Only exit if not in test environment
     if (process.env.NODE_ENV !== 'test') {
@@ -874,11 +703,115 @@ class GameApp {
     }
   }
 
-  cleanup() {
-    // Cleanup resources for tests
-    if (this.rl) {
-      this.rl.close();
+  // New race flow render methods
+  renderRacePreview() {
+    this.ui.showRacePreview(this.upcomingRace, this.game.character);
+  }
+
+  renderHorseLineup() {
+    // Generate competition field
+    if (!this.raceField) {
+      this.raceField = this.generateRaceField();
     }
+    this.ui.showHorseLineup(this.raceField, this.game.character);
+  }
+
+  renderStrategySelect() {
+    this.ui.showStrategySelect();
+  }
+
+  renderRaceRunning() {
+    // This will be handled with animation timing
+    if (!this.raceAnimation) {
+      this.startRaceAnimation();
+    }
+  }
+
+  renderPodium() {
+    if (this.currentRaceResult) {
+      this.ui.showPodium(this.currentRaceResult);
+    }
+  }
+
+  generateRaceField() {
+    // Use the existing NPH roster to create realistic competition
+    if (this.game.nphRoster) {
+      return this.game.nphRoster.getRaceField(7);
+    }
+    
+    // Fallback to simple AI generation
+    const field = [];
+    for (let i = 0; i < 7; i++) {
+      field.push({
+        name: `Horse ${i + 1}`,
+        stats: {
+          speed: 30 + Math.random() * 40,
+          stamina: 30 + Math.random() * 40,
+          power: 30 + Math.random() * 40
+        },
+        icon: ['🐎', '🏇', '🐴'][i % 3]
+      });
+    }
+    return field;
+  }
+
+  startRaceAnimation() {
+    // This will run the animated race progression
+    this.raceAnimation = new RaceAnimation(
+      this.raceField,
+      this.game.character,
+      this.upcomingRace
+    );
+    
+    // Enable fast forward input during animation
+    this.isRaceAnimationRunning = true;
+    
+    this.raceAnimation.run().then(result => {
+      this.isRaceAnimationRunning = false;
+      this.currentRaceResult = result;
+      
+      // Check if career is complete after race
+      if (this.game.character.career.turn >= this.game.character.career.maxTurns) {
+        this.setState('career_complete');
+      } else {
+        this.setState('race_results');
+      }
+    });
+  }
+
+  cleanup() {
+    console.log('🧹 Cleaning up resources...');
+    
+    // Close readline interface with proper cleanup
+    if (this.rl) {
+      this.rl.removeAllListeners();
+      this.rl.close();
+      this.rl = null;
+    }
+    
+    // Cleanup race animation
+    if (this.raceAnimation) {
+      this.raceAnimation.cleanup();
+      this.raceAnimation = null;
+    }
+    
+    // Reset state machine
+    if (this.stateMachine) {
+      this.stateMachine.reset();
+    }
+    
+    // Clear any pending timeouts/intervals
+    if (this.animationTimer) {
+      clearTimeout(this.animationTimer);
+      this.animationTimer = null;
+    }
+    
+    // Clear console for clean exit
+    if (process.stdout.isTTY) {
+      process.stdout.write('\x1b[2J\x1b[0f'); // Clear screen
+    }
+    
+    console.log('✅ Cleanup complete');
   }
   
 
