@@ -14,13 +14,13 @@ module.exports = {
     VERSION_TAG: '',
     
     // Build metadata
-    BUILD_DATE: '2025-01-27',
-    BUILD_NUMBER: 1,
+    BUILD_DATE: '2025-08-27',
+    BUILD_NUMBER: 2,
     CODENAME: 'Thunder Runner',
     
     // Git information - Updated by build script
-    GIT_COMMIT: '',
-    GIT_BRANCH: '',
+    GIT_COMMIT: '181b506',
+    GIT_BRANCH: 'v1',
     
     // Compatibility ranges
     SAVE_COMPATIBILITY: {
