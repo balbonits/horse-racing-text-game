@@ -193,9 +193,9 @@ const showcaseConfig: ProjectData = {
       label: 'GitHub Repository'
     },
     {
-      type: 'demo',
-      url: 'https://github.com/[username]/horse-racing-text-game#installation',
-      label: 'Installation Guide'
+      type: 'docs',
+      url: 'https://github.com/balbonits/horse-racing-text-game#how-to-play',
+      label: 'How to Play Guide'
     }
   ],
   metrics: [
@@ -221,25 +221,25 @@ const showcaseConfig: ProjectData = {
     }
   ],
   lessons: [
-    'State machine patterns for complex application flow management and O(1) performance optimization',
-    'Test-driven development methodology with comprehensive coverage including visual regression testing',
-    'Terminal UI design principles for professional presentation and user experience in CLI applications',
-    'Game balance design through mathematical modeling and iterative testing for engaging gameplay',
-    'AI-assisted development workflows for efficient collaboration between human design and AI implementation'
+    'Advanced state machine architecture with O(1) performance optimization for scalable input handling',
+    'Comprehensive test-driven development including visual regression testing for terminal applications',
+    'Professional terminal UI design with ASCII art and cross-platform compatibility considerations',
+    'Mathematical game balance modeling to achieve target 15-minute session engagement',
+    'AI-assisted development demonstrating effective human-AI collaboration for technical implementation'
   ],
   challenges: [
-    'Implementing O(1) state transitions while maintaining readable and maintainable code architecture',
-    'Creating engaging terminal-based user interface with ASCII art and responsive layouts across platforms',
-    'Balancing complex game mechanics for strategic depth while maintaining 15-minute session accessibility',
-    'Developing comprehensive testing strategy including snapshot tests for terminal UI visual regression',
-    'Managing state complexity across multiple interconnected systems (training, racing, career progression)'
+    'Optimizing state transitions from O(n) to O(1) while maintaining clean, readable architecture',
+    'Designing engaging terminal interface with professional presentation rivaling modern GUI applications', 
+    'Balancing sophisticated game mechanics with accessibility for casual 15-minute sessions',
+    'Implementing snapshot testing for terminal UI visual regression in CLI environment',
+    'Coordinating complex interdependent systems (progression, racing, career management) cohesively'
   ],
   futureImprovements: [
-    'Horse specialization system with Sprinter, Miler, and Stayer archetypes for additional strategic depth',
-    'Advanced AI opponents using machine learning for more sophisticated rival horse behaviors',
-    'Web-based interface adaptation while maintaining terminal version for broader accessibility',
-    'Database integration for persistent online leaderboards and cross-platform save synchronization',
-    'Plugin system for community-created content including custom training types and race formats'
+    'Enhanced horse specialization system with breed-specific traits and racing preferences',
+    'Machine learning integration for more sophisticated AI opponent behaviors and strategies',
+    'Optional web interface while preserving the authentic terminal experience',
+    'Cloud save synchronization for cross-device career persistence',
+    'Performance analytics dashboard for detailed gameplay statistics and improvement tracking'
   ]
 };
 

@@ -387,26 +387,9 @@ The game features a **dual input system** for maximum compatibility:
 - **Accessibility**: Screen reader compatibility
 - **Localization**: Multi-language support
 
-## 🤝 Contributing
-
-We welcome contributions! Please see our development guidelines:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Run tests to ensure stability (`npm test`)
-4. Commit changes with clear messages
-5. Push to your branch (`git push origin feature/amazing-feature`)
-6. Open a Pull Request
-
-### Development Standards
-- Write tests for new functionality
-- Follow existing code style and patterns
-- Update documentation for user-facing changes
-- Ensure all tests pass before submitting
-
 ## 📄 License
 
-MIT License - feel free to use this project as learning material or build upon it for your own games.
+MIT License - This project is available as a portfolio demonstration and learning reference.
 
 ## 🙏 Acknowledgments
 
@@ -416,4 +399,4 @@ MIT License - feel free to use this project as learning material or build upon i
 
 ---
 
-*Ready to start your racing career? Run `npm start` and begin training your champion!* 🏇
+*A complete terminal-based game demonstrating advanced JavaScript development and sophisticated game design.* 🏇
