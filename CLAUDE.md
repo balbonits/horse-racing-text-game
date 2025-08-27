@@ -357,25 +357,52 @@ node src/app.js          # Direct game launch
 - **Fixed**: Career completion not triggering at turn 12
 - **Fixed**: Save/Load not preserving completed races
 
-## Future Roadmap
+## Version 1.0 Development Roadmap
 
-### Phase 1: Specialization System (Horse Racing Style)
-- Horse specializations: Sprinter, Miler, Stayer
-- Surface preferences: Turf specialist, Dirt specialist
-- Racing styles: Front runner, Stalker, Closer
-- Specialized training paths and race recommendations
+### ✅ v0.1.0 MVP Complete (August 2024)
+- State machine architecture with O(1) input handling
+- 24-turn careers with 4 static races
+- Bond system (renamed from friendship)
+- Form system (renamed from mood) with horse racing terminology
+- Media Day training (renamed from social)
+- Comprehensive testing suite with 95% coverage
+- Terminal UI with ASCII progress bars
+- Career completion with S/A/B/C/D/F grading
+- Portfolio showcase integration
 
-### Phase 2: Dynamic Race Generation
-- Procedurally generated race names and venues
-- Variable weather conditions affecting performance
-- G1/G2/G3 race tiers with qualification requirements
-- Seasonal campaigns and story arcs
+### 🚀 v1.0 Major Features (In Development)
 
-### Phase 3: Enhanced NPH System
-- Rival relationships and narratives
-- Dynamic NPH generation based on player progress
-- Special rival events and challenges
-- Team/stable management features
+#### Phase 1: Horse Specialization System (Priority: High)
+- **Horse Breeds**: Thoroughbred (balanced), Arabian (stamina), Quarter Horse (speed)
+- **Racing Specializations**: Sprinter (1000-1400m), Miler (1400-1800m), Stayer (1800m+)
+- **Surface Preferences**: Turf specialist vs Dirt specialist mechanics
+- **Racing Styles**: Front runner, Stalker, Closer with energy management
+- **Specialized Training**: Breed-specific recommendations and bonuses
+
+#### Phase 2: Enhanced Race System (Priority: High)  
+- **Dynamic Race Names**: Authentic horse racing terminology generator
+- **Weather Conditions**: Firm/Good/Soft/Heavy with performance impact
+- **Race Grading**: G1/G2/G3 tiers with qualification requirements
+- **Seasonal Campaigns**: Progressive difficulty and story arcs
+
+#### Phase 3: Advanced NPH & Competition (Priority: Medium)
+- **Named Rivals**: Backstories, rivalries, and special challenge events
+- **Dynamic Generation**: Rival creation based on player progress
+- **Team Management**: Stable features and multi-horse careers
+- **AI Improvements**: Machine learning integration for smarter behaviors
+
+#### Phase 4: Technical Enhancements (Priority: Medium)
+- **Cloud Saves**: Cross-device synchronization
+- **Analytics Dashboard**: Detailed performance statistics and trends
+- **Web Interface**: Optional GUI while preserving terminal authenticity
+- **Performance Optimization**: Advanced algorithms and memory management
+
+### v1.0 Success Metrics
+- [ ] 30-45 minute sessions with deeper strategic gameplay
+- [ ] 5+ viable specialization strategies (breed + style + surface combinations)
+- [ ] Meaningful rival relationships and narrative progression
+- [ ] Enhanced replayability through specialization variety
+- [ ] Advanced AI behaviors that adapt to player strategies
 
 ## Success Metrics for MVP
 - [x] Can complete a full career run (12 training turns + 4 races)

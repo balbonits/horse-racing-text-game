@@ -3,6 +3,8 @@
 ## Overview
 This document consolidates all race system documentation into one comprehensive reference. This represents the ACTUAL implemented system for the MVP.
 
+**v1.0 Update**: Enhanced with realistic distance categories based on IRL horse racing standards.
+
 ---
 
 ## 1. Race Schedule
@@ -13,9 +15,9 @@ Each career includes exactly 4 races at fixed turns:
 | Turn | Race Name | Type | Surface | Distance | Focus |
 |------|-----------|------|---------|----------|-------|
 | 4 | Maiden Sprint | Sprint | Dirt | 1200m | Speed/Power |
-| 7 | Mile Championship | Mile | Dirt | 1600m | Balanced |
-| 10 | Dirt Stakes | Medium | Dirt | 2000m | Endurance |
-| 12 | Turf Cup Final | Long | Turf | 2400m | Stamina |
+| 9 | Mile Championship | Mile | Dirt | 1600m | Balanced |
+| 15 | Dirt Stakes | Medium | Dirt | 2000m | Endurance |
+| 24 | Turf Cup Final | Long | Turf | 2400m | Stamina |
 
 ### Race Triggering
 - Races trigger **automatically** after training on scheduled turns
