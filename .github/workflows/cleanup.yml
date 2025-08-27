@@ -1,0 +1,284 @@
+name: 🧹 Branch Cleanup
+
+on:
+  # Run cleanup weekly on Sundays at 2 AM UTC
+  schedule:
+    - cron: '0 2 * * 0'
+  
+  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (no actual deletion)'
+        required: false
+        type: boolean
+        default: true
+      force_cleanup:
+        description: 'Force cleanup (ignore age limits)'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  cleanup:
+    name: 🧹 Clean Old Branches
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+    
+    steps:
+      - name: 📂 Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 📊 Analyze branches
+        id: analyze
+        run: |
+          echo "🔍 Analyzing repository branches..."
+          
+          # Get all remote branches
+          git fetch --all
+          
+          # Count branches
+          TOTAL_BRANCHES=$(git branch -r | grep -v HEAD | wc -l)
+          PROTECTED_BRANCHES=$(git branch -r | grep -E "(origin/main|origin/develop)" | wc -l)
+          
+          echo "total_branches=$TOTAL_BRANCHES" >> $GITHUB_OUTPUT
+          echo "protected_branches=$PROTECTED_BRANCHES" >> $GITHUB_OUTPUT
+          
+          echo "📊 Found $TOTAL_BRANCHES remote branches ($PROTECTED_BRANCHES protected)"
+
+      - name: 🔍 Identify cleanup candidates
+        id: candidates
+        run: |
+          echo "🔍 Identifying branches for cleanup..."
+          
+          CLEANUP_LIST=""
+          ARCHIVE_LIST=""
+          THREE_MONTHS_AGO=$(date -d "3 months ago" +%Y-%m-%d)
+          SIX_MONTHS_AGO=$(date -d "6 months ago" +%Y-%m-%d)
+          
+          # Check each branch
+          for branch in $(git branch -r | grep -v HEAD | sed 's/origin\///'); do
+            # Skip protected branches
+            if [[ "$branch" == "main" ]] || [[ "$branch" == "develop" ]]; then
+              continue
+            fi
+            
+            # Get last commit date
+            LAST_COMMIT=$(git log -1 --format="%ci" "origin/$branch" 2>/dev/null | cut -d' ' -f1)
+            
+            if [ -n "$LAST_COMMIT" ]; then
+              # Check if merged to main
+              if git merge-base --is-ancestor "origin/$branch" origin/main 2>/dev/null; then
+                IS_MERGED=true
+              else
+                IS_MERGED=false
+              fi
+              
+              # Categorize branch for cleanup
+              if [[ "$branch" == feature/* ]] || [[ "$branch" == fix/* ]]; then
+                if [ "$IS_MERGED" = true ] && [ "$LAST_COMMIT" \< "$THREE_MONTHS_AGO" ]; then
+                  CLEANUP_LIST="$CLEANUP_LIST $branch"
+                fi
+              elif [[ "$branch" == release/* ]]; then
+                # Only cleanup very old release branches
+                if [ "$LAST_COMMIT" \< "$SIX_MONTHS_AGO" ]; then
+                  ARCHIVE_LIST="$ARCHIVE_LIST $branch"
+                fi
+              fi
+            fi
+          done
+          
+          echo "cleanup_list=$CLEANUP_LIST" >> $GITHUB_OUTPUT
+          echo "archive_list=$ARCHIVE_LIST" >> $GITHUB_OUTPUT
+          
+          CLEANUP_COUNT=$(echo $CLEANUP_LIST | wc -w)
+          ARCHIVE_COUNT=$(echo $ARCHIVE_LIST | wc -w)
+          
+          echo "cleanup_count=$CLEANUP_COUNT" >> $GITHUB_OUTPUT
+          echo "archive_count=$ARCHIVE_COUNT" >> $GITHUB_OUTPUT
+          
+          echo "🗑️  Found $CLEANUP_COUNT branches for deletion"
+          echo "📦 Found $ARCHIVE_COUNT branches for archiving"
+
+      - name: 📦 Archive important branches
+        if: steps.candidates.outputs.archive_count > 0 && !inputs.dry_run
+        run: |
+          echo "📦 Archiving important branches..."
+          
+          for branch in ${{ steps.candidates.outputs.archive_list }}; do
+            echo "📦 Archiving: $branch"
+            git tag "archive/$branch" "origin/$branch"
+            git push origin "archive/$branch"
+          done
+
+      - name: 🗑️ Delete old branches
+        if: steps.candidates.outputs.cleanup_count > 0 && !inputs.dry_run
+        run: |
+          echo "🗑️ Deleting old merged branches..."
+          
+          for branch in ${{ steps.candidates.outputs.cleanup_list }}; do
+            echo "🗑️ Deleting: $branch"
+            
+            # Verify it's still merged (safety check)
+            if git merge-base --is-ancestor "origin/$branch" origin/main; then
+              git push origin --delete "$branch"
+              echo "✅ Deleted: $branch"
+            else
+              echo "⚠️  Skipped: $branch (not merged to main)"
+            fi
+          done
+
+      - name: 🧹 Cleanup local tracking
+        if: "!inputs.dry_run"
+        run: |
+          echo "🧹 Cleaning up local branch tracking..."
+          git remote prune origin
+          
+          # Clean up local branches that track deleted remotes
+          git branch -vv | grep ': gone]' | awk '{print $1}' | xargs -r git branch -D
+
+      - name: 📊 Generate cleanup report
+        id: report
+        run: |
+          echo "📊 Generating cleanup report..."
+          
+          REPORT="## 🧹 Branch Cleanup Report - $(date -u +"%Y-%m-%d %H:%M UTC")
+
+          ### 📊 Repository Stats
+          - **Total branches**: ${{ steps.analyze.outputs.total_branches }}
+          - **Protected branches**: ${{ steps.analyze.outputs.protected_branches }}
+          - **Cleanup candidates**: ${{ steps.candidates.outputs.cleanup_count }}
+          - **Archive candidates**: ${{ steps.candidates.outputs.archive_count }}
+
+          ### 🗑️ Branches "
+          
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            REPORT="$REPORT (DRY RUN - would be deleted):"
+          else
+            REPORT="$REPORT Deleted:"
+          fi
+          
+          if [ ${{ steps.candidates.outputs.cleanup_count }} -gt 0 ]; then
+            for branch in ${{ steps.candidates.outputs.cleanup_list }}; do
+              REPORT="$REPORT
+          - \`$branch\`"
+            done
+          else
+            REPORT="$REPORT
+          - *None*"
+          fi
+          
+          REPORT="$REPORT
+
+          ### 📦 Branches "
+          
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            REPORT="$REPORT (DRY RUN - would be archived):"
+          else
+            REPORT="$REPORT Archived:"
+          fi
+          
+          if [ ${{ steps.candidates.outputs.archive_count }} -gt 0 ]; then
+            for branch in ${{ steps.candidates.outputs.archive_list }}; do
+              REPORT="$REPORT
+          - \`$branch\` → \`archive/$branch\`"
+            done
+          else
+            REPORT="$REPORT
+          - *None*"
+          fi
+          
+          REPORT="$REPORT
+
+          ### ℹ️ Cleanup Rules
+          - **Feature/Fix branches**: Deleted after 3 months if merged to main
+          - **Release branches**: Archived after 6 months
+          - **Protected branches**: main, develop (never deleted)
+          - **Active branches**: Branches with recent commits are preserved
+
+          ---
+          🤖 *Automated cleanup by [Claude Code](https://claude.ai/code)*"
+          
+          # Save report to file
+          echo "$REPORT" > cleanup-report.md
+          
+          # Also output for GitHub summary
+          echo "report<<EOF" >> $GITHUB_OUTPUT
+          echo "$REPORT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: 📝 Add job summary
+        run: |
+          echo "${{ steps.report.outputs.report }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: 💾 Upload cleanup report
+        uses: actions/upload-artifact@v3
+        with:
+          name: cleanup-report-$(date +%Y%m%d)
+          path: cleanup-report.md
+          retention-days: 30
+
+  # Health check after cleanup
+  health_check:
+    name: 🏥 Repository Health Check
+    runs-on: ubuntu-latest
+    needs: cleanup
+    if: always()
+    
+    steps:
+      - name: 📂 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🏥 Check repository health
+        run: |
+          echo "🏥 Repository Health Check"
+          echo "========================="
+          
+          # Branch count
+          BRANCH_COUNT=$(git branch -r | grep -v HEAD | wc -l)
+          echo "📊 Remote branches: $BRANCH_COUNT"
+          
+          # Tag count
+          TAG_COUNT=$(git tag | wc -l)
+          echo "🏷️  Tags: $TAG_COUNT"
+          
+          # Repository size
+          REPO_SIZE=$(du -sh .git | cut -f1)
+          echo "💾 Repository size: $REPO_SIZE"
+          
+          # Recent activity
+          RECENT_COMMITS=$(git log --oneline --since="1 week ago" | wc -l)
+          echo "📈 Commits this week: $RECENT_COMMITS"
+          
+          # Health recommendations
+          echo ""
+          echo "🩺 Health Recommendations:"
+          
+          if [ $BRANCH_COUNT -gt 50 ]; then
+            echo "⚠️  High branch count ($BRANCH_COUNT) - consider more aggressive cleanup"
+          else
+            echo "✅ Branch count is healthy ($BRANCH_COUNT)"
+          fi
+          
+          if [ $TAG_COUNT -gt 100 ]; then
+            echo "⚠️  High tag count ($TAG_COUNT) - consider archiving old tags"
+          else
+            echo "✅ Tag count is healthy ($TAG_COUNT)"
+          fi
+          
+          echo "✅ Repository health check completed"

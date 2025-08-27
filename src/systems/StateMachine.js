@@ -123,7 +123,7 @@ class StateMachine {
       },
       
       'training': {
-        transitions: ['race_preview', 'help', 'main_menu', 'career_complete'],
+        transitions: ['race_preview', 'race_results', 'help', 'main_menu', 'career_complete'],
         inputs: {
           '1': 'speed_training',
           '2': 'stamina_training', 

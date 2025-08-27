@@ -3,6 +3,7 @@ const TextUI = require('./systems/TextUI');
 const RaceAnimation = require('./systems/RaceAnimation');
 const GameStateMachine = require('./systems/GameStateMachine');
 const NameGenerator = require('./utils/NameGenerator');
+const OfflineSaveSystem = require('./systems/OfflineSaveSystem');
 const fs = require('fs').promises;
 const path = require('path');
 const { validation, result, energy, ui } = require('./utils/gameUtils');
@@ -17,7 +18,8 @@ class GameApp {
     this.ui = new TextUI(); // Use pure text UI for maximum simplicity
     this.nameGenerator = new NameGenerator();
     this.stateMachine = new GameStateMachine(this); // Replace validator with state machine
-    this.saveDirectory = path.join(__dirname, '../data/saves');
+    this.saveSystem = new OfflineSaveSystem(); // New JSON-based save system
+    this.saveDirectory = path.join(__dirname, '../data/saves'); // Legacy compatibility
     this.characterNameBuffer = '';
     this.nameOptions = [];
     
@@ -419,27 +421,29 @@ class GameApp {
         };
       }
 
-      // Ensure save directory exists
-      await this.ensureSaveDirectory();
-
-      const saveData = this.game.saveGame();
-      if (!saveData.success) {
-        return saveData;
+      // Get game data from the Game class
+      const gameData = this.game.saveGame();
+      if (!gameData.success) {
+        return gameData;
       }
 
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const filename = `${this.game.character.name}_${timestamp}.json`;
-      const filepath = path.join(this.saveDirectory, filename);
+      // Use the new OfflineSaveSystem
+      const result = this.saveSystem.saveGame(gameData.saveData);
 
-      await fs.writeFile(filepath, JSON.stringify(saveData.saveData, null, 2));
-
-      this.ui.updateStatus(`Game saved as ${filename}`);
-      
-      return {
-        success: true,
-        saveFile: filepath,
-        filename: filename
-      };
+      if (result.success) {
+        this.ui.updateStatus(`Game saved as ${result.filename}`);
+        return {
+          success: true,
+          saveFile: result.filepath,
+          filename: result.filename,
+          message: result.message
+        };
+      } else {
+        return {
+          success: false,
+          message: result.message || 'Save failed'
+        };
+      }
     } catch (error) {
       return {
         success: false,
@@ -450,17 +454,27 @@ class GameApp {
 
   async loadGame(filepath) {
     try {
-      const data = await fs.readFile(filepath, 'utf8');
-      const saveData = JSON.parse(data);
+      // Use the new OfflineSaveSystem
+      const result = this.saveSystem.loadGame(filepath);
       
-      const result = this.game.loadGame(saveData);
+      if (!result.success) {
+        return result;
+      }
+
+      // Load game data into the Game class
+      const loadResult = this.game.loadGame(result.saveData);
       
-      if (result.success) {
+      if (loadResult.success) {
         this.setState('training');
-        this.ui.updateStatus(`Loaded ${result.character.name}`);
+        this.ui.updateStatus(`Loaded ${result.saveData.character.name}`);
+        return {
+          success: true,
+          character: result.saveData.character,
+          message: `Game loaded successfully`
+        };
       }
       
-      return result;
+      return loadResult;
     } catch (error) {
       return {
         success: false,
@@ -471,19 +485,18 @@ class GameApp {
 
   async showLoadGameDialog() {
     try {
-      await this.ensureSaveDirectory();
-      const files = await fs.readdir(this.saveDirectory);
-      const saveFiles = files.filter(file => file.endsWith('.json'));
+      // Use the new OfflineSaveSystem to list saves
+      const savesList = this.saveSystem.listSaves();
       
-      if (saveFiles.length === 0) {
+      if (!savesList.success || savesList.count === 0) {
         this.ui.updateStatus('No saved games found');
         return;
       }
 
       // For now, load the most recent save
       // TODO: Implement proper load game UI
-      const latestSave = saveFiles[saveFiles.length - 1];
-      const result = await this.loadGame(path.join(this.saveDirectory, latestSave));
+      const latestSave = savesList.saves[0]; // Most recent (sorted by date)
+      const result = await this.loadGame(latestSave.filename);
       
       if (!result.success) {
         this.displayError(result.message);

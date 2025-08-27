@@ -323,6 +323,26 @@ class NPHRoster {
     return `career_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
+  /**
+   * Select training for a horse (wrapper method for testing)
+   * @param {string} trainingPattern - NPH's training pattern
+   * @param {string} strategy - NPH's racing strategy
+   * @param {number} turn - Current turn
+   * @param {Object} stats - Current stats
+   * @returns {string} Training type
+   */
+  selectTraining(trainingPattern, strategy, turn, stats) {
+    // Create a temporary NPH to use its selectTraining method
+    const tempNPH = new NPH('temp', {
+      speed: stats.speed,
+      stamina: stats.stamina,
+      power: stats.power,
+      strategy: strategy,
+      trainingPattern: trainingPattern
+    });
+    
+    return tempNPH.selectTraining(turn);
+  }
 
   /**
    * Serialization for save/load

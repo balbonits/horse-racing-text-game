@@ -185,6 +185,7 @@ class NPH extends Horse {
       stats: { ...this.stats },
       condition: { ...this.condition },
       training: trainingResult.type,
+      gain: trainingResult.gain || 0,  // Single primary gain for test compatibility
       gains: trainingResult.allGains || {},
       energyChange: trainingResult.energyChange || 0,
       timestamp: Date.now()

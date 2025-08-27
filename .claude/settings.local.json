@@ -39,7 +39,10 @@
       "Bash(magick:*)",
       "Bash(pkill:*)",
       "Bash(git checkout:*)",
-      "Bash(git branch:*)"
+      "Bash(git branch:*)",
+      "Bash(npm run build:info:*)",
+      "Bash(npm run docs:cleanup:*)",
+      "Bash(npm run docs:list:*)"
     ],
     "deny": [],
     "ask": []

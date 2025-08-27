@@ -970,6 +970,54 @@ class Game {
     }
     return this.careerResults;
   }
+
+  // API compatibility methods for tests
+  createCharacter(name, options = {}) {
+    const result = this.startNewGame(name, options);
+    return { success: true, character: this.character };
+  }
+
+  performTraining(statType) {
+    if (!this.character) {
+      throw new Error('No character created');
+    }
+    
+    const result = this.trainingEngine.performTraining(this.character, statType);
+    
+    // Advance turn after training
+    this.character.nextTurn();
+    
+    return result;
+  }
+
+  getGameStatus() {
+    if (!this.character) {
+      return {
+        initialized: false,
+        turn: 1,
+        maxTurns: 12,
+        character: null
+      };
+    }
+    
+    return {
+      initialized: true,
+      turn: this.character.career.turn,
+      maxTurns: this.character.career.maxTurns,
+      character: {
+        name: this.character.name,
+        stats: this.character.stats,
+        energy: this.character.energy,
+        mood: this.character.mood,
+        friendship: this.character.friendship
+      },
+      nextRace: this.getUpcomingRace()
+    };
+  }
+
+  getUpcomingRace() {
+    return this.checkForScheduledRace();
+  }
 }
 
 module.exports = Game;

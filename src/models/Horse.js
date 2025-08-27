@@ -20,7 +20,7 @@ class Horse {
     // Current condition
     this.condition = {
       energy: options.energy || 100,
-      form: options.form || 'Average', // Peak Form, Good Form, Steady, Average, Off Form, Poor Form
+      form: options.form || 'Normal', // Peak Form, Good Form, Steady, Normal, Off Form, Poor Form
       health: options.health || 100
     };
     
