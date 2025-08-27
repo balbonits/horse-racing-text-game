@@ -20,7 +20,7 @@ class Horse {
     // Current condition
     this.condition = {
       energy: options.energy || 100,
-      mood: options.mood || 'Normal', // Excellent, Great, Good, Normal, Tired, Bad
+      form: options.form || 'Average', // Peak Form, Good Form, Steady, Average, Off Form, Poor Form
       health: options.health || 100
     };
     
@@ -105,45 +105,45 @@ class Horse {
   changeEnergy(amount) {
     this.condition.energy = Math.max(0, Math.min(100, this.condition.energy + amount));
     
-    // Update mood based on energy level
-    this.updateMood();
+    // Update form based on energy level
+    this.updateForm();
     
     return this.condition.energy;
   }
 
   /**
-   * Update mood based on condition
+   * Update form based on condition
    */
-  updateMood() {
+  updateForm() {
     const energy = this.condition.energy;
     const health = this.condition.health;
     
     if (energy >= 90 && health >= 90) {
-      this.condition.mood = Math.random() > 0.7 ? 'Excellent' : 'Great';
+      this.condition.form = Math.random() > 0.7 ? 'Peak Form' : 'Good Form';
     } else if (energy >= 70 && health >= 70) {
-      this.condition.mood = Math.random() > 0.5 ? 'Great' : 'Good';
+      this.condition.form = Math.random() > 0.5 ? 'Good Form' : 'Steady';
     } else if (energy >= 50 && health >= 50) {
-      this.condition.mood = 'Normal';
+      this.condition.form = 'Average';
     } else if (energy >= 30 && health >= 30) {
-      this.condition.mood = 'Tired';
+      this.condition.form = 'Off Form';
     } else {
-      this.condition.mood = 'Bad';
+      this.condition.form = 'Poor Form';
     }
   }
 
   /**
-   * Get mood performance multiplier
+   * Get form performance multiplier
    */
-  getMoodMultiplier() {
-    const moodMap = {
-      'Excellent': 1.15,
-      'Great': 1.10,
-      'Good': 1.05,
-      'Normal': 1.0,
-      'Tired': 0.90,
-      'Bad': 0.80
+  getFormMultiplier() {
+    const formMap = {
+      'Peak Form': 1.15,
+      'Good Form': 1.10,
+      'Steady': 1.05,
+      'Average': 1.0,
+      'Off Form': 0.90,
+      'Poor Form': 0.80
     };
-    return moodMap[this.condition.mood] || 1.0;
+    return formMap[this.condition.form] || 1.0;
   }
 
   /**
@@ -157,7 +157,7 @@ class Horse {
       condition: { ...this.condition },
       strategy: this.strategy,
       totalPower: this.getTotalPower(),
-      moodMultiplier: this.getMoodMultiplier()
+      formMultiplier: this.getFormMultiplier()
     };
   }
 
@@ -175,8 +175,8 @@ class Horse {
     // Horses get some energy boost before races
     this.changeEnergy(Math.random() * 10);
     
-    // Update mood
-    this.updateMood();
+    // Update form
+    this.updateForm();
   }
 
   /**
@@ -190,13 +190,13 @@ class Horse {
     // Slight health impact
     this.condition.health = Math.max(80, this.condition.health - 2);
     
-    // Mood adjustment based on performance
+    // Form adjustment based on performance
     if (position <= fieldSize / 3) {
-      // Good performance - mood boost
+      // Good performance - form boost
       if (Math.random() > 0.5) {
-        const currentMoodIndex = ['Bad', 'Tired', 'Normal', 'Good', 'Great', 'Excellent'].indexOf(this.condition.mood);
-        if (currentMoodIndex < 5) {
-          this.condition.mood = ['Bad', 'Tired', 'Normal', 'Good', 'Great', 'Excellent'][currentMoodIndex + 1];
+        const currentFormIndex = ['Poor Form', 'Off Form', 'Average', 'Steady', 'Good Form', 'Peak Form'].indexOf(this.condition.form);
+        if (currentFormIndex < 5) {
+          this.condition.form = ['Poor Form', 'Off Form', 'Average', 'Steady', 'Good Form', 'Peak Form'][currentFormIndex + 1];
         }
       }
     }
@@ -229,7 +229,7 @@ class Horse {
       stamina: data.stats.stamina,
       power: data.stats.power,
       energy: data.condition.energy,
-      mood: data.condition.mood,
+      form: data.condition.form || data.condition.mood, // Backward compatibility
       health: data.condition.health,
       speedGrowth: data.growthRates.speed,
       staminaGrowth: data.growthRates.stamina,

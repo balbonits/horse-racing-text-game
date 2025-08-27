@@ -67,13 +67,13 @@ class RaceSimulator {
     const staminaFactor = Math.max(0.3, currentStamina / 100); // Never below 30%
 
     // Mood affects performance 
-    const moodMultiplier = character.getMoodMultiplier();
+    const formMultiplier = character.getFormMultiplier();
 
     // Surface preference (could be expanded later)
     const surfaceBonus = this.getSurfaceBonus(character, race.surface);
 
     // Calculate base performance score (0-100 scale)
-    const basePerformance = weightedStats * staminaFactor * moodMultiplier * surfaceBonus;
+    const basePerformance = weightedStats * staminaFactor * formMultiplier * surfaceBonus;
 
     // Apply track condition modifier
     const adjustedPerformance = basePerformance * condition.modifier;
@@ -91,7 +91,7 @@ class RaceSimulator {
       time: Math.round(finalTime * 100) / 100,
       baseTime: race.baseTime,
       staminaFactor: Math.round(staminaFactor * 100) / 100,
-      moodMultiplier: Math.round(moodMultiplier * 100) / 100,
+      formMultiplier: Math.round(formMultiplier * 100) / 100,
       randomFactor: Math.round(randomFactor * 100) / 100,
       trackCondition: condition.name
     };
@@ -264,7 +264,7 @@ class RaceSimulator {
       experienceGained: 0,
       moodChange: '',
       energyChange: 0,
-      friendshipChange: 0,
+      bondChange: 0,
       messages: []
     };
 
@@ -274,16 +274,16 @@ class RaceSimulator {
     if (position === 1) {
       effects.experienceGained = 15;
       effects.moodChange = 'great';
-      effects.friendshipChange = 5;
+      effects.bondChange = 5;
       effects.messages.push('🏆 Victory fills everyone with joy!');
     } else if (position <= 3) {
       effects.experienceGained = 10;
       effects.moodChange = 'good';
-      effects.friendshipChange = 3;
+      effects.bondChange = 3;
       effects.messages.push('🥉 A solid podium finish!');
     } else if (position <= 6) {
       effects.experienceGained = 5;
-      effects.friendshipChange = 1;
+      effects.bondChange = 1;
       effects.messages.push('📈 Valuable racing experience gained.');
     } else {
       effects.experienceGained = 3;
@@ -294,7 +294,7 @@ class RaceSimulator {
     // Apply effects to character
     character.condition.mood = effects.moodChange || character.condition.mood;
     character.changeEnergy(effects.energyChange);
-    character.increaseFriendship(effects.friendshipChange);
+    character.increaseBond(effects.bondChange);
     
     // Update career stats
     character.career.racesRun++;
@@ -321,7 +321,7 @@ class RaceSimulator {
       analysis.recommendations.push('Focus on stamina training and rest management');
     }
 
-    if (performance.moodMultiplier < 1.0) {
+    if (performance.formMultiplier < 1.0) {
       analysis.weaknesses.push('Mood was not optimal for racing');
       analysis.recommendations.push('Improve mood through rest and social activities');
     }

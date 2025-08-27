@@ -248,20 +248,29 @@ function calculateRacePerformance(horse, raceType, surface, strategy, weather = 
   
   // 4. Apply energy/condition factors
   const energyFactor = Math.max(0.3, horse.condition.energy / 100);
-  const moodFactor = getMoodMultiplier(horse.condition.mood);
+  const formFactor = getFormMultiplier(horse.condition.form || horse.condition.mood);
   
   // 5. Random variance (±12%)
   const variance = 0.88 + (Math.random() * 0.24);
   
   // 6. Final performance calculation
-  return basePerformance * strategyMultiplier * energyFactor * moodFactor * variance;
+  return basePerformance * strategyMultiplier * energyFactor * formFactor * variance;
 }
 
 /**
- * Get mood performance multiplier
+ * Get form performance multiplier
  */
-function getMoodMultiplier(mood) {
-  const moodMap = {
+function getFormMultiplier(form) {
+  // Support both old mood and new form systems for backward compatibility
+  const formMap = {
+    // New form system
+    'Peak Form': 1.15,
+    'Good Form': 1.10,
+    'Steady': 1.05,
+    'Average': 1.0,
+    'Off Form': 0.90,
+    'Poor Form': 0.80,
+    // Legacy mood system support
     'Excellent': 1.15,
     'Great': 1.10, 
     'Good': 1.05,
@@ -269,7 +278,7 @@ function getMoodMultiplier(mood) {
     'Tired': 0.90,
     'Bad': 0.80
   };
-  return moodMap[mood] || 1.0;
+  return formMap[form] || 1.0;
 }
 
 /**
@@ -346,5 +355,5 @@ module.exports = {
   estimateRaceTime,
   formatRaceTime,
   getTrainingRecommendations,
-  getMoodMultiplier
+  getFormMultiplier
 };

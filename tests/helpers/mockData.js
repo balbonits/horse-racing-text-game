@@ -16,7 +16,7 @@ const TestDataFactory = {
       speedGrowth: 'B',
       staminaGrowth: 'B', 
       powerGrowth: 'B',
-      friendship: 50
+      bond: 50
     };
 
     return new Character(overrides.name || defaults.name, {
@@ -69,10 +69,10 @@ const TestDataFactory = {
     });
   },
 
-  // Create character with high friendship for testing bonuses
+  // Create character with high bond for testing bonuses
   createHighFriendshipCharacter() {
     return this.createTestCharacter({
-      friendship: 85,
+      bond: 85,
       mood: 'great'
     });
   },
@@ -84,7 +84,7 @@ const TestDataFactory = {
       stamina: 100,
       power: 100,
       energy: 100,
-      friendship: 100,
+      bond: 100,
       mood: 'great'
     });
   },
@@ -146,7 +146,7 @@ const TestScenarios = {
         speed: 85,
         stamina: 80,
         power: 75,
-        friendship: 90
+        bond: 90
       }),
       expectedBehavior: 'Should have high stats and be ready for final race'
     };

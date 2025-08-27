@@ -130,7 +130,7 @@ class UISystem {
 │ Energy:  ${generateBar(condition.energy)} (${condition.energy}/100)   │
 └─────────────────────────────────────────────┘
 
-Mood: {bold}${condition.mood.toUpperCase()}{/bold} | Friendship: ${character.friendship}/100`;
+Form: {bold}${(condition.form || condition.mood || 'Average').toUpperCase()}{/bold} | Bond: ${character.bond}/100`;
 
     return content;
   }

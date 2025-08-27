@@ -31,31 +31,32 @@ class TrainingEngine {
         primaryStat: null,
         moodImprovement: false
       },
-      'social': {
-        energyCost: 5,
-        friendshipGain: 10,
+      'media': {
+        energyCost: 0,
+        energyGain: 15,  // Half of rest day recovery
+        publicityGain: 10,  // Build public relations/fan support
         primaryStat: null,
-        moodImprovement: true
+        conditionImprovement: true
       }
     };
 
-    // Mood multipliers for training gains
-    this.moodMultipliers = {
-      'Excellent': 1.15,
-      'Great': 1.10,
-      'Good': 1.05,
-      'Normal': 1.0,
-      'Tired': 0.90,
-      'Bad': 0.80
+    // Form multipliers for training gains (horse racing terminology)
+    this.formMultipliers = {
+      'Peak Form': 1.15,      // Horse is in peak condition
+      'Good Form': 1.10,      // Horse is performing well
+      'Steady': 1.05,         // Horse is consistent
+      'Average': 1.0,         // Baseline performance  
+      'Off Form': 0.90,       // Horse is struggling
+      'Poor Form': 0.80       // Horse needs recovery
     };
 
-    // Mood improvement chances after successful training
-    this.moodImprovements = {
-      'Normal': ['Good', 'Great'],
-      'Good': ['Great', 'Excellent'],
-      'Great': ['Excellent'],
-      'Tired': ['Normal', 'Good'],
-      'Bad': ['Normal', 'Good']
+    // Form improvement chances after successful training  
+    this.formImprovements = {
+      'Average': ['Steady', 'Good Form'],
+      'Steady': ['Good Form', 'Peak Form'], 
+      'Good Form': ['Peak Form'],
+      'Off Form': ['Average', 'Steady'],
+      'Poor Form': ['Average', 'Steady']
     };
   }
 
@@ -77,7 +78,7 @@ class TrainingEngine {
       stamina: 0,
       power: 0,
       energy: 0,
-      friendship: 0,
+      bond: 0,
       energyCost: config.energyCost
     };
 
@@ -87,25 +88,26 @@ class TrainingEngine {
       return gains;
     }
 
-    // Handle social training
-    if (trainingType === 'social') {
-      gains.friendship = config.friendshipGain;
+    // Handle media training
+    if (trainingType === 'media') {
+      gains.publicity = config.publicityGain;
+      gains.energy = config.energyGain;
       return gains;
     }
 
     // Handle stat training
     if (config.primaryStat) {
-      const moodMultiplier = this.moodMultipliers[character.condition.mood] || 1.0;
+      const formMultiplier = this.formMultipliers[character.condition.form] || 1.0;
       const baseGain = config.baseGain;
       
-      // Apply mood multiplier first, then add randomness to ensure mood differences are preserved
-      const moodAdjustedGain = baseGain * moodMultiplier;
+      // Apply form multiplier first, then add randomness to ensure form differences are preserved
+      const formAdjustedGain = baseGain * formMultiplier;
       
-      // Add some randomness (±1) but ensure mood effect is maintained
+      // Add some randomness (±1) but ensure form effect is maintained
       // Skip randomness if deterministic option is set (for testing)
       const randomVariation = options.deterministic ? 0 : (Math.floor(Math.random() * 3) - 1); // -1 to +1
       
-      const finalGain = Math.max(1, Math.round(moodAdjustedGain + randomVariation));
+      const finalGain = Math.max(1, Math.round(formAdjustedGain + randomVariation));
       gains[config.primaryStat] = finalGain;
     }
 
@@ -145,19 +147,24 @@ class TrainingEngine {
     }
 
     // Apply energy changes (always round to integers)
-    if (trainingType === 'rest') {
+    if (trainingType === 'rest' || trainingType === 'media') {
       character.condition.energy = Math.round(Math.min(100, character.condition.energy + gains.energy));
     } else {
       character.condition.energy = Math.round(Math.max(0, character.condition.energy - config.energyCost));
     }
 
-    // Apply mood improvements for stat training
+    // Apply form improvements for stat training
     if (config.moodImprovement && trainingType !== 'rest') {
-      this.improveMood(character);
+      this.improveForm(character);
+    }
+    
+    // Apply form improvements for media training  
+    if (config.conditionImprovement && trainingType === 'media') {
+      this.improveForm(character);
     }
 
-    // Handle friendship gains (future enhancement)
-    if (gains.friendship > 0) {
+    // Handle bond gains (future enhancement)
+    if (gains.bond > 0) {
       // Friendship system could be implemented here
     }
 
@@ -165,16 +172,16 @@ class TrainingEngine {
   }
 
   /**
-   * Improve character mood after successful training
-   * @param {Character} character - Character to improve mood for
+   * Improve character form after successful training
+   * @param {Character} character - Character to improve form for
    */
-  improveMood(character) {
-    const currentMood = character.condition.mood;
-    const possibleImprovements = this.moodImprovements[currentMood];
+  improveForm(character) {
+    const currentForm = character.condition.form;
+    const possibleImprovements = this.formImprovements[currentForm];
     
     if (possibleImprovements && Math.random() < 0.3) { // 30% chance to improve
       const improvement = possibleImprovements[Math.floor(Math.random() * possibleImprovements.length)];
-      character.condition.mood = improvement;
+      character.condition.form = improvement;
     }
   }
 

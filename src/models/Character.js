@@ -17,7 +17,7 @@ class Character extends Horse {
     this.id = options.id || this.generatePlayerId();
     
     // Player-specific systems
-    this.friendship = options.friendship || 0; // 0-100
+    this.bond = options.bond || options.friendship || 0; // 0-100
     
     // Career tracking
     this.career = {
@@ -58,12 +58,21 @@ class Character extends Horse {
     this.condition.energy = Math.round(Math.max(0, Math.min(100, value)));
   }
 
+  get form() {
+    return this.condition.form;
+  }
+
+  set form(value) {
+    this.condition.form = value;
+  }
+
+  // Legacy getter for compatibility
   get mood() {
-    return this.condition.mood;
+    return this.condition.form;
   }
 
   set mood(value) {
-    this.condition.mood = value;
+    this.condition.form = value;
   }
   
   /**
@@ -79,12 +88,12 @@ class Character extends Horse {
   }
   
   /**
-   * Get friendship bonus multiplier
+   * Get bond bonus multiplier
    */
-  getFriendshipBonus() {
-    if (this.friendship >= 80) return 1.5;
-    if (this.friendship >= 60) return 1.2;
-    if (this.friendship >= 40) return 1.1;
+  getBondBonus() {
+    if (this.bond >= 80) return 1.5;
+    if (this.bond >= 60) return 1.2;
+    if (this.bond >= 40) return 1.1;
     return 1.0;
   }
   
@@ -100,11 +109,11 @@ class Character extends Horse {
 
     // Get all multipliers
     const growthMultiplier = this.getGrowthMultiplier(this.growthRates[statName]);
-    const moodMultiplier = this.getMoodMultiplier();
-    const friendshipBonus = this.getFriendshipBonus();
+    const formMultiplier = this.getFormMultiplier();
+    const bondBonus = this.getBondBonus();
     
     // Calculate final gain
-    const finalGain = Math.round(baseGain * growthMultiplier * moodMultiplier * friendshipBonus);
+    const finalGain = Math.round(baseGain * growthMultiplier * formMultiplier * bondBonus);
     const randomVariance = Math.random() * 0.4 + 0.8; // ±20% variance
     const actualGain = Math.max(1, Math.round(finalGain * randomVariance));
     
@@ -117,11 +126,11 @@ class Character extends Horse {
   }
   
   /**
-   * Increase friendship
+   * Increase bond
    */
-  increaseFriendship(amount) {
-    this.friendship = Math.min(100, this.friendship + amount);
-    return this.friendship;
+  increaseBond(amount) {
+    this.bond = Math.min(100, this.bond + amount);
+    return this.bond;
   }
   
   /**
@@ -163,11 +172,11 @@ class Character extends Horse {
     const baseSummary = super.getSummary();
     return {
       ...baseSummary,
-      friendship: this.friendship,
+      bond: this.bond,
       career: { ...this.career },
       legacyBonuses: { ...this.legacyBonuses },
       canContinue: this.canContinue(),
-      friendshipBonus: this.getFriendshipBonus()
+      bondBonus: this.getBondBonus()
     };
   }
   
@@ -180,7 +189,7 @@ class Character extends Horse {
     return {
       ...baseData,
       type: 'character', // Override to specify this is a player character
-      friendship: this.friendship,
+      bond: this.bond,
       career: { ...this.career },
       legacyBonuses: { ...this.legacyBonuses }
     };
@@ -203,7 +212,7 @@ class Character extends Horse {
       powerGrowth: data.growthRates.power,
       strategy: data.strategy,
       created: data.created,
-      friendship: data.friendship,
+      bond: data.bond || data.friendship, // Backward compatibility
       career: data.career,
       legacyBonuses: data.legacyBonuses
     });
@@ -218,8 +227,8 @@ class Character extends Horse {
     const errors = [...baseValidation.errors];
     
     // Player-specific validation
-    if (this.friendship < 0 || this.friendship > 100) {
-      errors.push('Invalid friendship: must be 0-100');
+    if (this.bond < 0 || this.bond > 100) {
+      errors.push('Invalid bond: must be 0-100');
     }
     
     if (this.career.turn < 1 || this.career.turn > this.career.maxTurns) {

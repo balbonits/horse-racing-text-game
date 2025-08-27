@@ -1,0 +1,50 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`UI Snapshots for Portfolio Showcase Career Completion Snapshots should display career completion with S grade: career-completion-s-grade 1`] = `""`;
+
+exports[`UI Snapshots for Portfolio Showcase Career Completion Snapshots should display career completion with average performance: career-completion-average 1`] = `""`;
+
+exports[`UI Snapshots for Portfolio Showcase Character Creation Snapshots should display character creation form: character-creation-form 1`] = `""`;
+
+exports[`UI Snapshots for Portfolio Showcase Game Flow Progression should show complete turn progression: turn-progression 1`] = `
+{
+  "Turn 1": "",
+  "Turn 2": "",
+  "Turn 3": "",
+  "Turn 4": "",
+}
+`;
+
+exports[`UI Snapshots for Portfolio Showcase Main Menu Snapshots should display main menu interface: main-menu-interface 1`] = `""`;
+
+exports[`UI Snapshots for Portfolio Showcase Media Day vs Rest Day Comparison should show training options with media day highlighted: media-day-training-options 1`] = `""`;
+
+exports[`UI Snapshots for Portfolio Showcase Progress Bar Variations should display different stat progress bar levels: progress-bar-variations 1`] = `
+{
+  "0%": "",
+  "100%": "",
+  "25%": "",
+  "50%": "",
+  "75%": "",
+  "90%": "",
+}
+`;
+
+exports[`UI Snapshots for Portfolio Showcase Race System Snapshots should display race preview interface: race-preview-interface 1`] = `""`;
+
+exports[`UI Snapshots for Portfolio Showcase Training Interface Snapshots should display different form states: training-interface-form-states 1`] = `
+{
+  "Average": "",
+  "Good Form": "",
+  "Off Form": "",
+  "Peak Form": "",
+  "Poor Form": "",
+  "Steady": "",
+}
+`;
+
+exports[`UI Snapshots for Portfolio Showcase Training Interface Snapshots should display training interface with developed horse: training-interface-elite-horse 1`] = `""`;
+
+exports[`UI Snapshots for Portfolio Showcase Training Interface Snapshots should display training interface with energy warning: training-interface-energy-warning 1`] = `""`;
+
+exports[`UI Snapshots for Portfolio Showcase Training Interface Snapshots should display training interface with new horse: training-interface-new-horse 1`] = `""`;

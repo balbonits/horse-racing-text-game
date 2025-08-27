@@ -68,7 +68,7 @@ class TextUI {
   /**
    * Display training interface - simplified
    */
-  showTraining(character, nextRace = null) {
+  showTraining(character, nextRace = null, warningMessage = null) {
     this.clear();
     
     const stats = character.getCurrentStats();
@@ -89,7 +89,7 @@ class TextUI {
     // Condition
     console.log('CONDITION:');
     console.log('  Energy: ' + Math.round(condition.energy) + '/100  ' + this.makeProgressBar(condition.energy));
-    console.log('  Mood:   ' + condition.mood);
+    console.log('  Form:   ' + condition.form);
     console.log('');
     
     // Career info
@@ -124,8 +124,16 @@ class TextUI {
     console.log('2. Stamina Training (Cost: 10 energy)');
     console.log('3. Power Training   (Cost: 15 energy)');
     console.log('4. Rest Day         (Gain: 30 energy)');
-    console.log('5. Social Time      (Cost: 5 energy)');
+    console.log('5. Media Day        (Gain: 15 energy)');
     console.log('');
+    // Show warning message if present
+    if (warningMessage) {
+      console.log('⚠️  WARNING:');
+      console.log('   ' + warningMessage);
+      console.log('   Press a valid option to continue.');
+      console.log('');
+    }
+    
     console.log('Enter your choice (1-5), or S to save, Q to quit:');
     console.log('');
   }
@@ -256,7 +264,7 @@ class TextUI {
     console.log(`Races Won: ${careerSummary.stats.racesWon}/${careerSummary.stats.racesRun}`);
     console.log(`Win Rate: ${careerSummary.stats.racesRun > 0 ? Math.round((careerSummary.stats.racesWon / careerSummary.stats.racesRun) * 100) : 0}%`);
     console.log(`Training Sessions: ${careerSummary.stats.totalTraining}`);
-    console.log(`Friendship Level: ${careerSummary.stats.friendship}/100`);
+    console.log(`Bond Level: ${careerSummary.stats.bond}/100`);
     console.log('');
     
     // Show final stats

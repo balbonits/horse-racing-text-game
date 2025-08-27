@@ -34,9 +34,9 @@ class TrainingSystem {
       social: {
         name: 'Social Time',
         energyCost: 5,
-        primaryStat: 'friendship',
+        primaryStat: 'bond',
         baseGain: 15,
-        description: 'Spend time with supporters to build friendship bonds'
+        description: 'Spend time with supporters to build bond'
       }
     };
   }
@@ -74,7 +74,7 @@ class TrainingSystem {
       trainingName: training.name,
       energyChange: -training.energyCost,
       statGains: {},
-      friendshipGain: 0,
+      bondGain: 0,
       messages: []
     };
 
@@ -109,17 +109,17 @@ class TrainingSystem {
         break;
 
       case 'social':
-        const friendshipGain = this.calculateFriendshipGain(character, training.baseGain);
-        character.increaseFriendship(friendshipGain);
-        results.friendshipGain = friendshipGain;
-        results.messages.push(`Friendship increased by ${friendshipGain}!`);
+        const bondGain = this.calculateBondGain(character, training.baseGain);
+        character.increaseBond(bondGain);
+        results.bondGain = bondGain;
+        results.messages.push(`Bond increased by ${bondGain}!`);
         
-        // High friendship can give small stat bonuses
-        if (character.friendship >= 80) {
+        // High bond can give small stat bonuses
+        if (character.bond >= 80) {
           const bonusStat = this.getRandomStat();
           const bonus = character.increaseStat(bonusStat, 2);
           results.statGains[bonusStat] = bonus;
-          results.messages.push(`Strong friendship gave bonus ${bonusStat.toUpperCase()} +${bonus}!`);
+          results.messages.push(`Strong bond gave bonus ${bonusStat.toUpperCase()} +${bonus}!`);
         }
         break;
     }
@@ -148,11 +148,11 @@ class TrainingSystem {
     }
   }
 
-  // Calculate friendship gain with mood modifiers
-  calculateFriendshipGain(character, baseGain) {
-    const moodMultiplier = character.getMoodMultiplier();
+  // Calculate bond gain with form modifiers
+  calculateBondGain(character, baseGain) {
+    const formMultiplier = character.getFormMultiplier();
     const randomVariance = Math.random() * 0.4 + 0.8; // ±20% variance
-    return Math.round(baseGain * moodMultiplier * randomVariance);
+    return Math.round(baseGain * formMultiplier * randomVariance);
   }
 
   // Process random events during training
@@ -242,10 +242,10 @@ class TrainingSystem {
     }
     
     // Friendship recommendations
-    if (character.friendship < 60) {
+    if (character.bond < 60) {
       recommendations.push({
         type: 'social',
-        reason: 'Building friendship will boost training gains',
+        reason: 'Building bond will boost training gains',
         priority: 'medium'
       });
     }
@@ -276,15 +276,15 @@ class TrainingSystem {
   calculateEffectiveness(character, trainingType) {
     const training = this.trainingTypes[trainingType];
     
-    if (!training.primaryStat || training.primaryStat === 'friendship') {
+    if (!training.primaryStat || training.primaryStat === 'bond') {
       return 100; // Rest and social are always 100% effective
     }
     
     const growthMultiplier = character.getGrowthMultiplier(training.primaryStat);
-    const moodMultiplier = character.getMoodMultiplier();
-    const friendshipBonus = character.getFriendshipBonus();
+    const formMultiplier = character.getFormMultiplier();
+    const bondBonus = character.getBondBonus();
     
-    const totalMultiplier = growthMultiplier * moodMultiplier * friendshipBonus;
+    const totalMultiplier = growthMultiplier * formMultiplier * bondBonus;
     return Math.round(totalMultiplier * 100);
   }
 }

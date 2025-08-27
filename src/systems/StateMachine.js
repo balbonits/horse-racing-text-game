@@ -129,7 +129,7 @@ class StateMachine {
           '2': 'stamina_training', 
           '3': 'power_training',
           '4': 'rest_training',
-          '5': 'social_training',
+          '5': 'media_training',
           's': 'save_game',
           'h': 'help',
           'q': 'main_menu',

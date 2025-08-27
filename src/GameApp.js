@@ -27,6 +27,10 @@ class GameApp {
     this.careerRaces = null;       // All race configurations for this career
     this.careerTimeline = null;    // Race schedule timeline
     
+    // Warning message system
+    this.warningMessage = null;    // Current warning message to display
+    this.warningType = null;       // Type of warning (energy, etc.)
+    
     // Initialize state machine
     this.stateMachine.reset('main_menu');
     
@@ -229,7 +233,7 @@ class GameApp {
       'stamina': 10,
       'power': 15,
       'rest': 0,
-      'social': 5
+      'media': 0  // Media day doesn't cost energy, provides partial recovery
     };
     return costs[trainingType] || 0;
   }
@@ -246,10 +250,12 @@ class GameApp {
       
       if (currentEnergy < energyRequired) {
         const warningMsg = `❌ Not enough energy! You need ${energyRequired} energy but only have ${currentEnergy}. Try Rest Day to recover energy.`;
-        console.log(warningMsg);
-        console.log('Press ENTER to continue...');
+        this.setWarning(warningMsg, 'energy');
         return result.failure(warningMsg);
       }
+
+      // Clear any existing warning since we have sufficient energy
+      this.clearWarning();
 
       // Perform the training synchronously
       const trainingResult = this.game.performTrainingSync(trainingType);
@@ -581,7 +587,7 @@ class GameApp {
 
     // Get proper next race info from the game system
     const nextRace = this.game.getNextRace();
-    this.ui.showTraining(this.game.character, nextRace);
+    this.ui.showTraining(this.game.character, nextRace, this.warningMessage);
   }
 
   renderRaceResults() {
@@ -623,6 +629,22 @@ class GameApp {
 
   renderHelp() {
     this.ui.showHelp();
+  }
+
+  /**
+   * Set a warning message that will persist until acknowledged
+   */
+  setWarning(message, type = 'general') {
+    this.warningMessage = message;
+    this.warningType = type;
+  }
+
+  /**
+   * Clear the current warning message
+   */
+  clearWarning() {
+    this.warningMessage = null;
+    this.warningType = null;
   }
 
   calculateFinalGrade() {
@@ -891,7 +913,7 @@ class GameApp {
       racesWon: character.career.racesWon,
       racesRun: character.career.racesRun,
       totalTraining: character.career.totalTraining,
-      friendship: character.friendship
+      bond: character.bond
     };
     
     // Calculate grade based on performance
@@ -929,7 +951,7 @@ class GameApp {
     score += Math.min(30, totalStatGain / 8); // Up to 240 total stat gain for max points
     
     // Friendship bonus (10% of grade)
-    score += (stats.friendship / 100) * 10;
+    score += (stats.bond / 100) * 10;
     
     // Convert to letter grade
     if (score >= 90) return 'S';
@@ -966,11 +988,11 @@ class GameApp {
       achievements.push('💎 Elite Athlete - Total stats over 270');
     }
     
-    // Friendship achievements
-    if (stats.friendship >= 100) {
-      achievements.push('❤️ Best Friends - Maximum friendship');
-    } else if (stats.friendship >= 80) {
-      achievements.push('😊 Close Bond - High friendship');
+    // Bond achievements
+    if (stats.bond >= 100) {
+      achievements.push('❤️ Perfect Bond - Maximum bond');
+    } else if (stats.bond >= 80) {
+      achievements.push('😊 Strong Bond - High bond');
     }
     
     // Training achievements

@@ -45,7 +45,7 @@ class GameStateMachine extends StateMachine {
       'stamina_training': () => this.gameApp.performTrainingSync('stamina'),
       'power_training': () => this.gameApp.performTrainingSync('power'),
       'rest_training': () => this.gameApp.performTrainingSync('rest'),
-      'social_training': () => this.gameApp.performTrainingSync('social'),
+      'media_training': () => this.gameApp.performTrainingSync('media'),
       
       // Game management
       'save_game': () => this.gameApp.saveGame(),
