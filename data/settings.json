@@ -1,0 +1,31 @@
+{
+  "version": "1.0.0",
+  "theme": {
+    "colorTheme": "protanopia",
+    "lastChanged": "2025-08-27T04:51:38.781Z"
+  },
+  "accessibility": {
+    "colorblindSupport": false,
+    "colorblindType": "none",
+    "highContrast": false,
+    "reducedMotion": false,
+    "screenReaderMode": false
+  },
+  "ui": {
+    "animationSpeed": "normal",
+    "showProgressBars": true,
+    "compactMode": false,
+    "showTips": true
+  },
+  "gameplay": {
+    "autoSave": true,
+    "confirmActions": true,
+    "fastRaceMode": false,
+    "skipTutorial": false
+  },
+  "advanced": {
+    "debugMode": false,
+    "verboseLogging": false,
+    "developerMode": false
+  }
+}

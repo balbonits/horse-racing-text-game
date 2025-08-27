@@ -7,14 +7,14 @@
 
 const GameApp = require('./GameApp');
 
-function main() {
+async function main() {
   try {
     console.log('Horse Racing Text Game - Starting...');
     console.log('Use number keys (1-5) for options, Q to quit\n');
     
     // Create and start the game application
     const game = new GameApp();
-    game.start();
+    await game.start();
     
   } catch (error) {
     console.error('Failed to start game:', error.message);

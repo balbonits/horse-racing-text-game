@@ -72,17 +72,19 @@ class StateMachine {
     // Define state graph structure
     const stateGraph = {
       'main_menu': {
-        transitions: ['character_creation', 'load_game', 'help', 'training'],
+        transitions: ['character_creation', 'tutorial', 'load_game', 'help', 'training'],
         inputs: {
           '1': 'character_creation',
-          '2': 'load_game', 
-          '3': 'help',
+          '2': 'tutorial',
+          '3': 'load_game', 
+          '4': 'help',
           'h': 'help',
+          't': 'tutorial',
           'q': 'quit'
         },
         metadata: {
           allowEmpty: false,
-          description: 'Main game menu',
+          description: 'Main game menu with tutorial',
           backEnabled: false
         }
       },
@@ -281,6 +283,71 @@ class StateMachine {
           description: 'Career completed',
           backEnabled: false,
           autoProgress: 'character_creation'
+        }
+      },
+
+      // Tutorial states
+      'tutorial': {
+        transitions: ['tutorial_training', 'main_menu'],
+        inputs: {
+          'enter': 'tutorial_training',
+          '': 'tutorial_training',
+          'q': 'main_menu'
+        },
+        metadata: {
+          allowEmpty: true,
+          description: 'Tutorial introduction with stable manager guide',
+          backEnabled: true,
+          backTarget: 'main_menu',
+          autoProgress: 'tutorial_training'
+        }
+      },
+
+      'tutorial_training': {
+        transitions: ['tutorial_race', 'tutorial_training', 'main_menu'],
+        inputs: {
+          '1': 'speed_training',
+          '2': 'stamina_training',
+          '3': 'power_training',
+          '4': 'rest_training',
+          '5': 'media_training',
+          'h': 'help',
+          'q': 'main_menu'
+        },
+        metadata: {
+          allowEmpty: false,
+          description: 'Tutorial training with guide explanations',
+          backEnabled: false
+        }
+      },
+
+      'tutorial_race': {
+        transitions: ['tutorial_complete'],
+        inputs: {
+          'enter': 'tutorial_complete',
+          '': 'tutorial_complete'
+        },
+        metadata: {
+          allowEmpty: true,
+          description: 'Tutorial race with scripted close victory',
+          backEnabled: false,
+          autoProgress: 'tutorial_complete'
+        }
+      },
+
+      'tutorial_complete': {
+        transitions: ['main_menu', 'character_creation'],
+        inputs: {
+          '1': 'character_creation',
+          '2': 'main_menu',
+          'enter': 'character_creation',
+          '': 'character_creation',
+          'q': 'main_menu'
+        },
+        metadata: {
+          allowEmpty: true,
+          description: 'Tutorial completion with career option',
+          backEnabled: false
         }
       }
     };

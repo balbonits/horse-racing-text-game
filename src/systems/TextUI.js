@@ -23,15 +23,15 @@ class TextUI {
    */
   showMainMenu() {
     this.clear();
-    console.log('MAIN MENU');
-    console.log('---------');
+    console.log('🏇 HORSE RACING TEXT GAME - MAIN MENU');
+    console.log('=====================================');
     console.log('');
     console.log('1. New Career - Start training a new horse');
-    console.log('2. Load Game - Continue a saved career');
-    console.log('3. Help - Learn how to play');
-    console.log('4. Quit - Exit the game');
+    console.log('2. Tutorial - Learn how to play (Recommended for new players)');
+    console.log('3. Load Game - Continue a saved career');
+    console.log('4. Help - View game instructions');
     console.log('');
-    console.log('Enter your choice (1-4):');
+    console.log('Enter your choice (1-4) or Q to quit:');
     console.log('');
   }
 

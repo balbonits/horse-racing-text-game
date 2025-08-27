@@ -136,7 +136,7 @@ class StartupScreen {
         const welcome = [
             "",
             "═".repeat(70),
-            "              🐎 WELCOME TO HORSE RACING EMPIRE 🐎",
+            "              🐎 WELCOME TO HORSE RACING STABLES 🐎",
             "                    (Parody Simulation Game)",
             "═".repeat(70),
             "",
@@ -157,7 +157,7 @@ class StartupScreen {
             "",
             "🎮 Ready to begin your journey to racing greatness?",
             "",
-            "    Press [ENTER] to start your stable empire...",
+            "    Press [ENTER] to start your racing career...",
             "    Press [Q] to quit",
             "",
             this.getCopyrightFooter(),

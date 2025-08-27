@@ -4,6 +4,9 @@ const RaceAnimation = require('./systems/RaceAnimation');
 const GameStateMachine = require('./systems/GameStateMachine');
 const NameGenerator = require('./utils/NameGenerator');
 const OfflineSaveSystem = require('./systems/OfflineSaveSystem');
+const TutorialManager = require('./systems/TutorialManager');
+const SplashScreen = require('./ui/screens/SplashScreen');
+const ColorThemeManager = require('./ui/ColorThemeManager');
 const fs = require('fs').promises;
 const path = require('path');
 const { validation, result, energy, ui } = require('./utils/gameUtils');
@@ -19,9 +22,13 @@ class GameApp {
     this.nameGenerator = new NameGenerator();
     this.stateMachine = new GameStateMachine(this); // Replace validator with state machine
     this.saveSystem = new OfflineSaveSystem(); // New JSON-based save system
+    this.tutorialManager = new TutorialManager(this); // Tutorial system
+    this.colorManager = new ColorThemeManager(); // Color theme system
+    this.splashScreen = new SplashScreen(this.colorManager); // ASCII art splash screen
     this.saveDirectory = path.join(__dirname, '../data/saves'); // Legacy compatibility
     this.characterNameBuffer = '';
     this.nameOptions = [];
+    this.tutorialMode = false; // Track if we're in tutorial mode
     
     // Career data structures - established at career start
     this.careerConfig = null;      // Career configuration (turns, races, training pattern)
@@ -55,9 +62,25 @@ class GameApp {
   /**
    * Start the game application with pure console input
    */
-  start() {
+  async start() {
     console.log('Starting Horse Racing Text Game...\n');
+    
+    // Show splash screen first
+    await this.showSplashScreen();
+    
     this.render();
+  }
+
+  /**
+   * Show the ASCII art splash screen
+   */
+  async showSplashScreen() {
+    try {
+      await this.splashScreen.displayStartupSequence();
+    } catch (error) {
+      console.log('Splash screen error (continuing anyway):', error.message);
+      // Continue to main menu even if splash fails
+    }
   }
 
   setupKeyboardInput() {
@@ -568,7 +591,11 @@ class GameApp {
         ['race_results', () => this.renderRaceResults()],
         ['career_complete', () => this.renderCareerComplete()],
         ['podium', () => this.renderPodium()],
-        ['help', () => this.renderHelp()]
+        ['help', () => this.renderHelp()],
+        ['tutorial', () => this.renderTutorial()],
+        ['tutorial_training', () => this.renderTutorialTraining()],
+        ['tutorial_race', () => this.renderTutorialRace()],
+        ['tutorial_complete', () => this.renderTutorialComplete()]
       ]);
       
       const renderHandler = renderHandlers.get(currentState);
@@ -1029,6 +1056,109 @@ class GameApp {
       'F': 'Tough career, but every champion starts somewhere!'
     };
     return messages[grade] || 'Career complete!';
+  }
+
+  // Tutorial render methods
+  renderTutorial() {
+    const guidance = this.tutorialManager.getTutorialGuidance();
+    
+    console.clear();
+    
+    if (guidance.stableManager) {
+      console.log(`${guidance.stableManager.emoji} ${guidance.stableManager.name} - ${guidance.stableManager.title}`);
+      console.log('='.repeat(50));
+      console.log('');
+      console.log(guidance.stableManager.title_text);
+      console.log('');
+      console.log(guidance.stableManager.message);
+      console.log('');
+      console.log('Press ENTER to start your tutorial training!');
+    }
+  }
+
+  renderTutorialTraining() {
+    const guidance = this.tutorialManager.getTutorialGuidance();
+    const instruction = this.tutorialManager.getNextInstruction();
+    
+    console.clear();
+    
+    if (this.tutorialManager.tutorialCharacter) {
+      const character = this.tutorialManager.tutorialCharacter;
+      
+      console.log('🎓 TUTORIAL TRAINING - Learn the Basics');
+      console.log('=====================================');
+      console.log('');
+      console.log(`Horse: ${character.name}`);
+      console.log(`Turn: ${character.career.turn}/5 | Energy: ${character.energy}/100`);
+      console.log('');
+      console.log(`Speed: ${character.stats.speed} | Stamina: ${character.stats.stamina} | Power: ${character.stats.power}`);
+      console.log('');
+      
+      if (guidance.stableManager) {
+        console.log(`${guidance.stableManager.emoji} ${guidance.stableManager.name}: ${instruction.message}`);
+        console.log('');
+      }
+      
+      console.log('TRAINING OPTIONS:');
+      console.log('1. Speed Training (15 energy)');
+      console.log('2. Stamina Training (10 energy)');
+      console.log('3. Power Training (15 energy)');
+      console.log('4. Rest Day (+30 energy)');
+      console.log('5. Media Day (+15 energy)');
+      console.log('');
+      console.log('Enter your choice (1-5):');
+    }
+  }
+
+  renderTutorialRace() {
+    const guidance = this.tutorialManager.getTutorialGuidance();
+    
+    console.clear();
+    console.log('🏆 TUTORIAL RACE - Your First Competition');
+    console.log('=========================================');
+    console.log('');
+    
+    if (guidance.stableManager) {
+      console.log(`${guidance.stableManager.emoji} ${guidance.stableManager.name}:`);
+      console.log(guidance.stableManager.message);
+      console.log('');
+    }
+    
+    console.log('Tutorial Sprint Cup - 1000m Turf Race');
+    console.log('');
+    console.log('Press ENTER to watch your race!');
+  }
+
+  renderTutorialComplete() {
+    const summary = this.tutorialManager.getTutorialSummary();
+    
+    console.clear();
+    console.log('🎉 TUTORIAL COMPLETE!');
+    console.log('====================');
+    console.log('');
+    console.log('Congratulations! You\'ve learned the basics of horse racing.');
+    console.log('');
+    
+    if (summary.character) {
+      console.log(`Final Stats for ${summary.character.name}:`);
+      console.log(`Speed: ${summary.character.finalStats.speed}`);
+      console.log(`Stamina: ${summary.character.finalStats.stamina}`);
+      console.log(`Power: ${summary.character.finalStats.power}`);
+      console.log(`Energy: ${summary.character.energy}/100`);
+      console.log('');
+    }
+    
+    console.log('What you learned:');
+    summary.achievements.forEach(achievement => {
+      console.log(`${achievement}`);
+    });
+    console.log('');
+    console.log('Ready to start your real racing career?');
+    console.log('');
+    console.log('1. Start New Career - Begin your journey');
+    console.log('2. Return to Main Menu - Practice more later');
+    console.log('');
+    console.log('Enter your choice (1-2):');
   }
 
   cleanup() {
