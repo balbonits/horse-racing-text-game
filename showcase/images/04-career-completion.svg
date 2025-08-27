@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <!-- Terminal background -->
+  <rect width="100%" height="100%" fill="#1e1e1e"/>
+  
+  <!-- Terminal window frame -->
+  <rect x="0" y="0" width="100%" height="30" fill="#2d2d2d"/>
+  <circle cx="20" cy="15" r="6" fill="#ff5f56"/>
+  <circle cx="40" cy="15" r="6" fill="#ffbd2e"/>  
+  <circle cx="60" cy="15" r="6" fill="#27c93f"/>
+  <text x="100" y="20" fill="#cccccc" font-family="SF Mono, Monaco, monospace" font-size="12">Horse Racing Text Game</text>
+  
+  <!-- Terminal content -->
+  <g font-family="SF Mono, Monaco, Inconsolata, monospace" font-size="14" fill="#00ff00">
+    <text x="20" y="50">===============================================</text>
+    <text x="20" y="68">           HORSE RACING TEXT GAME            </text>
+    <text x="20" y="86">===============================================</text>
+    <text x="20" y="104"></text>
+    <text x="20" y="122">🏆 CAREER COMPLETE! 🏆</text>
+    <text x="20" y="140">======================</text>
+    <text x="20" y="158"></text>
+    <text x="20" y="176">Final Grade: S</text>
+    <text x="20" y="194"></text>
+    <text x="20" y="212">CAREER SUMMARY:</text>
+    <text x="20" y="230">Thunder Horse - The Champion</text>
+    <text x="20" y="248">───────────────────────────</text>
+    <text x="20" y="266"></text>
+    <text x="20" y="284">📊 FINAL STATS:</text>
+    <text x="20" y="302">  Speed:   92/100  [███████████████████░]</text>
+    <text x="20" y="320">  Stamina: 88/100  [██████████████████░░]</text>
+    <text x="20" y="338">  Power:   85/100  [█████████████████░░░]</text>
+    <text x="20" y="356">  Bond:    100/100 [████████████████████]</text>
+    <text x="20" y="374"></text>
+    <text x="20" y="392">🏁 RACE RECORD:</text>
+    <text x="20" y="410">  Races Won: 4/4</text>
+    <text x="20" y="428">  Win Rate: 100%</text>
+    <text x="20" y="446">  Total Training: 23 sessions</text>
+    <text x="20" y="464"></text>
+    <text x="20" y="482">🏆 ACHIEVEMENTS EARNED:</text>
+    <text x="20" y="500">  🥇 Perfect Record - Won every race</text>
+    <text x="20" y="518">  👑 Champion - Win 3+ races in career</text>
+    <text x="20" y="536">  ⭐ Elite Athlete - Reach 90+ in any stat  </text>
+    <text x="20" y="554">  ❤️ Perfect Bond - Maximum bond</text>
+    <text x="20" y="572">  🎯 Training Fanatic - Complete 20+ sessions</text>
+    <text x="20" y="590"></text>
+    <text x="20" y="608">Press any key to start a new career...</text>
+  </g>
+</svg>

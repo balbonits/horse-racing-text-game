@@ -156,25 +156,31 @@ const showcaseConfig: ProjectData = {
   ],
   screenshots: [
     {
-      src: 'https://raw.githubusercontent.com/[username]/horse-racing-text-game/main/showcase/images/01-main-menu.png',
+      src: 'https://raw.githubusercontent.com/balbonits/horse-racing-text-game/main/showcase/images/01-main-menu.png',
       alt: 'Main menu interface with ASCII art and navigation options',
       caption: 'Clean terminal interface with professional presentation and clear navigation',
       category: 'desktop'
     },
     {
-      src: 'https://raw.githubusercontent.com/[username]/horse-racing-text-game/main/showcase/images/02-training-interface.png',
+      src: 'https://raw.githubusercontent.com/balbonits/horse-racing-text-game/main/showcase/images/02-training-interface.png',
       alt: 'Training interface showing horse stats, progress bars, and training options',
       caption: 'Comprehensive training interface with visual progress indicators and strategic options',
       category: 'feature'
     },
     {
-      src: 'https://raw.githubusercontent.com/[username]/horse-racing-text-game/main/showcase/images/03-race-results.png',
+      src: 'https://raw.githubusercontent.com/balbonits/horse-racing-text-game/main/showcase/images/05-race-animation.png',
+      alt: 'Race animation in progress showing horses competing',
+      caption: 'Live race animation with real-time positioning and progress tracking',
+      category: 'feature'
+    },
+    {
+      src: 'https://raw.githubusercontent.com/balbonits/horse-racing-text-game/main/showcase/images/03-race-results.png',
       alt: 'Race results screen with detailed performance statistics',
       caption: 'Race results with detailed statistics showing multi-factor performance calculation',
       category: 'feature'
     },
     {
-      src: 'https://raw.githubusercontent.com/[username]/horse-racing-text-game/main/showcase/images/04-career-completion.png',
+      src: 'https://raw.githubusercontent.com/balbonits/horse-racing-text-game/main/showcase/images/04-career-completion.png',
       alt: 'Career completion screen with grading and achievements',
       caption: 'Career summary with S/A/B/C/D/F grading system and achievement recognition',
       category: 'feature'
@@ -183,7 +189,7 @@ const showcaseConfig: ProjectData = {
   links: [
     {
       type: 'github',
-      url: 'https://github.com/[username]/horse-racing-text-game',
+      url: 'https://github.com/balbonits/horse-racing-text-game',
       label: 'GitHub Repository'
     },
     {

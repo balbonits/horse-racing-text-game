@@ -29,7 +29,14 @@
       "Bash(gtimeout:*)",
       "Bash(npm run test:*)",
       "Bash(npx jest:*)",
-      "Bash(sed:*)"
+      "Bash(sed:*)",
+      "Bash(git tag:*)",
+      "Bash(chmod:*)",
+      "Bash(for:*)",
+      "Bash(do convert \"$file\" \"$file%.svg.png\")",
+      "Bash(echo:*)",
+      "Bash(done)",
+      "Bash(magick:*)"
     ],
     "deny": [],
     "ask": []

@@ -20,6 +20,122 @@ npm run start:direct
 npm run dev
 ```
 
+## 🎮 How to Play
+
+### Installation & Setup
+
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/balbonits/horse-racing-text-game.git
+   cd horse-racing-text-game
+   ```
+
+2. **Install Dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Run the Game**
+   ```bash
+   # Recommended: Opens in new terminal window
+   npm start
+   
+   # Alternative: Run in current terminal
+   npm run start:direct
+   
+   # Or run directly
+   node src/app.js
+   ```
+
+### Game Controls
+
+| Key | Action |
+|-----|--------|
+| **1-5** | Training options (Speed/Stamina/Power/Rest/Media Day) |
+| **S** | Save your game |
+| **Q** | Quit game |
+| **H** | Help (if available) |
+| **Enter** | Confirm selection |
+
+### Playing Your First Career
+
+1. **Start New Career**
+   - Choose option "1" from main menu
+   - Enter your horse's name (or use generator with "G")
+
+2. **Training Phase** (24 turns)
+   - **Turn 1-3**: Build basic stats and bond
+   - **Turn 4**: First race - Maiden Sprint (1200m)
+   - **Turn 5-8**: Develop specialization  
+   - **Turn 9**: Second race - Mile Championship (1600m)
+   - **Turn 9-14**: Advanced training
+   - **Turn 15**: Third race - Dirt Stakes (2000m)
+   - **Turn 15-23**: Final preparation
+   - **Turn 24**: Final race - Turf Cup (2400m)
+
+3. **Training Strategy Tips**
+   - **Media Day** builds bond AND restores energy (+15)
+   - **Rest Day** fully restores energy (+30)
+   - **High Bond** (80+) gives 50% training bonus
+   - **Good Form** improves all training effectiveness
+   - **Balance stats** according to upcoming race types
+
+4. **Race Strategy**
+   - **Sprint races** (1200m): Favor Speed + Power
+   - **Mile races** (1600m): Balanced stats
+   - **Long races** (2000m+): Favor Stamina
+   - Choose strategy: FRONT/MID/LATE based on strengths
+
+5. **Career Completion**
+   - Final grade: S/A/B/C/D/F based on performance
+   - Achievements unlock based on accomplishments
+   - Start new career with lessons learned!
+
+### Understanding the Interface
+
+```
+TRAINING - Thunder Horse
+========================
+
+STATS:
+  Speed:   42/100  [████████░░░░░░░░░░░░]  ← Progress bars show stat levels
+  Stamina: 38/100  [███████░░░░░░░░░░░░░]
+  Power:   45/100  [█████████░░░░░░░░░░░]
+
+CONDITION:
+  Energy: 85/100  [█████████████████░░░]  ← Energy for training
+  Form:   Good Form                       ← Affects training efficiency
+
+CAREER:
+  Turn: 8/24                             ← Current progress
+  Bond: 65/100                           ← Relationship strength
+
+=== UPCOMING RACE ===                   ← Next race information
+Race: Mile Championship
+Turn: 9
+Distance: 1600m
+Surface: DIRT
+Type: MILE
+Turns until race: 1
+=====================
+
+TRAINING OPTIONS:                       ← Your choices
+1. Speed Training   (Cost: 15 energy)
+2. Stamina Training (Cost: 10 energy)
+3. Power Training   (Cost: 15 energy)
+4. Rest Day         (Gain: 30 energy)
+5. Media Day        (Gain: 15 energy)
+```
+
+### Pro Tips
+
+- **Early Game**: Focus on Media Day to build bond quickly
+- **Mid Game**: Specialize based on your preferred race types
+- **Late Game**: Fine-tune stats and manage energy carefully
+- **Energy Management**: Never let energy get too low before races
+- **Form Matters**: Train when in Good Form or better for maximum gains
+- **Save Often**: Use 'S' to save before important decisions
+
 ## 🐎 Game Overview
 
 **Core Experience**: 15-minute strategic sessions with addictive "one more run" gameplay.
