@@ -1,0 +1,257 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TrainerDialog UI Snapshots Dialog Configuration Snapshots should render trainer choice menu configuration: trainer-choice-menu-config 1`] = `
+{
+  "choices": [
+    "Long Distance Run",
+    "Hill Training",
+    "Interval Work",
+  ],
+  "menuConfig": {
+    "height": "50%",
+    "items": [
+      "Long Distance Run",
+      "Hill Training",
+      "Interval Work",
+    ],
+    "style": {
+      "bg": "black",
+      "border": {
+        "fg": "yellow",
+      },
+      "fg": "white",
+    },
+    "width": "70%",
+  },
+  "message": "What type of endurance training would you like?",
+  "trainerName": "Coach Martinez",
+}
+`;
+
+exports[`TrainerDialog UI Snapshots Dialog Configuration Snapshots should render trainer dialog box configuration: trainer-dialog-box-config 1`] = `
+{
+  "dialogConfig": {
+    "border": {
+      "type": "line",
+    },
+    "content": "Time for some speed work! Let's push those limits today.",
+    "height": "40%",
+    "style": {
+      "bg": "black",
+      "border": {
+        "fg": "yellow",
+      },
+      "fg": "white",
+    },
+    "title": "🏃 Coach Johnson (Speed Trainer)",
+    "width": "70%",
+  },
+  "message": "Time for some speed work! Let's push those limits today.",
+  "specialty": "speed",
+  "trainerName": "Coach Johnson",
+}
+`;
+
+exports[`TrainerDialog UI Snapshots Error State Snapshots should render fallback responses for edge cases: edge-case-fallback-responses 1`] = `
+{
+  "negativeStatResponse": "We have a lot of ground to cover, but everyone starts somewhere! Let's build that basic speed foundation first.",
+  "nullHorseResponse": "Let's get to work!",
+  "overMaxStatResponse": "Phenomenal power! This horse hits like a freight train when they make their move - absolutely devastating!",
+  "zeroStatResponse": "Rome wasn't built in a day, and neither is true endurance. Let's take this step by step and build that foundation.",
+}
+`;
+
+exports[`TrainerDialog UI Snapshots Error State Snapshots should render graceful fallback for missing trainer: missing-trainer-fallback 1`] = `
+{
+  "fallbackMessage": "Let's get to work!",
+  "trainer": null,
+}
+`;
+
+exports[`TrainerDialog UI Snapshots Stat-Based Response Snapshots should render consistent responses for advanced level stats: advanced-stat-responses 1`] = `
+{
+  "power": "Excellent strength! That explosive power is becoming a real weapon in tight finishes.",
+  "speed": "Excellent work! Those times are getting seriously competitive - we're building a real speedster here!",
+  "stamina": "Impressive stamina development! Your horse can go the distance when others are hitting the wall.",
+}
+`;
+
+exports[`TrainerDialog UI Snapshots Stat-Based Response Snapshots should render consistent responses for beginner level stats: beginner-stat-responses 1`] = `
+{
+  "power": "We're starting from the ground up, but that's okay! Solid fundamentals create explosive power later.",
+  "speed": "We have a lot of ground to cover, but everyone starts somewhere! Let's build that basic speed foundation first.",
+  "stamina": "Rome wasn't built in a day, and neither is true endurance. Let's take this step by step and build that foundation.",
+}
+`;
+
+exports[`TrainerDialog UI Snapshots Stat-Based Response Snapshots should render consistent responses for competent level stats: competent-stat-responses 1`] = `
+{
+  "power": "Good power development! I can see that extra thrust when your horse needs to accelerate.",
+  "speed": "Good progress! Your horse is starting to show real speed potential in those sprints.",
+  "stamina": "Nice progress! Those longer distances aren't looking as daunting anymore, are they?",
+}
+`;
+
+exports[`TrainerDialog UI Snapshots Stat-Based Response Snapshots should render consistent responses for developing level stats: developing-stat-responses 1`] = `
+{
+  "power": "I can feel that strength building! Those muscles are starting to respond to the hard work.",
+  "speed": "I can see some improvement in those early strides! Keep pushing through the fundamentals.",
+  "stamina": "I'm seeing better recovery between workouts! Your horse is starting to build that cardiovascular base.",
+}
+`;
+
+exports[`TrainerDialog UI Snapshots Stat-Based Response Snapshots should render consistent responses for elite level stats: elite-stat-responses 1`] = `
+{
+  "power": "Phenomenal power! This horse hits like a freight train when they make their move - absolutely devastating!",
+  "speed": "Outstanding! This is championship-level acceleration - your horse has the speed to compete with the very best!",
+  "stamina": "Remarkable endurance! This horse could run all day - true staying power that wins the biggest races!",
+}
+`;
+
+exports[`TrainerDialog UI Snapshots Trainer Introduction Dialogs should render Coach Johnson speed trainer introduction: speed-trainer-introduction 1`] = `
+{
+  "introduction": "I'm Coach Johnson, and I live for pure speed! We're going to unlock your horse's explosive acceleration and make them a sprinting machine. Are you ready to feel the rush?",
+  "personality": {
+    "catchphrase": "Speed wins races!",
+    "style": "motivational",
+    "traits": [
+      "energetic",
+      "direct",
+      "results-focused",
+    ],
+  },
+  "specialty": "speed",
+  "trainerName": "Coach Johnson",
+}
+`;
+
+exports[`TrainerDialog UI Snapshots Trainer Introduction Dialogs should render Coach Martinez stamina trainer introduction: stamina-trainer-introduction 1`] = `
+{
+  "introduction": "Welcome, I'm Coach Martinez. True champions are built through patience and persistence. Together, we'll develop the kind of stamina that wins the biggest races when others are fading.",
+  "personality": {
+    "catchphrase": "Steady wins the day!",
+    "style": "encouraging",
+    "traits": [
+      "patient",
+      "methodical",
+      "endurance-focused",
+    ],
+  },
+  "specialty": "stamina",
+  "trainerName": "Coach Martinez",
+}
+`;
+
+exports[`TrainerDialog UI Snapshots Trainer Introduction Dialogs should render Coach Thompson power trainer introduction: power-trainer-introduction 1`] = `
+{
+  "introduction": "Coach Thompson here. Power is what separates the champions from the also-rans. We're going to build the explosive strength that launches your horse past the competition when it matters most.",
+  "personality": {
+    "catchphrase": "Power through!",
+    "style": "demanding",
+    "traits": [
+      "tough",
+      "motivational",
+      "fundamentals-focused",
+    ],
+  },
+  "specialty": "power",
+  "trainerName": "Coach Thompson",
+}
+`;
+
+exports[`TrainerDialog UI Snapshots Trainer Relationship Progression Snapshots should render relationship progression stages: trainer-relationship-progression 1`] = `
+{
+  "horse": "Lightning Bolt",
+  "relationships": {
+    "initial": "new",
+    "oneSession": "familiar",
+    "sixSessions": "experienced",
+    "threeSessions": "familiar",
+  },
+  "trainer": "Coach Johnson",
+}
+`;
+
+exports[`TrainerDialog UI Snapshots Training Dialog Flow Snapshots should render complete power training dialog flow: power-training-dialog-flow 1`] = `
+{
+  "horse": {
+    "name": "Thunder Runner",
+    "stats": {
+      "power": 38,
+      "speed": 45,
+      "stamina": 55,
+    },
+  },
+  "postTrainingMessage": "Strong work! +4 power - I can feel that extra thrust building in those muscles!
+
+Good power development! I can see that extra thrust when your horse needs to accelerate.",
+  "preTrainingMessage": "Thunder Runner, time to build some real strength! Power training is tough, but that's what separates champions from the pack!",
+  "trainer": {
+    "name": "Coach Thompson",
+    "specialty": "power",
+  },
+  "trainingResult": {
+    "improvement": 4,
+    "newValue": 42,
+    "previousValue": 38,
+    "statType": "power",
+    "success": true,
+  },
+}
+`;
+
+exports[`TrainerDialog UI Snapshots Training Dialog Flow Snapshots should render complete speed training dialog flow: speed-training-dialog-flow 1`] = `
+{
+  "horse": {
+    "name": "Thunder Runner",
+    "stats": {
+      "power": 38,
+      "speed": 45,
+      "stamina": 55,
+    },
+  },
+  "postTrainingMessage": "Solid session! +3 speed - I can see those fast-twitch muscles responding. Keep this up!
+
+Good progress! Your horse is starting to show real speed potential in those sprints.",
+  "preTrainingMessage": "Alright Thunder Runner, time to see what you've got! We're going to work on your speed today - explosive starts and sustained acceleration!",
+  "trainer": {
+    "name": "Coach Johnson",
+    "specialty": "speed",
+  },
+  "trainingResult": {
+    "improvement": 3,
+    "newValue": 48,
+    "previousValue": 45,
+    "statType": "speed",
+    "success": true,
+  },
+}
+`;
+
+exports[`TrainerDialog UI Snapshots Training Dialog Flow Snapshots should render complete stamina training dialog flow: stamina-training-dialog-flow 1`] = `
+{
+  "horse": {
+    "name": "Thunder Runner",
+    "stats": {
+      "power": 38,
+      "speed": 45,
+      "stamina": 55,
+    },
+  },
+  "postTrainingMessage": "Beautiful stamina building! +3 points - I can see you pushing through those fatigue barriers!
+
+Nice progress! Those longer distances aren't looking as daunting anymore, are they?",
+  "preTrainingMessage": "Welcome Thunder Runner. Today we build endurance - the kind that wins races when others are finished. Steady and strong!",
+  "trainer": {
+    "name": "Coach Martinez",
+    "specialty": "stamina",
+  },
+  "trainingResult": {
+    "improvement": 3,
+    "newValue": 58,
+    "previousValue": 55,
+    "statType": "stamina",
+    "success": true,
+  },
+}
+`;

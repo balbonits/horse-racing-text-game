@@ -10,6 +10,13 @@ class Character extends Horse {
     // Handle null options gracefully
     options = options || {};
     
+    // Handle stats object if provided (for compatibility with CharacterCreationEngine)
+    if (options.stats && typeof options.stats === 'object') {
+      options.speed = options.stats.speed;
+      options.stamina = options.stats.stamina;
+      options.power = options.stats.power;
+    }
+    
     // Call parent constructor
     super(name, options);
     

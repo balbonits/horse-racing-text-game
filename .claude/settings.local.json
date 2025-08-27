@@ -36,7 +36,10 @@
       "Bash(do convert \"$file\" \"$file%.svg.png\")",
       "Bash(echo:*)",
       "Bash(done)",
-      "Bash(magick:*)"
+      "Bash(magick:*)",
+      "Bash(pkill:*)",
+      "Bash(git checkout:*)",
+      "Bash(git branch:*)"
     ],
     "deny": [],
     "ask": []

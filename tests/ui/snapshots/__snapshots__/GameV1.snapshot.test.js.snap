@@ -1,0 +1,501 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`GameV1 Integration UI Snapshots Error Handling Snapshots should capture fallback behaviors: error-fallback-behaviors 1`] = `
+{
+  "invalidStatType": {
+    "error": "Invalid horse stats",
+  },
+  "invalidTraining": {
+    "error": "Invalid training parameters",
+  },
+  "missingHorseDialog": "Let's get to work!",
+  "missingTrainer": null,
+}
+`;
+
+exports[`GameV1 Integration UI Snapshots Error Handling Snapshots should capture initialization failure states: initialization-failure-state 1`] = `
+{
+  "gameReady": false,
+  "initializationResult": {
+    "reason": "Legal disclaimer not accepted",
+    "success": false,
+  },
+  "stableOwnerPresent": false,
+}
+`;
+
+exports[`GameV1 Integration UI Snapshots Game Status Snapshots should capture game status after initialization: initialized-game-status 1`] = `
+{
+  "gameStatus": {
+    "currentHorse": null,
+    "currentTurn": 1,
+    "initialized": true,
+    "stableOwner": {
+      "cash": 50000,
+      "name": "Test Owner",
+      "reputation": 0,
+      "stableName": "Test Stables",
+    },
+    "version": "1.0",
+  },
+  "isReady": true,
+  "stableOwnerPresent": true,
+  "trainerDialogPresent": true,
+  "version": "1.0",
+}
+`;
+
+exports[`GameV1 Integration UI Snapshots Game Status Snapshots should capture game status with current horse: game-status-with-horse 1`] = `
+{
+  "currentHorse": {
+    "breed": "thoroughbred",
+    "name": "Royal Queen",
+    "specialization": "miler",
+    "stats": {
+      "power": 27,
+      "speed": 30,
+      "stamina": 32,
+    },
+  },
+  "gameStatus": {
+    "currentHorse": {
+      "breed": "thoroughbred",
+      "name": "Royal Queen",
+      "stats": {
+        "power": 27,
+        "speed": 30,
+        "stamina": 32,
+      },
+    },
+    "currentTurn": 1,
+    "initialized": true,
+    "stableOwner": {
+      "cash": 50000,
+      "name": "Test Owner",
+      "reputation": 0,
+      "stableName": "Test Stables",
+    },
+    "version": "1.0",
+  },
+}
+`;
+
+exports[`GameV1 Integration UI Snapshots Game Status Snapshots should capture initial game status before initialization: initial-game-status 1`] = `
+{
+  "gameStatus": {
+    "currentHorse": null,
+    "currentTurn": 1,
+    "initialized": false,
+    "stableOwner": null,
+    "version": "1.0",
+  },
+  "isReady": false,
+  "version": "1.0",
+}
+`;
+
+exports[`GameV1 Integration UI Snapshots Horse Creation Snapshots should capture horse serialization format: horse-serialization-format 1`] = `
+{
+  "originalHorse": {
+    "breed": "thoroughbred",
+    "gender": "colt",
+    "name": "Royal Queen",
+    "racingStyle": "stalker",
+    "specialization": "miler",
+    "stats": {
+      "power": 51,
+      "speed": 51,
+      "stamina": 40,
+    },
+  },
+  "serializedFormat": {
+    "bond": 0,
+    "breed": "thoroughbred",
+    "energy": undefined,
+    "form": undefined,
+    "gender": "colt",
+    "name": "Royal Queen",
+    "pedigree": null,
+    "racingStyle": "stalker",
+    "specialization": "miler",
+    "stats": {
+      "power": 51,
+      "speed": 51,
+      "stamina": 40,
+    },
+  },
+}
+`;
+
+exports[`GameV1 Integration UI Snapshots Horse Creation Snapshots should capture random horse creation results: random-horse-creation-batch 1`] = `
+[
+  {
+    "breed": "thoroughbred",
+    "gender": "colt",
+    "name": "Silver Legend",
+    "racingStyle": "stalker",
+    "specialization": "miler",
+    "stats": {
+      "power": 33,
+      "speed": 33,
+      "stamina": 56,
+    },
+  },
+  {
+    "breed": "thoroughbred",
+    "gender": "colt",
+    "name": "Thunder Spirit",
+    "racingStyle": "stalker",
+    "specialization": "miler",
+    "stats": {
+      "power": 56,
+      "speed": 49,
+      "stamina": 33,
+    },
+  },
+  {
+    "breed": "thoroughbred",
+    "gender": "colt",
+    "name": "Swift Queen",
+    "racingStyle": "stalker",
+    "specialization": "miler",
+    "stats": {
+      "power": 36,
+      "speed": 35,
+      "stamina": 32,
+    },
+  },
+  {
+    "breed": "thoroughbred",
+    "gender": "colt",
+    "name": "Gold Strike",
+    "racingStyle": "stalker",
+    "specialization": "miler",
+    "stats": {
+      "power": 46,
+      "speed": 39,
+      "stamina": 33,
+    },
+  },
+  {
+    "breed": "thoroughbred",
+    "gender": "colt",
+    "name": "Storm Dancer",
+    "racingStyle": "stalker",
+    "specialization": "miler",
+    "stats": {
+      "power": 48,
+      "speed": 38,
+      "stamina": 28,
+    },
+  },
+]
+`;
+
+exports[`GameV1 Integration UI Snapshots Name Generation Integration Snapshots should capture name uniqueness across session: name-generation-uniqueness 1`] = `
+{
+  "horseNames": {
+    "names": [
+      "Storm King",
+      "Lightning Legend",
+      "Fire Strike",
+      "Swift Flash",
+      "Fire Flash",
+      "Storm Spirit",
+      "Storm Queen",
+      "Gold Dancer",
+      "Storm Spirit",
+      "Lightning Flash",
+    ],
+    "totalCount": 10,
+    "uniqueCount": 9,
+  },
+  "raceNames": {
+    "names": [
+      "Royal Prize",
+      "Summer Trophy",
+      "Moonrise Mile Classic",
+      "Pine Grove Mile Feature",
+      "Elmwood Mile Championship",
+      "Golden Valley Mile Trophy",
+      "Summer Feature",
+      "Diamond Feature",
+      "Spring Trial",
+      "Sunset Mile Feature",
+    ],
+    "totalCount": 10,
+    "uniqueCount": 10,
+  },
+  "trackNames": {
+    "names": [
+      "Golden Gardens",
+      "Wind Grounds",
+      "Pine Point Park",
+      "Maple Valley Park",
+      "Golden Valley Springs",
+      "Southgate Valley",
+      "Golden Park",
+      "Pine Grove Speedway",
+      "Silver Fields",
+      "Silver Gardens",
+    ],
+    "totalCount": 10,
+    "uniqueCount": 10,
+  },
+}
+`;
+
+exports[`GameV1 Integration UI Snapshots Name Generation Integration Snapshots should capture race generation with names: generated-race-names 1`] = `
+[
+  {
+    "distance": "1200m",
+    "name": "Autumn Special",
+    "surface": "dirt",
+    "trackName": "Thunder Park",
+  },
+  {
+    "distance": "1600m",
+    "name": "Winter Derby",
+    "surface": "turf",
+    "trackName": "Wind Meadows",
+  },
+  {
+    "distance": "2000m",
+    "name": "Winter Handicap",
+    "surface": "dirt",
+    "trackName": "Golden Park",
+  },
+  {
+    "distance": "2400m",
+    "name": "Autumn Festival",
+    "surface": "turf",
+    "trackName": "Storm Park",
+  },
+]
+`;
+
+exports[`GameV1 Integration UI Snapshots Save/Load Integration Snapshots should capture load restoration accuracy: save-load-restoration-accuracy 1`] = `
+{
+  "dataMatches": {
+    "horseName": true,
+    "horseStatsMatch": true,
+    "stableOwnerCash": true,
+    "stableOwnerName": true,
+  },
+  "originalState": {
+    "horseName": "Fire Dancer",
+    "horseStats": {
+      "power": 28,
+      "speed": 27,
+      "stamina": 29,
+    },
+    "stableOwnerCash": 50000,
+    "stableOwnerName": "Test Owner",
+  },
+  "restoredState": {
+    "horseName": "Fire Dancer",
+    "horseStats": {
+      "power": 28,
+      "speed": 27,
+      "stamina": 29,
+    },
+    "loadSuccessful": true,
+    "stableOwnerCash": 50000,
+    "stableOwnerName": "Test Owner",
+  },
+}
+`;
+
+exports[`GameV1 Integration UI Snapshots Save/Load Integration Snapshots should capture save data structure: save-data-structure 1`] = `
+{
+  "currentHorseData": {
+    "bond": 0,
+    "breed": "thoroughbred",
+    "energy": undefined,
+    "form": undefined,
+    "gender": "colt",
+    "name": "Lightning King",
+    "pedigree": null,
+    "racingStyle": "stalker",
+    "specialization": "miler",
+    "stats": {
+      "power": 50,
+      "speed": 31,
+      "stamina": 33,
+    },
+  },
+  "saveStructure": {
+    "currentHorse": "present",
+    "gameState": {
+      "currentTurn": 5,
+      "isInitialized": true,
+      "raceHistory": [
+        {
+          "name": "Test Race 1",
+          "result": "won",
+        },
+        {
+          "name": "Test Race 2",
+          "result": "placed",
+        },
+      ],
+    },
+    "nameGenerator": "present",
+    "stableOwner": "present",
+    "timestamp": "present",
+    "trainerRelationships": "present",
+    "version": "1.0",
+  },
+  "stableOwnerData": {
+    "financial": {
+      "breedingIncome": 0,
+      "cash": 50000,
+      "facilityUpgradeCosts": 0,
+      "monthlyOperatingCost": 5000,
+      "netWorth": 50000,
+      "prizeMoneyEarned": 0,
+      "staffSalaries": 0,
+      "totalEarnings": 0,
+      "totalExpenses": 0,
+    },
+    "profile": {
+      "bio": null,
+      "experience": "Rookie",
+      "founded": 2025-08-27T04:03:48.629Z,
+      "name": "Test Owner",
+      "philosophy": "balanced",
+      "region": "Kentucky",
+      "reputation": 0,
+      "stableName": "Test Stables",
+      "title": null,
+    },
+  },
+  "trainerRelationshipsData": {
+    "trainerRelationships": {
+      "Coach Johnson-Lightning King": 3,
+    },
+  },
+}
+`;
+
+exports[`GameV1 Integration UI Snapshots Trainer Integration Snapshots should capture complete trainer interaction flow: complete-trainer-interaction-flow 1`] = `
+[
+  {
+    "horse": {
+      "currentStat": 45,
+      "initialStat": 43,
+      "name": "Gold Runner",
+    },
+    "postMessage": "Steady progress! Every point of speed counts, and +2 is real improvement. Speed builds over time!
+
+Good progress! Your horse is starting to show real speed potential in those sprints.",
+    "preMessage": "Alright Gold Runner, time to see what you've got! We're going to work on your speed today - explosive starts and sustained acceleration!",
+    "specialty": "speed",
+    "trainer": {
+      "name": "Coach Johnson",
+      "personality": [
+        "energetic",
+        "direct",
+        "results-focused",
+      ],
+      "specialty": "speed",
+    },
+    "trainingResult": {
+      "improvement": 2,
+      "newValue": 45,
+      "previousValue": 43,
+      "success": true,
+      "trainer": "Coach Johnson",
+    },
+  },
+  {
+    "horse": {
+      "currentStat": 54,
+      "initialStat": 51,
+      "name": "Gold Runner",
+    },
+    "postMessage": "Beautiful stamina building! +3 points - I can see you pushing through those fatigue barriers!
+
+Nice progress! Those longer distances aren't looking as daunting anymore, are they?",
+    "preMessage": "Welcome Gold Runner. Today we build endurance - the kind that wins races when others are finished. Steady and strong!",
+    "specialty": "stamina",
+    "trainer": {
+      "name": "Coach Martinez",
+      "personality": [
+        "patient",
+        "methodical",
+        "endurance-focused",
+      ],
+      "specialty": "stamina",
+    },
+    "trainingResult": {
+      "improvement": 3,
+      "newValue": 54,
+      "previousValue": 51,
+      "success": true,
+      "trainer": "Coach Martinez",
+    },
+  },
+  {
+    "horse": {
+      "currentStat": 47,
+      "initialStat": 45,
+      "name": "Gold Runner",
+    },
+    "postMessage": "Solid strength gains! +2 power - real explosive ability is being forged here!
+
+Good power development! I can see that extra thrust when your horse needs to accelerate.",
+    "preMessage": "Gold Runner, time to build some real strength! Power training is tough, but that's what separates champions from the pack!",
+    "specialty": "power",
+    "trainer": {
+      "name": "Coach Thompson",
+      "personality": [
+        "tough",
+        "motivational",
+        "fundamentals-focused",
+      ],
+      "specialty": "power",
+    },
+    "trainingResult": {
+      "improvement": 2,
+      "newValue": 47,
+      "previousValue": 45,
+      "success": true,
+      "trainer": "Coach Thompson",
+    },
+  },
+]
+`;
+
+exports[`GameV1 Integration UI Snapshots Trainer Integration Snapshots should capture trainer relationship tracking: trainer-relationship-tracking 1`] = `
+{
+  "horse": "Lightning Runner",
+  "progression": [
+    {
+      "relationship": "new",
+      "sessions": 0,
+    },
+    {
+      "relationship": "familiar",
+      "sessions": 1,
+    },
+    {
+      "relationship": "familiar",
+      "sessions": 2,
+    },
+    {
+      "relationship": "familiar",
+      "sessions": 3,
+    },
+    {
+      "relationship": "familiar",
+      "sessions": 4,
+    },
+    {
+      "relationship": "experienced",
+      "sessions": 5,
+    },
+  ],
+  "trainer": "Coach Johnson",
+}
+`;
