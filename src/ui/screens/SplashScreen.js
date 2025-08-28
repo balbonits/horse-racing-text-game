@@ -27,7 +27,6 @@ class SplashScreen {
         }
 
         console.log('\n');
-        console.log('                         Press any key to continue...');
     }
 
     /**
@@ -41,12 +40,10 @@ class SplashScreen {
         // Wait for loading to complete
         await new Promise(resolve => setTimeout(resolve, 2000));
         
-        // Replace loading message with continue prompt
-        // Move cursor up one line and clear it, then show continue message
+        // Clear the loading message - splash becomes loading screen
         process.stdout.write('\u001b[1A\u001b[2K');
-        console.log('                         Press any key to continue...');
         
-        // Return immediately - let GameApp's readline handle the input
+        // Return immediately - seamless transition to main menu
         return Promise.resolve();
     }
 

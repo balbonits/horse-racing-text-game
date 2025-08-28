@@ -446,3 +446,4 @@ node src/app.js          # Direct game launch
 - create documented plans & tests before implementation.
 - follow DRY approach, and create modular functions & components to avoid/reduce repeating code.
 - when adding tests, check & update the test inventory first, then create/update/remove the tests.
+- when resolving bugs & issues, create tests to verify the issue & the fix.
