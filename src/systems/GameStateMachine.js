@@ -182,7 +182,10 @@ class GameStateMachine extends StateMachine {
       
       // Special handlers
       'quit': () => {
-        // Don't actually quit during tests
+        if (process.env.NODE_ENV !== 'test') {
+          // Actually quit the game in normal operation
+          this.gameApp.quit();
+        }
         return { success: true, action: 'quit' };
       }
     };
