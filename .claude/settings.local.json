@@ -48,7 +48,11 @@
       "Bash(npx pkg:*)",
       "Bash(./dist/horse-racing-game-macos:*)",
       "Bash(npm run build:all:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(gh release view:*)",
+      "Bash(gh release create:*)",
+      "Bash(script -q splash.txt npm run start:direct)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

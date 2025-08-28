@@ -48,6 +48,7 @@ class GameApp {
     this.warningMessage = null;    // Current warning message to display
     this.warningType = null;       // Type of warning (energy, etc.)
     
+    
     // Initialize state machine
     this.stateMachine.reset('main_menu');
     
@@ -147,8 +148,8 @@ class GameApp {
         if (result.action === 'buffer_update') {
           // Re-render for character name buffer updates
           this.render();
-        } else if (result.action !== 'ignore') {
-          // If successful and not ignored, render the new state
+        } else if (result.action !== 'ignore' && result.action !== 'quit') {
+          // If successful and not ignored/quit, render the new state
           this.render();
         }
       }
@@ -894,7 +895,9 @@ class GameApp {
     // Only show goodbye screen and exit if not in test environment
     if (process.env.NODE_ENV !== 'test') {
       this.cleanup(true); // Silent cleanup for user quit
-      await this.goodbyeScreen.showAndExit();
+      this.goodbyeScreen.display(); // Show goodbye without delay
+      console.log('    Exiting game...\n');
+      process.exit(0); // Exit immediately
     } else {
       // For tests, just show brief message without exiting
       this.cleanup(false); // Verbose cleanup for debugging

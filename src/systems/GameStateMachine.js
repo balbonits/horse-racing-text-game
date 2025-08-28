@@ -36,10 +36,10 @@ class GameStateMachine extends StateMachine {
     });
 
     // Handle quit events
-    this.addEventListener('quit', () => {
+    this.addEventListener('quit', async () => {
       // Let the quit action handler manage environment checks
       if (process.env.NODE_ENV !== 'test') {
-        this.gameApp.quit();
+        await this.gameApp.quit();
       }
     });
   }

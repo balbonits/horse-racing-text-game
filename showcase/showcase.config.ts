@@ -176,6 +176,12 @@ const showcaseConfig: ProjectData = {
   ],
   screenshots: [
     {
+      src: 'https://raw.githubusercontent.com/balbonits/horse-racing-text-game/main/showcase/images/00-splash-screen.png',
+      alt: 'Stunning splash screen featuring detailed ASCII art of horse and jockey',
+      caption: 'Professional game splash screen with intricate ASCII art and animated loading - showcasing terminal UI excellence',
+      category: 'desktop'
+    },
+    {
       src: 'https://raw.githubusercontent.com/balbonits/horse-racing-text-game/main/showcase/images/01-main-menu.png',
       alt: 'Main menu interface with clean navigation and professional presentation',
       caption: 'Professional main menu with clear options and polished terminal interface design showcasing v1.0 UX improvements',
@@ -185,6 +191,12 @@ const showcaseConfig: ProjectData = {
       src: 'https://raw.githubusercontent.com/balbonits/horse-racing-text-game/main/showcase/images/02-training-interface.png',
       alt: 'Training interface showing horse stats, progress bars, and strategic training options',
       caption: 'Comprehensive training interface with Unicode progress bars and real-time stat tracking - core gameplay mechanics',
+      category: 'feature'
+    },
+    {
+      src: 'https://raw.githubusercontent.com/balbonits/horse-racing-text-game/main/showcase/images/02b-character-creation.png',
+      alt: 'Character creation screen with name input and randomized stat generation',
+      caption: 'Character creation flow with name validation and randomized starting stats for replayability',
       category: 'feature'
     },
     {
@@ -203,6 +215,12 @@ const showcaseConfig: ProjectData = {
       src: 'https://raw.githubusercontent.com/balbonits/horse-racing-text-game/main/showcase/images/04-career-completion.png',
       alt: 'Career completion screen with S/A/B/C/D/F grading and achievement recognition',
       caption: 'Professional 24-turn career summary with comprehensive S/A/B/C/D/F grading system and achievement tracking',
+      category: 'feature'
+    },
+    {
+      src: 'https://raw.githubusercontent.com/balbonits/horse-racing-text-game/main/showcase/images/06-goodbye-screen.png',
+      alt: 'Polished goodbye screen with warm farewell message replacing raw cleanup output',
+      caption: 'Professional exit experience with warm goodbye message - example of v1.0 UX polish improvements',
       category: 'feature'
     }
   ],
