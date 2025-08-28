@@ -44,7 +44,11 @@
       "Bash(npm run docs:cleanup:*)",
       "Bash(npm run docs:list:*)",
       "Bash(brew install:*)",
-      "Bash(asciinema rec:*)"
+      "Bash(asciinema rec:*)",
+      "Bash(npx pkg:*)",
+      "Bash(./dist/horse-racing-game-macos:*)",
+      "Bash(npm run build:all:*)",
+      "Bash(npm run:*)"
     ],
     "deny": [],
     "ask": []

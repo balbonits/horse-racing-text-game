@@ -72,7 +72,7 @@ class StateMachine {
     // Define state graph structure
     const stateGraph = {
       'main_menu': {
-        transitions: ['character_creation', 'tutorial', 'load_game', 'help', 'training'],
+        transitions: ['main_menu', 'character_creation', 'tutorial', 'load_game', 'help', 'training'],
         inputs: {
           '1': 'character_creation',
           '2': 'tutorial',
@@ -90,7 +90,7 @@ class StateMachine {
       },
       
       'character_creation': {
-        transitions: ['training', 'main_menu', 'race_preview'],
+        transitions: ['character_creation', 'training', 'main_menu', 'race_preview'],
         inputs: {
           'text': 'create_character', // Special handler for names and numbers
           'g': 'create_character', // Generate name suggestions
@@ -125,7 +125,7 @@ class StateMachine {
       },
       
       'training': {
-        transitions: ['race_preview', 'race_results', 'help', 'main_menu', 'career_complete'],
+        transitions: ['training', 'race_preview', 'race_results', 'help', 'main_menu', 'career_complete'],
         inputs: {
           '1': 'speed_training',
           '2': 'stamina_training', 
@@ -273,7 +273,7 @@ class StateMachine {
 
       // Tutorial states
       'tutorial': {
-        transitions: ['tutorial_training', 'main_menu'],
+        transitions: ['tutorial', 'tutorial_training', 'main_menu'],
         inputs: {
           'enter': 'tutorial_training',
           '': 'tutorial_training',
@@ -289,7 +289,7 @@ class StateMachine {
       },
 
       'tutorial_training': {
-        transitions: ['tutorial_race', 'tutorial_training', 'tutorial_complete', 'main_menu'],
+        transitions: ['tutorial_race', 'tutorial_training', 'tutorial_career', 'tutorial_complete', 'main_menu'],
         inputs: {
           '1': 'speed_training',
           '2': 'stamina_training',
@@ -317,6 +317,20 @@ class StateMachine {
           description: 'Tutorial race with scripted close victory',
           backEnabled: false,
           autoProgress: 'tutorial_complete'
+        }
+      },
+
+      'tutorial_career': {
+        transitions: ['main_menu'],
+        inputs: {
+          'enter': 'main_menu',
+          '': 'main_menu',
+          'q': 'main_menu'
+        },
+        metadata: {
+          allowEmpty: true,
+          description: 'Tutorial career completion with curated results',
+          backEnabled: false
         }
       },
 
@@ -478,7 +492,12 @@ class StateMachine {
         return this.transitionTo(handler, context);
       }
       
-      // It's a custom action
+      // It's a custom action - delegate to subclass if available
+      if (this.handleCustomAction && typeof this.handleCustomAction === 'function') {
+        return this.handleCustomAction(handler, input, context);
+      }
+      
+      // Fallback: fire event and return success (for base StateMachine)
       this.fireEvent('customAction', { action: handler, input, context });
       return { success: true, action: handler };
       

@@ -2,6 +2,7 @@ const Game = require('./systems/Game');
 const TextUI = require('./systems/TextUI');
 const RaceAnimation = require('./systems/RaceAnimation');
 const GameStateMachine = require('./systems/GameStateMachine');
+const UnifiedInputHandler = require('./systems/UnifiedInputHandler');
 const NameGenerator = require('./utils/NameGenerator');
 const OfflineSaveSystem = require('./systems/OfflineSaveSystem');
 const TutorialManager = require('./systems/TutorialManager');
@@ -23,6 +24,7 @@ class GameApp {
     this.ui = new TextUI(); // Use pure text UI for maximum simplicity
     this.nameGenerator = new NameGenerator();
     this.stateMachine = new GameStateMachine(this); // Replace validator with state machine
+    this.inputHandler = new UnifiedInputHandler(this); // Centralized input handling system
     this.saveSystem = new OfflineSaveSystem(); // New JSON-based save system
     this.tutorialManager = new TutorialManager(this); // Tutorial system
     this.colorManager = new ColorThemeManager(); // Color theme system
@@ -30,9 +32,11 @@ class GameApp {
     this.loadingScreen = new LoadingScreen(this.colorManager); // Loading screen system
     this.goodbyeScreen = new GoodbyeScreen(this.colorManager); // Goodbye screen system
     this.saveDirectory = path.join(__dirname, '../data/saves'); // Legacy compatibility
-    this.characterNameBuffer = '';
-    this.nameOptions = [];
     this.tutorialMode = false; // Track if we're in tutorial mode
+    
+    // Backward compatibility for character creation
+    this.nameOptions = [];
+    this.characterNameBuffer = '';
     
     // Career data structures - established at career start
     this.careerConfig = null;      // Career configuration (turns, races, training pattern)
@@ -97,12 +101,12 @@ class GameApp {
     });
     
     // Handle line input
-    this.rl.on('line', (input) => {
+    this.rl.on('line', async (input) => {
       const trimmed = input.trim();
       
       // Always process non-empty input, allow empty input for navigation states
       if (trimmed !== '' || this.isNavigationState()) {
-        this.handleKeyInput(trimmed); // Send empty string as-is for proper state machine handling
+        await this.handleKeyInput(trimmed); // Send empty string as-is for proper state machine handling
       }
     });
     
@@ -114,7 +118,7 @@ class GameApp {
     });
   }
 
-  handleKeyInput(key) {
+  async handleKeyInput(key) {
     try {
       // Handle fast forward during race animation
       if (this.isRaceAnimationRunning && (key === 'enter' || key === '')) {
@@ -123,19 +127,30 @@ class GameApp {
         return { success: true, message: 'Fast forwarding...' };
       }
       
-      // Use state machine for O(1) input handling vs O(n) switch-case
-      const result = this.stateMachine.processGameInput(key);
+      // Use unified input handler for all input processing
+      const result = await this.inputHandler.processInput(key);
       
       if (!result.success) {
-        console.log(`❌ ${result.error}`);
+        if (result.error) {
+          console.log(`❌ ${result.error}`);
+        }
         if (result.availableInputs) {
           console.log(`💡 Available inputs: ${result.availableInputs.join(', ')}`);
+        }
+        if (result.suggestion) {
+          console.log(`💡 ${result.suggestion}`);
         }
         // Re-render the current state to refresh the screen
         this.render();
       } else {
-        // If successful, render the new state
-        this.render();
+        // Handle special result actions
+        if (result.action === 'buffer_update') {
+          // Re-render for character name buffer updates
+          this.render();
+        } else if (result.action !== 'ignore') {
+          // If successful and not ignored, render the new state
+          this.render();
+        }
       }
       
       return result;
@@ -328,8 +343,13 @@ class GameApp {
       // Clear any existing warning since we have sufficient energy
       this.clearWarning();
 
-      // Perform the training synchronously
-      const trainingResult = this.game.performTrainingSync(trainingType);
+      // Perform the training synchronously - use tutorial training if in tutorial mode
+      let trainingResult;
+      if (this.tutorialMode && this.tutorialManager.isTutorialActive()) {
+        trainingResult = this.tutorialManager.performTutorialTraining(trainingType);
+      } else {
+        trainingResult = this.game.performTrainingSync(trainingType);
+      }
       
       // Check for null/undefined result - this should not happen but let's be safe
       if (!trainingResult) {
@@ -361,7 +381,14 @@ class GameApp {
         // Check if career is complete
         if (trainingResult.careerComplete) {
           console.log('🏆 Career complete after training!');
-          this.setState('career_complete');
+          
+          // Handle tutorial completion differently from career completion
+          if (this.tutorialMode && this.tutorialManager.isTutorialActive()) {
+            console.log('🎓 Tutorial completed successfully!');
+            this.setState('tutorial_complete');
+          } else {
+            this.setState('career_complete');
+          }
         }
         
         // Re-render the training screen to show updated turn and stats
@@ -439,8 +466,16 @@ class GameApp {
         // Check if career is complete
         if (trainingResult.careerComplete) {
           console.log('🏆 Career complete after training!');
-          this.setState('career_complete');
-          this.ui.updateStatus('Career Complete!');
+          
+          // Handle tutorial completion differently from career completion
+          if (this.tutorialMode && this.tutorialManager.isTutorialActive()) {
+            console.log('🎓 Tutorial completed successfully!');
+            this.setState('tutorial_career');
+            this.ui.updateStatus('Tutorial Career Complete!');
+          } else {
+            this.setState('career_complete');
+            this.ui.updateStatus('Career Complete!');
+          }
         }
       }
 
@@ -641,6 +676,7 @@ class GameApp {
         ['tutorial', () => this.renderTutorial()],
         ['tutorial_training', () => this.renderTutorialTraining()],
         ['tutorial_race', () => this.renderTutorialRace()],
+        ['tutorial_career', () => this.renderTutorialCareer()],
         ['tutorial_complete', () => this.renderTutorialComplete()]
       ]);
       
@@ -1183,6 +1219,12 @@ class GameApp {
     console.log('Tutorial Sprint Cup - 1000m Turf Race');
     console.log('');
     console.log('Press ENTER to watch your race!');
+  }
+
+  renderTutorialCareer() {
+    const TutorialCareerScreen = require('./ui/screens/TutorialCareerScreen');
+    const tutorialCareerScreen = new TutorialCareerScreen(this.ui, this.tutorialManager.tutorialCharacter);
+    tutorialCareerScreen.display();
   }
 
   renderTutorialComplete() {

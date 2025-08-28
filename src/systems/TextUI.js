@@ -374,6 +374,39 @@ class TextUI {
   }
 
   /**
+   * Show success message
+   */
+  showSuccess(message) {
+    console.log('');
+    console.log('✅ ' + message);
+    console.log('');
+  }
+
+  /**
+   * Show warning message
+   */
+  showWarning(message) {
+    console.log('');
+    console.log('⚠️  ' + message);
+    console.log('');
+  }
+
+  /**
+   * Show progress bar
+   */
+  showProgressBar(label, value, max = 100, width = 20) {
+    const percentage = Math.max(0, Math.min(100, (value / max) * 100));
+    const filled = Math.round((percentage / 100) * width);
+    const empty = width - filled;
+    
+    const filledChar = '█';
+    const emptyChar = '░';
+    const bar = '[' + filledChar.repeat(filled) + emptyChar.repeat(empty) + ']';
+    
+    console.log(`${label}: ${Math.round(value)}/${max} ${bar}`);
+  }
+
+  /**
    * Create simple ASCII progress bar
    */
   makeBar(value, max = 100, width = 10) {

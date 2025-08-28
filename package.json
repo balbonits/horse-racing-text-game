@@ -3,9 +3,16 @@
   "version": "1.0.0",
   "description": "A text-based horse racing simulation and training game",
   "main": "src/app.js",
+  "bin": {
+    "horse-racing-game": "./src/standalone.js"
+  },
+  "preferGlobal": true,
   "scripts": {
     "start": "node src/launcher.js",
     "start:direct": "node src/app.js",
+    "start:v1": "node src/standalone.js",
+    "start:v1:quick": "node src/standalone.js --quick-start",
+    "start:v1:debug": "node src/standalone.js --debug",
     "dev": "nodemon src/app.js",
     "test": "cross-env NODE_ENV=test jest",
     "test:watch": "cross-env NODE_ENV=test jest --watch",
@@ -27,6 +34,10 @@
     "build:hotfix": "node scripts/build.js hotfix",
     "build:cleanup": "node scripts/build.js cleanup",
     "build:info": "node scripts/build.js info",
+    "build:executable:all": "npm run build:executable:win && npm run build:executable:mac && npm run build:executable:linux",
+    "build:executable:win": "pkg src/standalone.js --targets node18-win-x64 --output dist/horse-racing-game-win.exe",
+    "build:executable:mac": "pkg src/standalone.js --targets node18-macos-x64 --output dist/horse-racing-game-macos",
+    "build:executable:linux": "pkg src/standalone.js --targets node18-linux-x64 --output dist/horse-racing-game-linux",
     "version:show": "node scripts/build.js info",
     "branches:cleanup": "node scripts/build.js cleanup",
     "docs:cleanup": "node scripts/docs-cleanup.js cleanup",
@@ -54,6 +65,7 @@
     "jest": "^29.7.0",
     "jest-mock": "^29.7.0",
     "nodemon": "^3.0.1",
+    "pkg": "^5.8.1",
     "sinon": "^17.0.1",
     "supertest": "^6.3.4"
   }

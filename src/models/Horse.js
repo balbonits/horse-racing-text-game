@@ -10,12 +10,29 @@ class Horse {
     this.id = options.id || this.generateId();
     this.name = name;
     
-    // Core stats (1-100 scale)
-    this.stats = {
-      speed: options.speed || 20,
-      stamina: options.stamina || 20,
-      power: options.power || 20
-    };
+    // Core stats (1-100 scale) - randomized if not provided
+    if (options.speed !== undefined || options.stamina !== undefined || options.power !== undefined) {
+      // Use provided stats
+      this.stats = {
+        speed: options.speed || 20,
+        stamina: options.stamina || 20,
+        power: options.power || 20
+      };
+    } else if (options.stats) {
+      // Use stats object if provided
+      this.stats = {
+        speed: options.stats.speed || 20,
+        stamina: options.stats.stamina || 20,
+        power: options.stats.power || 20
+      };
+    } else {
+      // Generate randomized starting stats (15-25 range for variety)
+      this.stats = {
+        speed: this._randomizeStat(20, 5),
+        stamina: this._randomizeStat(20, 5),
+        power: this._randomizeStat(20, 5)
+      };
+    }
     
     // Current condition
     this.condition = {
@@ -270,6 +287,18 @@ class Horse {
       valid: errors.length === 0,
       errors: errors
     };
+  }
+
+  /**
+   * Helper method to randomize a stat around a base value
+   * @param {number} base - Base stat value
+   * @param {number} variance - Maximum variance (+/-)
+   * @returns {number} Randomized stat value
+   */
+  _randomizeStat(base, variance) {
+    const min = Math.max(1, base - variance);
+    const max = base + variance;
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 }
 

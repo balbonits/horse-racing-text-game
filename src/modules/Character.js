@@ -4,7 +4,7 @@
  */
 
 class Character {
-  constructor(name) {
+  constructor(name, options = {}) {
     // Validate input
     if (!name || typeof name !== 'string') {
       throw new Error('Character name must be a non-empty string');
@@ -16,12 +16,22 @@ class Character {
       createdAt: Date.now()
     };
 
-    // Core stats - all horses start with base stats
-    this.stats = {
-      speed: 20,
-      stamina: 20, 
-      power: 20
-    };
+    // Core stats - randomized if not provided in options
+    if (options.stats) {
+      // Use provided stats
+      this.stats = {
+        speed: options.stats.speed || 20,
+        stamina: options.stats.stamina || 20, 
+        power: options.stats.power || 20
+      };
+    } else {
+      // Generate randomized starting stats (15-25 range for variety)
+      this.stats = {
+        speed: this._randomizeStat(20, 5),
+        stamina: this._randomizeStat(20, 5), 
+        power: this._randomizeStat(20, 5)
+      };
+    }
 
     // Current condition
     this.condition = {
@@ -96,6 +106,18 @@ class Character {
       career: { ...this.career },
       raceHistory: [...this.raceHistory]
     };
+  }
+
+  /**
+   * Helper method to randomize a stat around a base value
+   * @param {number} base - Base stat value
+   * @param {number} variance - Maximum variance (+/-)
+   * @returns {number} Randomized stat value
+   */
+  _randomizeStat(base, variance) {
+    const min = Math.max(1, base - variance);
+    const max = base + variance;
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
   /**

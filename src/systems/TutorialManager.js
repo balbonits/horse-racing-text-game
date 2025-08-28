@@ -211,10 +211,20 @@ class TutorialManager {
             // Create training engine for tutorial
             const trainingEngine = new TrainingEngine();
             
+            // Create mock timeline for tutorial (no races, but prevents null errors)
+            const mockTimeline = {
+                getRaceForTurn: () => null,
+                getRaceDetails: () => null,
+                getNextRaceInfo: () => null,
+                getTotalRaces: () => 0,
+                getRaceScheduleSummary: () => [],
+                validateSchedule: () => ({ valid: true, issues: [] })
+            };
+            
             // Create turn controller with required dependencies
             this.gameApp.game.turnController = new TurnController(
                 this.tutorialCharacter, 
-                null, // timeline not needed for tutorial
+                mockTimeline, // Mock timeline prevents null errors
                 trainingEngine
             );
         }
@@ -242,10 +252,13 @@ class TutorialManager {
      * Perform tutorial training with scripted results
      */
     performTutorialTraining(expectedType) {
-        if (this.tutorialStep >= 5) {
+        // Tutorial is now super short - only 3 training steps then completion
+        // Check if we've completed the 3 required steps (after incrementing, step will be 3)
+        if (this.tutorialStep >= 3) {
             return {
-                success: false,
-                message: 'Tutorial training complete! Time for the race.'
+                success: true,
+                message: 'Tutorial training complete! Ready for your first race simulation.',
+                careerComplete: true
             };
         }
 
