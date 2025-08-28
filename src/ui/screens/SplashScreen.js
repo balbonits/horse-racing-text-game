@@ -41,15 +41,41 @@ class SplashScreen {
         return new Promise((resolve) => {
             const handleInput = () => {
                 process.stdin.removeListener('data', handleInput);
-                process.stdin.setRawMode(false);
+                try {
+                    if (process.stdin.setRawMode) {
+                        process.stdin.setRawMode(false);
+                    }
+                } catch (error) {
+                    console.log('Splash screen cleanup error (continuing anyway):', error.message);
+                }
                 process.stdin.pause();
                 resolve();
             };
 
-            process.stdin.setRawMode(true);
-            process.stdin.resume();
-            process.stdin.setEncoding('utf8');
-            process.stdin.on('data', handleInput);
+            try {
+                if (process.stdin.setRawMode) {
+                    process.stdin.setRawMode(true);
+                }
+                process.stdin.resume();
+                process.stdin.setEncoding('utf8');
+                process.stdin.on('data', handleInput);
+            } catch (error) {
+                console.log('Splash screen error (continuing anyway):', error.message);
+                // Fallback: just wait for any input without raw mode
+                try {
+                    if (process.stdin.resume) {
+                        process.stdin.resume();
+                    }
+                    if (process.stdin.setEncoding) {
+                        process.stdin.setEncoding('utf8');
+                    }
+                    process.stdin.on('data', handleInput);
+                } catch (fallbackError) {
+                    console.log('Splash screen fallback error (skipping):', fallbackError.message);
+                    // Final fallback - just resolve immediately
+                    setTimeout(handleInput, 1000);
+                }
+            }
         });
     }
 

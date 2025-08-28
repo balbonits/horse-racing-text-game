@@ -6,6 +6,7 @@ const NameGenerator = require('./utils/NameGenerator');
 const OfflineSaveSystem = require('./systems/OfflineSaveSystem');
 const TutorialManager = require('./systems/TutorialManager');
 const SplashScreen = require('./ui/screens/SplashScreen');
+const LoadingScreen = require('./ui/screens/LoadingScreen');
 const ColorThemeManager = require('./ui/ColorThemeManager');
 const fs = require('fs').promises;
 const path = require('path');
@@ -25,6 +26,7 @@ class GameApp {
     this.tutorialManager = new TutorialManager(this); // Tutorial system
     this.colorManager = new ColorThemeManager(); // Color theme system
     this.splashScreen = new SplashScreen(this.colorManager); // ASCII art splash screen
+    this.loadingScreen = new LoadingScreen(this.colorManager); // Loading screen system
     this.saveDirectory = path.join(__dirname, '../data/saves'); // Legacy compatibility
     this.characterNameBuffer = '';
     this.nameOptions = [];
@@ -98,7 +100,7 @@ class GameApp {
       
       // Always process non-empty input, allow empty input for navigation states
       if (trimmed !== '' || this.isNavigationState()) {
-        this.handleKeyInput(trimmed || 'enter');
+        this.handleKeyInput(trimmed); // Send empty string as-is for proper state machine handling
       }
     });
     
@@ -184,15 +186,57 @@ class GameApp {
     this.render();
   }
 
+  /**
+   * Enhanced setState with loading screens for major transitions
+   */
+  async setStateWithLoading(newState, showLoading = true) {
+    const currentState = this.stateMachine.getCurrentState();
+    
+    // Show loading screen for major transitions
+    if (showLoading && this.shouldShowLoadingScreen(currentState, newState)) {
+      await this.loadingScreen.displayTransition(currentState, newState, 1500);
+    }
+    
+    this.setState(newState);
+  }
+
+  /**
+   * Determine if loading screen should be shown for transition
+   */
+  shouldShowLoadingScreen(fromState, toState) {
+    const majorTransitions = [
+      'main_menu→character_creation',
+      'main_menu→tutorial', 
+      'character_creation→training',
+      'training→race_preview',
+      'race_preview→horse_lineup',
+      'horse_lineup→strategy_select',
+      'strategy_select→race_running',
+      'race_running→race_results',
+      'race_results→training',
+      'tutorial→tutorial_training',
+      'tutorial_training→tutorial_race',
+      'tutorial_race→tutorial_complete',
+      'career_complete→main_menu'
+    ];
+    
+    const transitionKey = `${fromState}→${toState}`;
+    return majorTransitions.includes(transitionKey);
+  }
+
   // Main menu methods
   getMainMenuOptions() {
     return ['New Career', 'Load Game', 'Help', 'Quit'];
   }
 
-  selectMainMenuOption(option) {
+  async selectMainMenuOption(option) {
     // Use Map lookup for O(1) performance vs O(n) switch-case
     const optionHandlers = new Map([
-      ['new_career', () => this.setState('character_creation')],
+      ['new_career', async () => await this.setStateWithLoading('character_creation')],
+      ['tutorial', async () => {
+        await this.setStateWithLoading('tutorial');
+        this.tutorialManager.startTutorial(); // Initialize tutorial when entering tutorial state
+      }],
       ['load_game', () => this.setState('load_game')],
       ['help', () => this.setState('help')],
       ['quit', () => this.quit()]
@@ -200,7 +244,7 @@ class GameApp {
     
     const handler = optionHandlers.get(option);
     if (handler) {
-      handler();
+      await handler();
     }
   }
 
@@ -1077,8 +1121,9 @@ class GameApp {
   }
 
   renderTutorialTraining() {
-    const guidance = this.tutorialManager.getTutorialGuidance();
-    const instruction = this.tutorialManager.getNextInstruction();
+    try {
+      const guidance = this.tutorialManager.getTutorialGuidance();
+      const instruction = this.tutorialManager.getNextInstruction();
     
     console.clear();
     
@@ -1107,6 +1152,15 @@ class GameApp {
       console.log('5. Media Day (+15 energy)');
       console.log('');
       console.log('Enter your choice (1-5):');
+    }
+    } catch (error) {
+      console.error('[ERROR] renderTutorialTraining failed:', error.message);
+      console.error('[ERROR] Tutorial character:', this.tutorialManager.tutorialCharacter);
+      console.error('[ERROR] Tutorial active:', this.tutorialManager.isTutorialActive());
+      // Fallback to basic display
+      console.clear();
+      console.log('🎓 TUTORIAL TRAINING - Error occurred');
+      console.log('Press Q to return to main menu');
     }
   }
 

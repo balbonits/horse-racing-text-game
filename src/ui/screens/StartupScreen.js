@@ -109,24 +109,47 @@ class StartupScreen {
         console.log(disclaimer);
 
         return new Promise((resolve) => {
-            process.stdin.setRawMode(true);
-            process.stdin.resume();
-            process.stdin.setEncoding('utf8');
-            
-            process.stdin.on('data', (key) => {
+            const handleInput = (key) => {
                 const keyPressed = key.toLowerCase();
                 
                 if (keyPressed === 'a') {
-                    process.stdin.setRawMode(false);
+                    try {
+                        if (process.stdin.setRawMode) {
+                            process.stdin.setRawMode(false);
+                        }
+                    } catch (error) {
+                        console.log('Disclaimer cleanup error (continuing anyway):', error.message);
+                    }
                     process.stdin.pause();
                     resolve({ accepted: true });
                 } else if (keyPressed === 'q' || keyPressed === '\u0003') { // 'q' or Ctrl+C
-                    process.stdin.setRawMode(false);
+                    try {
+                        if (process.stdin.setRawMode) {
+                            process.stdin.setRawMode(false);
+                        }
+                    } catch (error) {
+                        console.log('Disclaimer cleanup error (continuing anyway):', error.message);
+                    }
                     process.stdin.pause();
                     console.log("\n\nGame terminated. Thank you for reading our legal disclaimer.");
                     resolve({ accepted: false });
                 }
-            });
+            };
+
+            try {
+                if (process.stdin.setRawMode) {
+                    process.stdin.setRawMode(true);
+                }
+                process.stdin.resume();
+                process.stdin.setEncoding('utf8');
+                process.stdin.on('data', handleInput);
+            } catch (error) {
+                console.log('Disclaimer error (continuing anyway):', error.message);
+                // Fallback: just wait for input without raw mode
+                process.stdin.resume();
+                process.stdin.setEncoding('utf8');
+                process.stdin.on('data', handleInput);
+            }
         });
     }
 
@@ -167,21 +190,44 @@ class StartupScreen {
         welcome.forEach(line => console.log(line));
 
         return new Promise((resolve) => {
-            process.stdin.setRawMode(true);
-            process.stdin.resume();
-            process.stdin.setEncoding('utf8');
-            
-            process.stdin.on('data', (key) => {
+            const handleInput = (key) => {
                 if (key === '\r' || key === '\n') { // Enter key
-                    process.stdin.setRawMode(false);
+                    try {
+                        if (process.stdin.setRawMode) {
+                            process.stdin.setRawMode(false);
+                        }
+                    } catch (error) {
+                        console.log('Welcome screen cleanup error (continuing anyway):', error.message);
+                    }
                     process.stdin.pause();
                     resolve({ proceed: true });
                 } else if (key.toLowerCase() === 'q' || key === '\u0003') { // 'q' or Ctrl+C
-                    process.stdin.setRawMode(false);
+                    try {
+                        if (process.stdin.setRawMode) {
+                            process.stdin.setRawMode(false);
+                        }
+                    } catch (error) {
+                        console.log('Welcome screen cleanup error (continuing anyway):', error.message);
+                    }
                     process.stdin.pause();
                     resolve({ proceed: false });
                 }
-            });
+            };
+
+            try {
+                if (process.stdin.setRawMode) {
+                    process.stdin.setRawMode(true);
+                }
+                process.stdin.resume();
+                process.stdin.setEncoding('utf8');
+                process.stdin.on('data', handleInput);
+            } catch (error) {
+                console.log('Welcome screen error (continuing anyway):', error.message);
+                // Fallback: just wait for input without raw mode
+                process.stdin.resume();
+                process.stdin.setEncoding('utf8');
+                process.stdin.on('data', handleInput);
+            }
         });
     }
 

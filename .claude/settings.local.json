@@ -42,7 +42,9 @@
       "Bash(git branch:*)",
       "Bash(npm run build:info:*)",
       "Bash(npm run docs:cleanup:*)",
-      "Bash(npm run docs:list:*)"
+      "Bash(npm run docs:list:*)",
+      "Bash(brew install:*)",
+      "Bash(asciinema rec:*)"
     ],
     "deny": [],
     "ask": []

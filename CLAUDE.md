@@ -146,6 +146,29 @@ Performance = (Speed × 0.4) + (Stamina × 0.4) + (Power × 0.2)
 Final_Result = Performance × Stamina_Factor × Random_Variance(0.85-1.15)
 ```
 
+#### Future Enhancement: Track Segments System
+Race tracks should be divided into realistic segments based on actual horse racing track layouts:
+
+**Track Segment Types:**
+- **Straights**: Where speed and power matter most, allow front-runners to build leads
+- **Corners**: Where stamina and positioning matter, allow closers to make moves
+- **Final Turn**: Critical positioning phase before home stretch
+- **Home Stretch**: Final sprint where strategy and remaining stamina determine winner
+
+**Distance-Based Segment Distribution:**
+- **Sprint Races (1000-1200m)**: 2-3 segments (Start → Turn → Home Stretch)
+- **Mile Races (1600m)**: 4-5 segments (Start → Straight → Turn → Turn → Home Stretch)  
+- **Medium Races (1800-2200m)**: 5-6 segments (Start → Straight → Turn → Straight → Turn → Home Stretch)
+- **Long Races (2400m+)**: 6-8 segments (Multiple turns and straights for classic distances)
+
+**Strategic Racing Improvements:**
+- **Front Runner**: Builds early leads on straights, vulnerable in turns
+- **Stalker**: Maintains position, moves on corners
+- **Closer**: Saves energy, explosive in final segments
+- **Wire-to-Wire**: Rare strategy requiring perfect stamina management
+
+This system would eliminate "leader always wins" issues and create exciting come-from-behind victories based on racing strategy and horse capabilities.
+
 ## Core Formulas
 
 ### Training Gain

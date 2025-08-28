@@ -1,0 +1,785 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Tutorial Navigation UI Snapshots Color Theme Snapshots should render consistently with different color themes: tutorial-color-themes 1`] = `
+[
+  {
+    "output": "👥 Alex Morgan - Stable Manager
+==================================================
+
+🏁 Welcome to Thunder Ridge Stables!
+
+Welcome to Thunder Ridge Stables! I'm Alex Morgan, your Stable Manager.
+
+Think of me as your operations manager - I'll handle the day-to-day details so you can focus on training and racing decisions.
+
+I'll be here to explain everything, guide you through your first career, and make sure you understand how this business works.
+
+Ready to build a championship stable together? Let's start with the basics!
+
+Press ENTER to start your tutorial training!
+🎓 Starting Tutorial: Learn to Play Horse Racing!
+👥 Alex Morgan - Stable Manager
+==================================================
+
+🏁 Welcome to Thunder Ridge Stables!
+
+Welcome to Thunder Ridge Stables! I'm Alex Morgan, your Stable Manager.
+
+Think of me as your operations manager - I'll handle the day-to-day details so you can focus on training and racing decisions.
+
+I'll be here to explain everything, guide you through your first career, and make sure you understand how this business works.
+
+Ready to build a championship stable together? Let's start with the basics!
+
+Press ENTER to start your tutorial training!",
+    "theme": "standard",
+  },
+  {
+    "output": "🎓 Starting Tutorial: Learn to Play Horse Racing!
+👥 Alex Morgan - Stable Manager
+==================================================
+
+🏁 Welcome to Thunder Ridge Stables!
+
+Welcome to Thunder Ridge Stables! I'm Alex Morgan, your Stable Manager.
+
+Think of me as your operations manager - I'll handle the day-to-day details so you can focus on training and racing decisions.
+
+I'll be here to explain everything, guide you through your first career, and make sure you understand how this business works.
+
+Ready to build a championship stable together? Let's start with the basics!
+
+Press ENTER to start your tutorial training!",
+    "theme": "monochrome",
+  },
+  {
+    "output": "🎓 Starting Tutorial: Learn to Play Horse Racing!
+👥 Alex Morgan - Stable Manager
+==================================================
+
+🏁 Welcome to Thunder Ridge Stables!
+
+Welcome to Thunder Ridge Stables! I'm Alex Morgan, your Stable Manager.
+
+Think of me as your operations manager - I'll handle the day-to-day details so you can focus on training and racing decisions.
+
+I'll be here to explain everything, guide you through your first career, and make sure you understand how this business works.
+
+Ready to build a championship stable together? Let's start with the basics!
+
+Press ENTER to start your tutorial training!",
+    "theme": "protanopia",
+  },
+]
+`;
+
+exports[`Tutorial Navigation UI Snapshots Error State Snapshots should capture invalid input response in tutorial: tutorial-invalid-input-response 1`] = `
+"👥 Alex Morgan - Stable Manager
+==================================================
+
+🏁 Welcome to Thunder Ridge Stables!
+
+Welcome to Thunder Ridge Stables! I'm Alex Morgan, your Stable Manager.
+
+Think of me as your operations manager - I'll handle the day-to-day details so you can focus on training and racing decisions.
+
+I'll be here to explain everything, guide you through your first career, and make sure you understand how this business works.
+
+Ready to build a championship stable together? Let's start with the basics!
+
+Press ENTER to start your tutorial training!
+🎓 Starting Tutorial: Learn to Play Horse Racing!
+👥 Alex Morgan - Stable Manager
+==================================================
+
+🏁 Welcome to Thunder Ridge Stables!
+
+Welcome to Thunder Ridge Stables! I'm Alex Morgan, your Stable Manager.
+
+Think of me as your operations manager - I'll handle the day-to-day details so you can focus on training and racing decisions.
+
+I'll be here to explain everything, guide you through your first career, and make sure you understand how this business works.
+
+Ready to build a championship stable together? Let's start with the basics!
+
+Press ENTER to start your tutorial training!
+👥 Alex Morgan - Stable Manager
+==================================================
+
+🏁 Welcome to Thunder Ridge Stables!
+
+Welcome to Thunder Ridge Stables! I'm Alex Morgan, your Stable Manager.
+
+Think of me as your operations manager - I'll handle the day-to-day details so you can focus on training and racing decisions.
+
+I'll be here to explain everything, guide you through your first career, and make sure you understand how this business works.
+
+Ready to build a championship stable together? Let's start with the basics!
+
+Press ENTER to start your tutorial training!"
+`;
+
+exports[`Tutorial Navigation UI Snapshots Error State Snapshots should capture wrong training choice response: tutorial-wrong-training-choice 1`] = `
+"👥 Alex Morgan - Stable Manager
+==================================================
+
+🏁 Welcome to Thunder Ridge Stables!
+
+Welcome to Thunder Ridge Stables! I'm Alex Morgan, your Stable Manager.
+
+Think of me as your operations manager - I'll handle the day-to-day details so you can focus on training and racing decisions.
+
+I'll be here to explain everything, guide you through your first career, and make sure you understand how this business works.
+
+Ready to build a championship stable together? Let's start with the basics!
+
+Press ENTER to start your tutorial training!
+🎓 Starting Tutorial: Learn to Play Horse Racing!
+🎓 TUTORIAL TRAINING - Learn the Basics
+=====================================
+
+Horse: Tutorial Star
+Turn: 1/5 | Energy: 100/100
+
+Speed: 25 | Stamina: 25 | Power: 25
+
+👥 Alex Morgan: Tutorial Step 1: Select Speed Training (Option 1)
+
+TRAINING OPTIONS:
+1. Speed Training (15 energy)
+2. Stamina Training (10 energy)
+3. Power Training (15 energy)
+4. Rest Day (+30 energy)
+5. Media Day (+15 energy)
+
+Enter your choice (1-5):
+🎓 TUTORIAL TRAINING - Learn the Basics
+=====================================
+
+Horse: Tutorial Star
+Turn: 1/5 | Energy: 100/100
+
+Speed: 25 | Stamina: 25 | Power: 25
+
+👥 Alex Morgan: Tutorial Step 1: Select Speed Training (Option 1)
+
+TRAINING OPTIONS:
+1. Speed Training (15 energy)
+2. Stamina Training (10 energy)
+3. Power Training (15 energy)
+4. Rest Day (+30 energy)
+5. Media Day (+15 energy)
+
+Enter your choice (1-5):"
+`;
+
+exports[`Tutorial Navigation UI Snapshots Navigation Flow Snapshots should capture complete tutorial navigation flow: tutorial-navigation-flow 1`] = `
+[
+  {
+    "output": "===============================================
+           HORSE RACING TEXT GAME            
+===============================================
+
+🏇 HORSE RACING TEXT GAME - MAIN MENU
+=====================================
+
+1. New Career - Start training a new horse
+2. Tutorial - Learn how to play (Recommended for new players)
+3. Load Game - Continue a saved career
+4. Help - View game instructions
+
+Enter your choice (1-4) or Q to quit:
+",
+    "state": "main_menu",
+  },
+  {
+    "output": "👥 Alex Morgan - Stable Manager
+==================================================
+
+🏁 Welcome to Thunder Ridge Stables!
+
+Welcome to Thunder Ridge Stables! I'm Alex Morgan, your Stable Manager.
+
+Think of me as your operations manager - I'll handle the day-to-day details so you can focus on training and racing decisions.
+
+I'll be here to explain everything, guide you through your first career, and make sure you understand how this business works.
+
+Ready to build a championship stable together? Let's start with the basics!
+
+Press ENTER to start your tutorial training!
+🎓 Starting Tutorial: Learn to Play Horse Racing!
+👥 Alex Morgan - Stable Manager
+==================================================
+
+🏁 Welcome to Thunder Ridge Stables!
+
+Welcome to Thunder Ridge Stables! I'm Alex Morgan, your Stable Manager.
+
+Think of me as your operations manager - I'll handle the day-to-day details so you can focus on training and racing decisions.
+
+I'll be here to explain everything, guide you through your first career, and make sure you understand how this business works.
+
+Ready to build a championship stable together? Let's start with the basics!
+
+Press ENTER to start your tutorial training!",
+    "state": "tutorial",
+  },
+  {
+    "output": "🎓 TUTORIAL TRAINING - Learn the Basics
+=====================================
+
+Horse: Tutorial Star
+Turn: 1/5 | Energy: 100/100
+
+Speed: 25 | Stamina: 25 | Power: 25
+
+👥 Alex Morgan: Tutorial Step 1: Select Speed Training (Option 1)
+
+TRAINING OPTIONS:
+1. Speed Training (15 energy)
+2. Stamina Training (10 energy)
+3. Power Training (15 energy)
+4. Rest Day (+30 energy)
+5. Media Day (+15 energy)
+
+Enter your choice (1-5):
+🎓 TUTORIAL TRAINING - Learn the Basics
+=====================================
+
+Horse: Tutorial Star
+Turn: 1/5 | Energy: 100/100
+
+Speed: 25 | Stamina: 25 | Power: 25
+
+👥 Alex Morgan: Tutorial Step 1: Select Speed Training (Option 1)
+
+TRAINING OPTIONS:
+1. Speed Training (15 energy)
+2. Stamina Training (10 energy)
+3. Power Training (15 energy)
+4. Rest Day (+30 energy)
+5. Media Day (+15 energy)
+
+Enter your choice (1-5):",
+    "state": "tutorial_training",
+  },
+]
+`;
+
+exports[`Tutorial Navigation UI Snapshots Navigation Flow Snapshots should capture training progression snapshots: tutorial-training-progression 1`] = `
+[
+  {
+    "output": "👥 Alex Morgan - Stable Manager
+==================================================
+
+🏁 Welcome to Thunder Ridge Stables!
+
+Welcome to Thunder Ridge Stables! I'm Alex Morgan, your Stable Manager.
+
+Think of me as your operations manager - I'll handle the day-to-day details so you can focus on training and racing decisions.
+
+I'll be here to explain everything, guide you through your first career, and make sure you understand how this business works.
+
+Ready to build a championship stable together? Let's start with the basics!
+
+Press ENTER to start your tutorial training!
+🎓 Starting Tutorial: Learn to Play Horse Racing!
+🎓 TUTORIAL TRAINING - Learn the Basics
+=====================================
+
+Horse: Tutorial Star
+Turn: 1/5 | Energy: 100/100
+
+Speed: 25 | Stamina: 25 | Power: 25
+
+👥 Alex Morgan: Tutorial Step 1: Select Speed Training (Option 1)
+
+TRAINING OPTIONS:
+1. Speed Training (15 energy)
+2. Stamina Training (10 energy)
+3. Power Training (15 energy)
+4. Rest Day (+30 energy)
+5. Media Day (+15 energy)
+
+Enter your choice (1-5):
+🎓 TUTORIAL TRAINING - Learn the Basics
+=====================================
+
+Horse: Tutorial Star
+Turn: 1/5 | Energy: 100/100
+
+Speed: 25 | Stamina: 25 | Power: 25
+
+👥 Alex Morgan: Tutorial Step 1: Select Speed Training (Option 1)
+
+TRAINING OPTIONS:
+1. Speed Training (15 energy)
+2. Stamina Training (10 energy)
+3. Power Training (15 energy)
+4. Rest Day (+30 energy)
+5. Media Day (+15 energy)
+
+Enter your choice (1-5):",
+    "step": 0,
+  },
+  {
+    "output": "🎓 TUTORIAL TRAINING - Learn the Basics
+=====================================
+
+Horse: Tutorial Star
+Turn: 2/5 | Energy: 85/100
+
+Speed: 33 | Stamina: 25 | Power: 25
+
+👥 Alex Morgan: Tutorial Step 2: Select Stamina Training (Option 2)
+
+TRAINING OPTIONS:
+1. Speed Training (15 energy)
+2. Stamina Training (10 energy)
+3. Power Training (15 energy)
+4. Rest Day (+30 energy)
+5. Media Day (+15 energy)
+
+Enter your choice (1-5):",
+    "step": 1,
+    "training": "speed",
+  },
+  {
+    "output": "🎓 TUTORIAL TRAINING - Learn the Basics
+=====================================
+
+Horse: Tutorial Star
+Turn: 3/5 | Energy: 75/100
+
+Speed: 33 | Stamina: 31 | Power: 25
+
+👥 Alex Morgan: Tutorial Step 3: Select Power Training (Option 3)
+
+TRAINING OPTIONS:
+1. Speed Training (15 energy)
+2. Stamina Training (10 energy)
+3. Power Training (15 energy)
+4. Rest Day (+30 energy)
+5. Media Day (+15 energy)
+
+Enter your choice (1-5):",
+    "step": 2,
+    "training": "stamina",
+  },
+  {
+    "output": "🎓 TUTORIAL TRAINING - Learn the Basics
+=====================================
+
+Horse: Tutorial Star
+Turn: 4/5 | Energy: 60/100
+
+Speed: 33 | Stamina: 31 | Power: 32
+
+👥 Alex Morgan: Tutorial Step 4: Select Rest Day (Option 4)
+
+TRAINING OPTIONS:
+1. Speed Training (15 energy)
+2. Stamina Training (10 energy)
+3. Power Training (15 energy)
+4. Rest Day (+30 energy)
+5. Media Day (+15 energy)
+
+Enter your choice (1-5):",
+    "step": 3,
+    "training": "power",
+  },
+  {
+    "output": "🎓 TUTORIAL TRAINING - Learn the Basics
+=====================================
+
+Horse: Tutorial Star
+Turn: 5/5 | Energy: 90/100
+
+Speed: 33 | Stamina: 31 | Power: 32
+
+👥 Alex Morgan: Tutorial Step 5: Select Media Day (Option 5)
+
+TRAINING OPTIONS:
+1. Speed Training (15 energy)
+2. Stamina Training (10 energy)
+3. Power Training (15 energy)
+4. Rest Day (+30 energy)
+5. Media Day (+15 energy)
+
+Enter your choice (1-5):",
+    "step": 4,
+    "training": "rest",
+  },
+  {
+    "output": "🎓 TUTORIAL TRAINING - Learn the Basics
+=====================================
+
+Horse: Tutorial Star
+Turn: 6/5 | Energy: 100/100
+
+Speed: 33 | Stamina: 31 | Power: 32
+
+👥 Alex Morgan: Training complete! Time for your first race. Press ENTER to race!
+
+TRAINING OPTIONS:
+1. Speed Training (15 energy)
+2. Stamina Training (10 energy)
+3. Power Training (15 energy)
+4. Rest Day (+30 energy)
+5. Media Day (+15 energy)
+
+Enter your choice (1-5):",
+    "step": 5,
+    "training": "media",
+  },
+]
+`;
+
+exports[`Tutorial Navigation UI Snapshots Responsive Layout Snapshots should render consistently with different terminal widths: tutorial-responsive-layouts 1`] = `
+[
+  {
+    "output": "👥 Alex Morgan - Stable Manager
+==================================================
+
+🏁 Welcome to Thunder Ridge Stables!
+
+Welcome to Thunder Ridge Stables! I'm Alex Morgan, your Stable Manager.
+
+Think of me as your operations manager - I'll handle the day-to-day details so you can focus on training and racing decisions.
+
+I'll be here to explain everything, guide you through your first career, and make sure you understand how this business works.
+
+Ready to build a championship stable together? Let's start with the basics!
+
+Press ENTER to start your tutorial training!
+🎓 Starting Tutorial: Learn to Play Horse Racing!
+👥 Alex Morgan - Stable Manager
+==================================================
+
+🏁 Welcome to Thunder Ridge Stables!
+
+Welcome to Thunder Ridge Stables! I'm Alex Morgan, your Stable Manager.
+
+Think of me as your operations manager - I'll handle the day-to-day details so you can focus on training and racing decisions.
+
+I'll be here to explain everything, guide you through your first career, and make sure you understand how this business works.
+
+Ready to build a championship stable together? Let's start with the basics!
+
+Press ENTER to start your tutorial training!",
+    "width": 80,
+  },
+  {
+    "output": "🎓 Starting Tutorial: Learn to Play Horse Racing!
+👥 Alex Morgan - Stable Manager
+==================================================
+
+🏁 Welcome to Thunder Ridge Stables!
+
+Welcome to Thunder Ridge Stables! I'm Alex Morgan, your Stable Manager.
+
+Think of me as your operations manager - I'll handle the day-to-day details so you can focus on training and racing decisions.
+
+I'll be here to explain everything, guide you through your first career, and make sure you understand how this business works.
+
+Ready to build a championship stable together? Let's start with the basics!
+
+Press ENTER to start your tutorial training!",
+    "width": 120,
+  },
+  {
+    "output": "🎓 Starting Tutorial: Learn to Play Horse Racing!
+👥 Alex Morgan - Stable Manager
+==================================================
+
+🏁 Welcome to Thunder Ridge Stables!
+
+Welcome to Thunder Ridge Stables! I'm Alex Morgan, your Stable Manager.
+
+Think of me as your operations manager - I'll handle the day-to-day details so you can focus on training and racing decisions.
+
+I'll be here to explain everything, guide you through your first career, and make sure you understand how this business works.
+
+Ready to build a championship stable together? Let's start with the basics!
+
+Press ENTER to start your tutorial training!",
+    "width": 160,
+  },
+]
+`;
+
+exports[`Tutorial Navigation UI Snapshots Tutorial State Snapshots should render tutorial completion screen consistently: tutorial-completion-screen 1`] = `
+"👥 Alex Morgan - Stable Manager
+==================================================
+
+🏁 Welcome to Thunder Ridge Stables!
+
+Welcome to Thunder Ridge Stables! I'm Alex Morgan, your Stable Manager.
+
+Think of me as your operations manager - I'll handle the day-to-day details so you can focus on training and racing decisions.
+
+I'll be here to explain everything, guide you through your first career, and make sure you understand how this business works.
+
+Ready to build a championship stable together? Let's start with the basics!
+
+Press ENTER to start your tutorial training!
+🎓 Starting Tutorial: Learn to Play Horse Racing!
+🎓 TUTORIAL TRAINING - Learn the Basics
+=====================================
+
+Horse: Tutorial Star
+Turn: 1/5 | Energy: 100/100
+
+Speed: 25 | Stamina: 25 | Power: 25
+
+👥 Alex Morgan: Tutorial Step 1: Select Speed Training (Option 1)
+
+TRAINING OPTIONS:
+1. Speed Training (15 energy)
+2. Stamina Training (10 energy)
+3. Power Training (15 energy)
+4. Rest Day (+30 energy)
+5. Media Day (+15 energy)
+
+Enter your choice (1-5):
+🎉 TUTORIAL COMPLETE!
+====================
+
+Congratulations! You've learned the basics of horse racing.
+
+Final Stats for Tutorial Star:
+Speed: 33
+Stamina: 31
+Power: 32
+Energy: 100/100
+
+What you learned:
+✅ Completed 5 training turns
+✅ Learned all training types
+✅ Won your first race
+✅ Ready for career mode!
+
+Ready to start your real racing career?
+
+1. Start New Career - Begin your journey
+2. Return to Main Menu - Practice more later
+
+Enter your choice (1-2):
+🎉 TUTORIAL COMPLETE!
+====================
+
+Congratulations! You've learned the basics of horse racing.
+
+Final Stats for Tutorial Star:
+Speed: 33
+Stamina: 31
+Power: 32
+Energy: 100/100
+
+What you learned:
+✅ Completed 5 training turns
+✅ Learned all training types
+✅ Won your first race
+✅ Ready for career mode!
+
+Ready to start your real racing career?
+
+1. Start New Career - Begin your journey
+2. Return to Main Menu - Practice more later
+
+Enter your choice (1-2):"
+`;
+
+exports[`Tutorial Navigation UI Snapshots Tutorial State Snapshots should render tutorial introduction screen consistently: tutorial-introduction-screen 1`] = `
+"👥 Alex Morgan - Stable Manager
+==================================================
+
+🏁 Welcome to Thunder Ridge Stables!
+
+Welcome to Thunder Ridge Stables! I'm Alex Morgan, your Stable Manager.
+
+Think of me as your operations manager - I'll handle the day-to-day details so you can focus on training and racing decisions.
+
+I'll be here to explain everything, guide you through your first career, and make sure you understand how this business works.
+
+Ready to build a championship stable together? Let's start with the basics!
+
+Press ENTER to start your tutorial training!
+🎓 Starting Tutorial: Learn to Play Horse Racing!
+👥 Alex Morgan - Stable Manager
+==================================================
+
+🏁 Welcome to Thunder Ridge Stables!
+
+Welcome to Thunder Ridge Stables! I'm Alex Morgan, your Stable Manager.
+
+Think of me as your operations manager - I'll handle the day-to-day details so you can focus on training and racing decisions.
+
+I'll be here to explain everything, guide you through your first career, and make sure you understand how this business works.
+
+Ready to build a championship stable together? Let's start with the basics!
+
+Press ENTER to start your tutorial training!"
+`;
+
+exports[`Tutorial Navigation UI Snapshots Tutorial State Snapshots should render tutorial ready for race consistently: tutorial-ready-for-race 1`] = `
+"👥 Alex Morgan - Stable Manager
+==================================================
+
+🏁 Welcome to Thunder Ridge Stables!
+
+Welcome to Thunder Ridge Stables! I'm Alex Morgan, your Stable Manager.
+
+Think of me as your operations manager - I'll handle the day-to-day details so you can focus on training and racing decisions.
+
+I'll be here to explain everything, guide you through your first career, and make sure you understand how this business works.
+
+Ready to build a championship stable together? Let's start with the basics!
+
+Press ENTER to start your tutorial training!
+🎓 Starting Tutorial: Learn to Play Horse Racing!
+🎓 TUTORIAL TRAINING - Learn the Basics
+=====================================
+
+Horse: Tutorial Star
+Turn: 1/5 | Energy: 100/100
+
+Speed: 25 | Stamina: 25 | Power: 25
+
+👥 Alex Morgan: Tutorial Step 1: Select Speed Training (Option 1)
+
+TRAINING OPTIONS:
+1. Speed Training (15 energy)
+2. Stamina Training (10 energy)
+3. Power Training (15 energy)
+4. Rest Day (+30 energy)
+5. Media Day (+15 energy)
+
+Enter your choice (1-5):
+🎓 TUTORIAL TRAINING - Learn the Basics
+=====================================
+
+Horse: Tutorial Star
+Turn: 6/5 | Energy: 100/100
+
+Speed: 33 | Stamina: 31 | Power: 32
+
+👥 Alex Morgan: Training complete! Time for your first race. Press ENTER to race!
+
+TRAINING OPTIONS:
+1. Speed Training (15 energy)
+2. Stamina Training (10 energy)
+3. Power Training (15 energy)
+4. Rest Day (+30 energy)
+5. Media Day (+15 energy)
+
+Enter your choice (1-5):"
+`;
+
+exports[`Tutorial Navigation UI Snapshots Tutorial State Snapshots should render tutorial training after first action consistently: tutorial-training-after-first-action 1`] = `
+"👥 Alex Morgan - Stable Manager
+==================================================
+
+🏁 Welcome to Thunder Ridge Stables!
+
+Welcome to Thunder Ridge Stables! I'm Alex Morgan, your Stable Manager.
+
+Think of me as your operations manager - I'll handle the day-to-day details so you can focus on training and racing decisions.
+
+I'll be here to explain everything, guide you through your first career, and make sure you understand how this business works.
+
+Ready to build a championship stable together? Let's start with the basics!
+
+Press ENTER to start your tutorial training!
+🎓 Starting Tutorial: Learn to Play Horse Racing!
+🎓 TUTORIAL TRAINING - Learn the Basics
+=====================================
+
+Horse: Tutorial Star
+Turn: 1/5 | Energy: 100/100
+
+Speed: 25 | Stamina: 25 | Power: 25
+
+👥 Alex Morgan: Tutorial Step 1: Select Speed Training (Option 1)
+
+TRAINING OPTIONS:
+1. Speed Training (15 energy)
+2. Stamina Training (10 energy)
+3. Power Training (15 energy)
+4. Rest Day (+30 energy)
+5. Media Day (+15 energy)
+
+Enter your choice (1-5):
+🎓 TUTORIAL TRAINING - Learn the Basics
+=====================================
+
+Horse: Tutorial Star
+Turn: 2/5 | Energy: 85/100
+
+Speed: 33 | Stamina: 25 | Power: 25
+
+👥 Alex Morgan: Tutorial Step 2: Select Stamina Training (Option 2)
+
+TRAINING OPTIONS:
+1. Speed Training (15 energy)
+2. Stamina Training (10 energy)
+3. Power Training (15 energy)
+4. Rest Day (+30 energy)
+5. Media Day (+15 energy)
+
+Enter your choice (1-5):"
+`;
+
+exports[`Tutorial Navigation UI Snapshots Tutorial State Snapshots should render tutorial training screen consistently: tutorial-training-initial-screen 1`] = `
+"👥 Alex Morgan - Stable Manager
+==================================================
+
+🏁 Welcome to Thunder Ridge Stables!
+
+Welcome to Thunder Ridge Stables! I'm Alex Morgan, your Stable Manager.
+
+Think of me as your operations manager - I'll handle the day-to-day details so you can focus on training and racing decisions.
+
+I'll be here to explain everything, guide you through your first career, and make sure you understand how this business works.
+
+Ready to build a championship stable together? Let's start with the basics!
+
+Press ENTER to start your tutorial training!
+🎓 Starting Tutorial: Learn to Play Horse Racing!
+🎓 TUTORIAL TRAINING - Learn the Basics
+=====================================
+
+Horse: Tutorial Star
+Turn: 1/5 | Energy: 100/100
+
+Speed: 25 | Stamina: 25 | Power: 25
+
+👥 Alex Morgan: Tutorial Step 1: Select Speed Training (Option 1)
+
+TRAINING OPTIONS:
+1. Speed Training (15 energy)
+2. Stamina Training (10 energy)
+3. Power Training (15 energy)
+4. Rest Day (+30 energy)
+5. Media Day (+15 energy)
+
+Enter your choice (1-5):
+🎓 TUTORIAL TRAINING - Learn the Basics
+=====================================
+
+Horse: Tutorial Star
+Turn: 1/5 | Energy: 100/100
+
+Speed: 25 | Stamina: 25 | Power: 25
+
+👥 Alex Morgan: Tutorial Step 1: Select Speed Training (Option 1)
+
+TRAINING OPTIONS:
+1. Speed Training (15 energy)
+2. Stamina Training (10 energy)
+3. Power Training (15 energy)
+4. Rest Day (+30 energy)
+5. Media Day (+15 energy)
+
+Enter your choice (1-5):"
+`;

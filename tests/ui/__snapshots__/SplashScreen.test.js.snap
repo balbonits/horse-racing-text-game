@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Splash Screen System Splash Screen Snapshots should render colored splash screen consistently: colored-splash-screen-display 1`] = `
+"MOCKED COLORED SPLASH
+
+
+                         Press any key to continue..."
+`;
+
+exports[`Splash Screen System Splash Screen Snapshots should render plain splash screen consistently: plain-splash-screen-display 1`] = `
+"MOCKED MAIN SPLASH
+
+
+                         Press any key to continue..."
+`;
+
+exports[`Splash Screen System Splash Screen Snapshots should render splash screen consistently: splash-screen-display 1`] = `
+"MOCKED COLORED SPLASH
+
+
+                         Press any key to continue..."
+`;

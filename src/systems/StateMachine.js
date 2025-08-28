@@ -304,7 +304,7 @@ class StateMachine {
       },
 
       'tutorial_training': {
-        transitions: ['tutorial_race', 'tutorial_training', 'main_menu'],
+        transitions: ['tutorial_race', 'tutorial_training', 'tutorial_complete', 'main_menu'],
         inputs: {
           '1': 'speed_training',
           '2': 'stamina_training',
@@ -650,6 +650,49 @@ class StateMachine {
     this.currentState = initialState;
     this.stateHistory = [];
     this.fireEvent('reset', { initialState });
+  }
+
+  /**
+   * Get allowed transitions from a state
+   */
+  getAllowedTransitions(state = this.currentState) {
+    const validTransitions = this.transitions.get(state);
+    return validTransitions ? Array.from(validTransitions) : [];
+  }
+
+  /**
+   * Get the complete state configuration
+   */
+  getStateConfiguration() {
+    // Return the original stateGraph configuration
+    const config = {};
+    
+    // Reconstruct configuration from internal data structures
+    for (const [state, transitions] of this.transitions.entries()) {
+      config[state] = {
+        transitions: Array.from(transitions),
+        inputs: {},
+        metadata: this.getStateMetadata(state)
+      };
+      
+      // Get input mappings for this state
+      const inputMap = this.inputHandlers.get(state);
+      if (inputMap) {
+        for (const [input, handler] of inputMap.entries()) {
+          config[state].inputs[input] = handler;
+        }
+      }
+    }
+    
+    return config;
+  }
+
+  /**
+   * Check if transition is valid
+   */
+  canTransitionTo(newState, fromState = this.currentState) {
+    const validTransitions = this.transitions.get(fromState);
+    return validTransitions ? validTransitions.has(newState) : false;
   }
 }
 

@@ -17,8 +17,13 @@ class GameStateMachine extends StateMachine {
    * Replaces all the switch-case input handling
    */
   setupGameHandlers() {
-    // Listen to state changes to trigger renders
+    // Listen to state changes to trigger renders and handle special state transitions
     this.addEventListener('stateChanged', ({ from, to, context }) => {
+      // Initialize tutorial when entering tutorial state
+      if (to === 'tutorial' && !this.gameApp.tutorialManager.tutorialCharacter) {
+        this.gameApp.tutorialManager.startTutorial();
+      }
+      
       this.gameApp.render();
     });
 

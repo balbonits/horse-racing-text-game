@@ -59,9 +59,9 @@ class ASCIIArt {
             } else if (line.includes('Train Champions')) {
                 return colorManager.info(line);
             } else if (line.includes('█')) {
-                return colorManager.primary(line);
+                return colorManager.info(line);
             } else if (line.includes('═')) {
-                return colorManager.secondary(line);
+                return colorManager.highlight(line);
             }
             return line;
         }).join('\n');
