@@ -7,6 +7,7 @@ const OfflineSaveSystem = require('./systems/OfflineSaveSystem');
 const TutorialManager = require('./systems/TutorialManager');
 const SplashScreen = require('./ui/screens/SplashScreen');
 const LoadingScreen = require('./ui/screens/LoadingScreen');
+const GoodbyeScreen = require('./ui/screens/GoodbyeScreen');
 const ColorThemeManager = require('./ui/ColorThemeManager');
 const fs = require('fs').promises;
 const path = require('path');
@@ -27,6 +28,7 @@ class GameApp {
     this.colorManager = new ColorThemeManager(); // Color theme system
     this.splashScreen = new SplashScreen(this.colorManager); // ASCII art splash screen
     this.loadingScreen = new LoadingScreen(this.colorManager); // Loading screen system
+    this.goodbyeScreen = new GoodbyeScreen(this.colorManager); // Goodbye screen system
     this.saveDirectory = path.join(__dirname, '../data/saves'); // Legacy compatibility
     this.characterNameBuffer = '';
     this.nameOptions = [];
@@ -851,15 +853,15 @@ class GameApp {
   }
 
   // Application lifecycle with clean shutdown
-  quit() {
-    console.log('\n\n🌟 Thanks for playing Horse Racing Text Game!');
-    console.log('👋 Goodbye!');
-    
+  async quit() {
     this.cleanup();
     
-    // Only exit if not in test environment
+    // Only show goodbye screen and exit if not in test environment
     if (process.env.NODE_ENV !== 'test') {
-      process.exit(0);
+      await this.goodbyeScreen.showAndExit();
+    } else {
+      // For tests, just show brief message without exiting
+      this.goodbyeScreen.displayBrief();
     }
   }
 

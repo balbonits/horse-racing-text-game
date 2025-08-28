@@ -270,21 +270,6 @@ class StateMachine {
           autoProgress: 'back'
         }
       },
-      
-      'career_complete': {
-        transitions: ['main_menu', 'character_creation'],
-        inputs: {
-          'enter': 'character_creation',
-          '': 'character_creation',
-          'q': 'main_menu'
-        },
-        metadata: {
-          allowEmpty: true,
-          description: 'Career completed',
-          backEnabled: false,
-          autoProgress: 'character_creation'
-        }
-      },
 
       // Tutorial states
       'tutorial': {
