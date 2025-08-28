@@ -634,7 +634,8 @@ class GameApp {
         this.game.completeCareer()?.legacyBonuses : {};
       
       this.game = new Game();
-      this.setState('character_creation');
+      this.setState('main_menu'); // First transition to main_menu
+      this.setState('character_creation'); // Then to character_creation
       
       return {
         success: true,
@@ -890,13 +891,13 @@ class GameApp {
 
   // Application lifecycle with clean shutdown
   async quit() {
-    this.cleanup();
-    
     // Only show goodbye screen and exit if not in test environment
     if (process.env.NODE_ENV !== 'test') {
+      this.cleanup(true); // Silent cleanup for user quit
       await this.goodbyeScreen.showAndExit();
     } else {
       // For tests, just show brief message without exiting
+      this.cleanup(false); // Verbose cleanup for debugging
       this.goodbyeScreen.displayBrief();
     }
   }
@@ -1259,8 +1260,10 @@ class GameApp {
     console.log('Enter your choice (1-2):');
   }
 
-  cleanup() {
-    console.log('🧹 Cleaning up resources...');
+  cleanup(silent = false) {
+    if (!silent) {
+      console.log('🧹 Cleaning up resources...');
+    }
     
     // Close readline interface with proper cleanup
     if (this.rl) {
@@ -1286,12 +1289,14 @@ class GameApp {
       this.animationTimer = null;
     }
     
-    // Clear console for clean exit
-    if (process.stdout.isTTY) {
+    // Clear console for clean exit (but not during silent cleanup)
+    if (!silent && process.stdout.isTTY) {
       process.stdout.write('\x1b[2J\x1b[0f'); // Clear screen
     }
     
-    console.log('✅ Cleanup complete');
+    if (!silent) {
+      console.log('✅ Cleanup complete');
+    }
   }
   
 

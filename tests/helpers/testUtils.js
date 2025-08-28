@@ -125,8 +125,8 @@ class TestUtils {
     
     expect(character.condition.energy).toBeGreaterThanOrEqual(0);
     expect(character.condition.energy).toBeLessThanOrEqual(100);
-    expect(character.friendship).toBeGreaterThanOrEqual(0);
-    expect(character.friendship).toBeLessThanOrEqual(100);
+    expect(character.bond).toBeGreaterThanOrEqual(0);
+    expect(character.bond).toBeLessThanOrEqual(100);
   }
 
   validateTrainingResult(result) {

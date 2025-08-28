@@ -11,7 +11,7 @@ const {
   estimateRaceTime,
   formatRaceTime,
   getTrainingRecommendations,
-  getMoodMultiplier
+  getFormMultiplier
 } = require('../../src/data/raceTypes');
 
 describe('Race Types Configuration', () => {
@@ -287,20 +287,20 @@ describe('Training Recommendations', () => {
   });
 });
 
-describe('Mood Multiplier', () => {
-  test('should return correct multipliers for all moods', () => {
-    expect(getMoodMultiplier('Excellent')).toBe(1.15);
-    expect(getMoodMultiplier('Great')).toBe(1.10);
-    expect(getMoodMultiplier('Good')).toBe(1.05);
-    expect(getMoodMultiplier('Normal')).toBe(1.0);
-    expect(getMoodMultiplier('Tired')).toBe(0.90);
-    expect(getMoodMultiplier('Bad')).toBe(0.80);
+describe('Form Multiplier', () => {
+  test('should return correct multipliers for all forms', () => {
+    expect(getFormMultiplier('Excellent')).toBe(1.15);
+    expect(getFormMultiplier('Great')).toBe(1.10);
+    expect(getFormMultiplier('Good')).toBe(1.05);
+    expect(getFormMultiplier('Normal')).toBe(1.0);
+    expect(getFormMultiplier('Tired')).toBe(0.90);
+    expect(getFormMultiplier('Bad')).toBe(0.80);
   });
 
-  test('should handle unknown moods', () => {
-    expect(getMoodMultiplier('Unknown')).toBe(1.0);
-    expect(getMoodMultiplier('')).toBe(1.0);
-    expect(getMoodMultiplier(null)).toBe(1.0);
+  test('should handle unknown forms', () => {
+    expect(getFormMultiplier('Unknown')).toBe(1.0);
+    expect(getFormMultiplier('')).toBe(1.0);
+    expect(getFormMultiplier(null)).toBe(1.0);
   });
 });
 

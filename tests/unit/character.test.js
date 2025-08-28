@@ -15,14 +15,14 @@ describe('Character Model', () => {
 
   describe('Character Creation', () => {
     test('creates character with default stats', () => {
-      const character = new Character('Test Horse');
+      const character = new Character('Test Horse', { speed: 20, stamina: 20, power: 20 });
       
       expect(character.name).toBe('Test Horse');
       expect(character.stats.speed).toBe(20);
       expect(character.stats.stamina).toBe(20);
       expect(character.stats.power).toBe(20);
       expect(character.condition.energy).toBe(100);
-      expect(character.condition.mood).toBe('Normal');
+      expect(character.condition.form).toBe('Normal');
       
       utils.validateCharacterStats(character);
     });
@@ -33,7 +33,7 @@ describe('Character Model', () => {
         stamina: 60,
         power: 40,
         energy: 80,
-        mood: 'great'
+        form: 'great'
       };
 
       const character = new Character('Custom Horse', options);
@@ -42,7 +42,7 @@ describe('Character Model', () => {
       expect(character.stats.stamina).toBe(60);
       expect(character.stats.power).toBe(40);
       expect(character.condition.energy).toBe(80);
-      expect(character.condition.mood).toBe('great');
+      expect(character.condition.form).toBe('great');
     });
 
     test('generates unique IDs for characters', () => {
@@ -92,28 +92,28 @@ describe('Character Model', () => {
     test('friendship bonus affects stat gains', () => {
       utils.stubMathRandom(1.0);
       
-      const lowFriendship = TestDataFactory.createTestCharacter({ friendship: 20 });
-      const highFriendship = TestDataFactory.createTestCharacter({ friendship: 85 });
+      const lowBond = TestDataFactory.createTestCharacter({ bond: 20 });
+      const highBond = TestDataFactory.createTestCharacter({ bond: 85 });
       
-      const lowGain = lowFriendship.increaseStat('speed', 10);
-      const highGain = highFriendship.increaseStat('speed', 10);
+      const lowGain = lowBond.increaseStat('speed', 10);
+      const highGain = highBond.increaseStat('speed', 10);
       
       expect(highGain).toBeGreaterThan(lowGain);
     });
   });
 
   describe('Energy System', () => {
-    test('energy changes affect mood', () => {
+    test('energy changes affect form', () => {
       const character = TestDataFactory.createTestCharacter();
       
       character.changeEnergy(-60); // Reduce to 40
-      expect(character.condition.mood).toBe('Tired');
+      expect(['Off Form', 'Poor Form']).toContain(character.condition.form);
       
-      character.changeEnergy(-20); // Reduce to 20
-      expect(character.condition.mood).toBe('Bad');
+      character.changeEnergy(-20); // Reduce to 20  
+      expect(['Off Form', 'Poor Form']).toContain(character.condition.form);
       
       character.changeEnergy(70); // Increase to 90
-      expect(['Great', 'Excellent']).toContain(character.condition.mood);
+      expect(['Peak Form', 'Good Form', 'Steady']).toContain(character.condition.form);
     });
 
     test('energy caps at 0 and 100', () => {
@@ -126,12 +126,12 @@ describe('Character Model', () => {
       expect(character.condition.energy).toBe(100);
     });
 
-    test('mood multipliers work correctly', () => {
-      const goodMood = TestDataFactory.createTestCharacter({ mood: 'Great' });
-      const badMood = TestDataFactory.createTestCharacter({ mood: 'Bad' });
+    test('form multipliers work correctly', () => {
+      const goodForm = TestDataFactory.createTestCharacter({ form: 'Peak Form' });
+      const badForm = TestDataFactory.createTestCharacter({ form: 'Poor Form' });
       
-      expect(goodMood.getMoodMultiplier()).toBe(1.10);
-      expect(badMood.getMoodMultiplier()).toBe(0.80);
+      expect(goodForm.getFormMultiplier()).toBeGreaterThan(1.0);
+      expect(badForm.getFormMultiplier()).toBeLessThan(1.0);
     });
   });
 
@@ -148,13 +148,13 @@ describe('Character Model', () => {
     });
 
     test('ends career after max turns', () => {
-      const character = TestDataFactory.createCharacterAtTurn(12);
+      const character = TestDataFactory.createCharacterAtTurn(24);
       
       expect(character.canContinue()).toBe(true);
       
       const advanced = character.nextTurn();
-      expect(advanced).toBe(true); // Successfully advanced from 12 to 13
-      expect(character.canContinue()).toBe(false); // But now can't continue (at turn 13 > maxTurns 12)
+      expect(advanced).toBe(true); // Successfully advanced from 24 to 25
+      expect(character.canContinue()).toBe(false); // But now can't continue (at turn 25 > maxTurns 24)
     });
 
     test('tracks training and race statistics', () => {

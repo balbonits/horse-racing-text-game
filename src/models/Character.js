@@ -212,7 +212,7 @@ class Character extends Horse {
       stamina: data.stats.stamina,
       power: data.stats.power,
       energy: data.condition.energy,
-      mood: data.condition.mood,
+      form: data.condition.form || data.condition.mood, // Backward compatibility
       health: data.condition.health,
       speedGrowth: data.growthRates.speed,
       staminaGrowth: data.growthRates.stamina,

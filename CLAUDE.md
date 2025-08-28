@@ -447,3 +447,4 @@ node src/app.js          # Direct game launch
 - follow DRY approach, and create modular functions & components to avoid/reduce repeating code.
 - when adding tests, check & update the test inventory first, then create/update/remove the tests.
 - when resolving bugs & issues, create tests to verify the issue & the fix.
+- add the github repo when writing LinkedIn posts: `https://github.com/balbonits/horse-racing-text-game`

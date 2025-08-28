@@ -115,6 +115,41 @@ class TrainingEngine {
   }
 
   /**
+   * Perform training on character (main interface method)
+   * @param {Character} character - Character to train
+   * @param {string} trainingType - Type of training
+   * @returns {object} Training result with success/failure and gains
+   */
+  performTraining(character, trainingType) {
+    try {
+      // Validate training attempt
+      const validation = this.validateTraining(character, trainingType);
+      if (!validation.valid) {
+        return {
+          success: false,
+          error: validation.reason,
+          gains: {}
+        };
+      }
+
+      // Apply training and get gains
+      const gains = this.applyTraining(character, trainingType);
+      
+      return {
+        success: true,
+        gains: gains,
+        trainingType: trainingType
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message,
+        gains: {}
+      };
+    }
+  }
+
+  /**
    * Apply training to character
    * @param {Character} character - Character to train
    * @param {string} trainingType - Type of training

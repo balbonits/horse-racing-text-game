@@ -11,7 +11,7 @@ const TestDataFactory = {
       stamina: 50,  
       power: 50,
       energy: 100,
-      mood: 'good',
+      form: 'Good Form',
       health: 100,
       speedGrowth: 'B',
       staminaGrowth: 'B', 
@@ -65,7 +65,7 @@ const TestDataFactory = {
   createTiredCharacter() {
     return this.createTestCharacter({
       energy: 20,
-      mood: 'bad'
+      form: 'Poor Form'
     });
   },
 
@@ -73,7 +73,7 @@ const TestDataFactory = {
   createHighFriendshipCharacter() {
     return this.createTestCharacter({
       bond: 85,
-      mood: 'great'
+      form: 'Peak Form'
     });
   },
 
@@ -85,7 +85,7 @@ const TestDataFactory = {
       power: 100,
       energy: 100,
       bond: 100,
-      mood: 'great'
+      form: 'Peak Form'
     });
   },
 
@@ -101,7 +101,7 @@ const TestDataFactory = {
         performance: 80 - (index * 5), // Decreasing performance
         time: 72.0 + (index * 0.5), // Increasing time
         staminaFactor: 0.9,
-        moodMultiplier: 1.0,
+        formMultiplier: 1.0,
         randomFactor: 0.95
       }
     }));

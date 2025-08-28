@@ -101,8 +101,10 @@ describe('End-to-End Complete Gameplay', () => {
       expect(app.isCareerComplete() || app.currentState === 'career_complete').toBe(true);
     });
 
-    // Helper method to complete race flow
-    async completeRaceFlow(app, gameLog) {
+  });
+
+  // Helper method to complete race flow
+  async function completeRaceFlow(app, gameLog) {
       try {
         // race_preview -> horse_lineup
         expect(app.currentState).toBe('race_preview');
@@ -154,8 +156,7 @@ describe('End-to-End Complete Gameplay', () => {
         gameLog.push(`    ERROR in race flow: ${error.message}`);
         return { success: false, error: error.message };
       }
-    }
-  });
+  }
 
   describe('Multiple Career Playthroughs', () => {
     test('E2E: Should handle multiple careers in sequence', async () => {

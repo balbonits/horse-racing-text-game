@@ -18,7 +18,7 @@ describe('Game Flow Integration', () => {
   describe('Complete Career Flow', () => {
     test('runs full career from start to finish', async () => {
       // Start new game
-      const startResult = game.startNewGame('Integration Test Horse');
+      const startResult = await game.startNewGame('Integration Test Horse');
       expect(startResult.success).toBe(true);
       expect(game.character).toBeDefined();
       
@@ -80,8 +80,8 @@ describe('Game Flow Integration', () => {
       expect(careerSummary.legacyBonuses).toBeDefined();
     });
 
-    test('handles energy management throughout career', () => {
-      game.startNewGame('Energy Test Horse');
+    test('handles energy management throughout career', async () => {
+      await game.startNewGame('Energy Test Horse');
       
       const energyHistory = [];
       
@@ -110,8 +110,8 @@ describe('Game Flow Integration', () => {
   });
 
   describe('Race Progression', () => {
-    test('races get progressively challenging', () => {
-      game.startNewGame('Race Progression Horse');
+    test('races get progressively challenging', async () => {
+      await game.startNewGame('Race Progression Horse');
       
       const raceResults = [];
       
@@ -148,16 +148,16 @@ describe('Game Flow Integration', () => {
       expect(raceResults[2].raceType).toBe('long');
     });
 
-    test('training directly affects race performance', () => {
+    test('training directly affects race performance', async () => {
       utils.stubMathRandom(0.5); // Control randomness
       
       // Test with untrained horse
-      const untrainedHorse = game.startNewGame('Untrained Horse');
+      const untrainedHorse = await game.startNewGame('Untrained Horse');
       const untrainedRace = game.runRace('sprint');
       const untrainedPerformance = untrainedRace.raceResult.playerResult.performance.performance;
       
       // Test with trained horse
-      game.startNewGame('Trained Horse');
+      await game.startNewGame('Trained Horse');
       
       // Train extensively
       for (let i = 0; i < 8; i++) {
@@ -176,9 +176,9 @@ describe('Game Flow Integration', () => {
   });
 
   describe('Save/Load System Integration', () => {
-    test('saves and loads game state correctly', () => {
+    test('saves and loads game state correctly', async () => {
       // Start and progress game
-      game.startNewGame('Save Test Horse');
+      await game.startNewGame('Save Test Horse');
       game.performTraining('speed');
       game.performTraining('stamina');
       game.character.career.turn = 5;
@@ -201,8 +201,8 @@ describe('Game Flow Integration', () => {
       expect(newGame.character.career.turn).toBe(originalTurn);
     });
 
-    test('handles save/load errors gracefully', () => {
-      game.startNewGame('Error Test Horse');
+    test('handles save/load errors gracefully', async () => {
+      await game.startNewGame('Error Test Horse');
       
       // Test loading corrupted data
       const corruptedData = {
@@ -228,7 +228,7 @@ describe('Game Flow Integration', () => {
       
       for (const strategy of strategies) {
         game = new Game();
-        game.startNewGame(`${strategy.name} Horse`);
+        await game.startNewGame(`${strategy.name} Horse`);
         
         // Execute training strategy
         for (let turn = 1; turn <= 12; turn++) {
@@ -268,11 +268,11 @@ describe('Game Flow Integration', () => {
       expect(speedFocus.racePerformances.sprint).toBeGreaterThan(endurance.racePerformances.sprint);
     });
 
-    test('friendship system provides meaningful bonuses', () => {
+    test('friendship system provides meaningful bonuses', async () => {
       utils.stubMathRandom(0.8); // Consistent results
       
       // Test low friendship training
-      game.startNewGame('Low Friendship Horse');
+      await game.startNewGame('Low Friendship Horse');
       game.character.friendship = 20;
       
       const lowFriendshipGain = game.performTraining('speed');
@@ -288,8 +288,8 @@ describe('Game Flow Integration', () => {
   });
 
   describe('Error Recovery Integration', () => {
-    test('recovers from invalid game states', () => {
-      game.startNewGame('Recovery Test');
+    test('recovers from invalid game states', async () => {
+      await game.startNewGame('Recovery Test');
       
       // Force invalid state
       game.gameState = 'invalid_state';
@@ -304,8 +304,8 @@ describe('Game Flow Integration', () => {
       expect(game.character.condition.energy).toBe(50); // Clamped to valid range
     });
 
-    test('handles race simulation failures', () => {
-      game.startNewGame('Simulation Test');
+    test('handles race simulation failures', async () => {
+      await game.startNewGame('Simulation Test');
       
       // Inject error into race simulation
       const originalSimulate = game.raceSimulator.simulateRace;
@@ -326,7 +326,7 @@ describe('Game Flow Integration', () => {
       const { PerformanceTestUtils } = require('../helpers/mockData');
       
       const perfResults = PerformanceTestUtils.measureExecutionTime(() => {
-        game.startNewGame('Performance Test');
+        game.startNewGameSync('Performance Test');
         
         // Quick career simulation
         for (let turn = 1; turn <= 12; turn++) {
@@ -346,13 +346,13 @@ describe('Game Flow Integration', () => {
       expect(perfResults.averageTime).toBeLessThan(100); // Less than 100ms per career
     });
 
-    test('memory usage remains stable during gameplay', () => {
+    test('memory usage remains stable during gameplay', async () => {
       const { PerformanceTestUtils } = require('../helpers/mockData');
       
       const memoryResults = PerformanceTestUtils.measureMemoryUsage(() => {
         for (let career = 0; career < 5; career++) {
           game = new Game();
-          game.startNewGame(`Career ${career}`);
+          game.startNewGameSync(`Career ${career}`);
           
           for (let turn = 1; turn <= 12; turn++) {
             game.performTraining('speed');
@@ -369,8 +369,8 @@ describe('Game Flow Integration', () => {
   });
 
   describe('User Experience Flow', () => {
-    test('provides consistent feedback throughout gameplay', () => {
-      game.startNewGame('UX Test Horse');
+    test('provides consistent feedback throughout gameplay', async () => {
+      await game.startNewGame('UX Test Horse');
       
       const feedbackLog = [];
       
@@ -391,8 +391,8 @@ describe('Game Flow Integration', () => {
       expect(feedbackLog.some(msg => msg.includes('increased'))).toBe(true);
     });
 
-    test('maintains game progression pacing', () => {
-      game.startNewGame('Pacing Test Horse');
+    test('maintains game progression pacing', async () => {
+      await game.startNewGame('Pacing Test Horse');
       
       const progressionMarkers = [];
       

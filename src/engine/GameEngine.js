@@ -682,7 +682,7 @@ class GameEngine extends EventEmitter {
       return null;
     }
 
-    const nextRace = this.game.timeline.getNextRace(this.gameState.currentTurn);
+    const nextRace = this.game.timeline.getNextRaceInfo(this.gameState.currentTurn);
     return nextRace || null;
   }
 
