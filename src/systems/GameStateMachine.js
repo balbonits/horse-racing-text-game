@@ -58,6 +58,8 @@ class GameStateMachine extends StateMachine {
       ['text', 'create_character'] // For typed names
     ]);
     
+    // Add character creation handlers
+    // Note: Base StateMachine already configured training, main_menu, etc. input handlers
     this.inputHandlers.set('character_creation', characterCreationInputs);
   }
 
