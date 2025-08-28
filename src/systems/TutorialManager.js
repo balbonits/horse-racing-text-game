@@ -201,6 +201,24 @@ class TutorialManager {
         
         // Set up tutorial in game
         this.gameApp.game.character = this.tutorialCharacter;
+        this.gameApp.game.gameState = 'training'; // Set gameState to allow training
+        
+        // Initialize turn controller for tutorial training
+        if (!this.gameApp.game.turnController) {
+            const TurnController = require('../modules/TurnController');
+            const TrainingEngine = require('../modules/TrainingEngine');
+            
+            // Create training engine for tutorial
+            const trainingEngine = new TrainingEngine();
+            
+            // Create turn controller with required dependencies
+            this.gameApp.game.turnController = new TurnController(
+                this.tutorialCharacter, 
+                null, // timeline not needed for tutorial
+                trainingEngine
+            );
+        }
+        
         this.gameApp.tutorialMode = true;
         
         return {
