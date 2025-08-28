@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <!-- Terminal background -->
+  <rect width="100%" height="100%" fill="#1e1e1e"/>
+  
+  <!-- Terminal window frame -->
+  <rect x="0" y="0" width="100%" height="30" fill="#2d2d2d"/>
+  <circle cx="20" cy="15" r="6" fill="#ff5f56"/>
+  <circle cx="40" cy="15" r="6" fill="#ffbd2e"/>  
+  <circle cx="60" cy="15" r="6" fill="#27c93f"/>
+  <text x="100" y="20" fill="#cccccc" font-family="SF Mono, Monaco, monospace" font-size="12">Horse Racing Text Game v1.0</text>
+  
+  <!-- Terminal content with ASCII art -->
+  <g font-family="SF Mono, Monaco, Inconsolata, monospace" font-size="10" fill="#ffffff">
+    <!-- Title bar -->
+    <text x="20" y="50" fill="#0066ff">████████████████████████████████████████████████████████████████████████</text>
+    <text x="20" y="64" fill="#0066ff">█                                                                      █</text>
+    <text x="20" y="78" fill="#ffff00" font-weight="bold">█          🏇 HORSE RACING TEXT GAME - THUNDER RUNNER v1.0 🏇          █</text>
+    <text x="20" y="92" fill="#0066ff">█                                                                      █</text>
+    <text x="20" y="106" fill="#0066ff">████████████████████████████████████████████████████████████████████████</text>
+    
+    <!-- ASCII Horse Art -->
+    <text x="20" y="134" fill="#cccccc">                                                   #&amp;&amp;&amp;&amp;&amp;.</text>
+    <text x="20" y="148" fill="#cccccc">                                             ,,**(/(*.@%          .%&amp;@,</text>
+    <text x="20" y="162" fill="#cccccc">                                         ,**,//((#%&amp;#&amp;&amp;&amp;&amp;%     .&amp;@@&amp;&amp;%&amp;&amp;%.</text>
+    <text x="20" y="176" fill="#cccccc">                                          ./%&amp;@@%&amp;@@      @@%@@&amp;%%&amp;&amp;&amp;%%&amp;&amp;&amp;&amp;(</text>
+    <text x="20" y="190" fill="#cccccc">                            .///***.    **,********,&amp;*&amp;*@@@@&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;%&amp;&amp;&amp;%%</text>
+    <text x="20" y="204" fill="#cccccc">            %#&amp;&amp;&amp;&amp;&amp;#%&amp;&amp;,/,,,*((##(%#(#(,,/.(%&amp;&amp;@#%&amp;@@&amp;&amp;%&amp;&amp;&amp;&amp;&amp;&amp;%&amp;&amp;(.  *#&amp;&amp;#&amp;&amp;&amp;%</text>
+    <text x="20" y="218" fill="#cccccc">  .(&amp;&amp;*   (&amp;@@@@@@@@@%(((#%%%%%%%&amp;%%%%%#/, ####&amp;%&amp;&amp;%&amp;&amp;&amp;&amp;&amp;&amp;@#&amp;&amp;%%&amp;#           .</text>
+    <text x="20" y="232" fill="#cccccc">     #&amp;&amp;@&amp;&amp;@@%&amp;&amp;%%&amp;%/%%%%%%%%%%%%%%%%%&amp;%####@@%&amp;&amp;#%&amp;%%%%%#*&amp;&amp;&amp;&amp;&amp;</text>
+    <text x="20" y="246" fill="#cccccc">           ,#//((//. ,%%%&amp;&amp;&amp;&amp;%%%%%%%%&amp;&amp;%%%%%&amp;&amp;@&amp;@@@%%%%%%%%%&amp;(</text>
+    <text x="20" y="260" fill="#cccccc">                       #%%%&amp;&amp;&amp;&amp;&amp;%%&amp;..&amp;&amp;&amp;&amp;&amp;%%%%#%%%%%%%#%%%%&amp;%</text>
+    <text x="20" y="274" fill="#cccccc">                  /%&amp;&amp;&amp;&amp;&amp;&amp;%%&amp;%%&amp;&amp;       #%&amp;&amp;&amp;&amp;&amp;%&amp;&amp;%%%%%%&amp;&amp;&amp;.</text>
+    <text x="20" y="288" fill="#cccccc">                 (&amp;&amp;&amp;&amp;(,,#@%%&amp;&amp;                %&amp;@@&amp;%%#%%.</text>
+    <text x="20" y="302" fill="#cccccc">                  %&amp;,  #@&amp;%&amp;.                   /&amp;&amp;&amp;&amp;&amp;%&amp;%</text>
+    <text x="20" y="316" fill="#cccccc">                   &amp;&amp;   &amp;&amp;&amp;                    %&amp;&amp;%*   &amp;&amp;%</text>
+    <text x="20" y="330" fill="#cccccc">                   *&amp;&amp;    %&amp;%                 %&amp;&amp;*      %&amp;,</text>
+    <text x="20" y="344" fill="#cccccc">                  ,%&amp;       %&amp;%              (#%, ,##&amp;%&amp;</text>
+    <text x="20" y="358" fill="#cccccc">                 .%          .@&amp;        ,#&amp;&amp;% ..</text>
+    <text x="20" y="372" fill="#cccccc">                              #&amp;*  &amp;&amp;@%((</text>
+    
+    <!-- Welcome section -->
+    <text x="20" y="400" fill="#00ffff" font-weight="bold">    ═══════════════════════════════════════════════════════════════════</text>
+    <text x="20" y="418" fill="#00ff00" font-weight="bold">                      🐎 WELCOME TO THE STABLES 🐎</text>
+    <text x="20" y="436" fill="#0066ff">           Train Champions • Race for Glory • Build Your Legacy</text>
+    <text x="20" y="454" fill="#00ffff" font-weight="bold">    ═══════════════════════════════════════════════════════════════════</text>
+    
+    <!-- Status -->
+    <text x="20" y="480" fill="#ffff00">🐎 Preparing the track...</text>
+  </g>
+</svg>
