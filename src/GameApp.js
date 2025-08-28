@@ -48,6 +48,9 @@ class GameApp {
     this.warningMessage = null;    // Current warning message to display
     this.warningType = null;       // Type of warning (energy, etc.)
     
+    // Career completion flag to prevent multiple triggers
+    this.careerCompleted = false;
+    
     
     // Initialize state machine
     this.stateMachine.reset('main_menu');
@@ -379,8 +382,9 @@ class GameApp {
           this.setState('race_preview');
         }
         
-        // Check if career is complete
-        if (trainingResult.careerComplete) {
+        // Check if career is complete (prevent multiple triggers)
+        if (trainingResult.careerComplete && !this.careerCompleted) {
+          this.careerCompleted = true;
           console.log('🏆 Career complete after training!');
           
           // Handle tutorial completion differently from career completion
@@ -464,8 +468,9 @@ class GameApp {
           this.upcomingRace = trainingResult.nextRace;
         }
         
-        // Check if career is complete
-        if (trainingResult.careerComplete) {
+        // Check if career is complete (prevent multiple triggers)
+        if (trainingResult.careerComplete && !this.careerCompleted) {
+          this.careerCompleted = true;
           console.log('🏆 Career complete after training!');
           
           // Handle tutorial completion differently from career completion
@@ -630,6 +635,10 @@ class GameApp {
 
   startNewCareer() {
     try {
+      // Reset career completion flag for new career
+      this.careerCompleted = false;
+      this.ui.resetForNewCareer();
+      
       // Save legacy bonuses if career was completed
       const legacyBonuses = this.game.character ? 
         this.game.completeCareer()?.legacyBonuses : {};

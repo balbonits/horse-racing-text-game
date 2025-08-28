@@ -5,6 +5,7 @@
 class TextUI {
   constructor() {
     this.lastMessage = '';
+    this.careerCompletionShown = false;
   }
 
   /**
@@ -16,6 +17,14 @@ class TextUI {
     console.log('           HORSE RACING TEXT GAME            ');
     console.log('===============================================');
     console.log('');
+  }
+
+  /**
+   * Reset UI state for new career
+   */
+  resetForNewCareer() {
+    this.careerCompletionShown = false;
+    this.lastMessage = '';
   }
 
   /**
@@ -238,6 +247,18 @@ class TextUI {
    * Display career completion summary with grade
    */
   showCareerCompletion(careerSummary) {
+    // Prevent multiple displays of career completion
+    if (this.careerCompletionShown) {
+      return;
+    }
+    this.careerCompletionShown = true;
+    
+    // Clear screen for clean career completion display
+    console.clear();
+    console.log('\n'.repeat(2));
+    
+    console.log('Thank you for playing Horse Racing Game!');
+    console.log('Press ENTER to return to main menu');
     console.log('═══════════════════════════════════════');
     console.log('🏁 CAREER COMPLETE! 🏁');
     console.log('═══════════════════════════════════════');

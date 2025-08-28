@@ -401,6 +401,11 @@ class StateMachine {
       this.fireEvent('stateChanged', { from: null, to: newState, context });
       return { success: true };
     }
+    
+    // Prevent redundant transitions to the same state
+    if (this.currentState === newState) {
+      return { success: true, message: `Already in state ${newState}` };
+    }
 
     // Check if transition is valid using set lookup O(1)
     const validTransitions = this.transitions.get(this.currentState);

@@ -208,8 +208,9 @@ class GameStateMachine extends StateMachine {
         this.transitionTo('race_preview');
       }
       
-      // Handle career completion
-      if (result && result.careerComplete) {
+      // Handle career completion (prevent multiple triggers)
+      if (result && result.careerComplete && !this.gameApp.careerCompleted) {
+        this.gameApp.careerCompleted = true;
         this.transitionTo('career_complete');
       }
       
@@ -254,8 +255,9 @@ class GameStateMachine extends StateMachine {
     const currentState = this.getCurrentState();
     const game = this.gameApp.game;
     
-    // Auto-transition to career_complete
-    if (currentState === 'training' && game.character && !game.character.canContinue()) {
+    // Auto-transition to career_complete (prevent multiple triggers)
+    if (currentState === 'training' && game.character && !game.character.canContinue() && !this.gameApp.careerCompleted) {
+      this.gameApp.careerCompleted = true;
       this.transitionTo('career_complete');
       return true;
     }
