@@ -34,49 +34,20 @@ class SplashScreen {
      * Display animated splash screen
      */
     async displayAnimated() {
-        // First show the main splash
+        // First show the main splash immediately
         this.display();
+        console.log('🐎 Preparing the track...');
         
-        // Wait for user input
-        return new Promise((resolve) => {
-            const handleInput = () => {
-                process.stdin.removeListener('data', handleInput);
-                try {
-                    if (process.stdin.setRawMode) {
-                        process.stdin.setRawMode(false);
-                    }
-                } catch (error) {
-                    console.log('Splash screen cleanup error (continuing anyway):', error.message);
-                }
-                process.stdin.pause();
-                resolve();
-            };
-
-            try {
-                if (process.stdin.setRawMode) {
-                    process.stdin.setRawMode(true);
-                }
-                process.stdin.resume();
-                process.stdin.setEncoding('utf8');
-                process.stdin.on('data', handleInput);
-            } catch (error) {
-                console.log('Splash screen error (continuing anyway):', error.message);
-                // Fallback: just wait for any input without raw mode
-                try {
-                    if (process.stdin.resume) {
-                        process.stdin.resume();
-                    }
-                    if (process.stdin.setEncoding) {
-                        process.stdin.setEncoding('utf8');
-                    }
-                    process.stdin.on('data', handleInput);
-                } catch (fallbackError) {
-                    console.log('Splash screen fallback error (skipping):', fallbackError.message);
-                    // Final fallback - just resolve immediately
-                    setTimeout(handleInput, 1000);
-                }
-            }
-        });
+        // Wait for loading to complete
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Replace loading message with continue prompt
+        // Move cursor up one line and clear it, then show continue message
+        process.stdout.write('\u001b[1A\u001b[2K');
+        console.log('                         Press any key to continue...');
+        
+        // Return immediately - let GameApp's readline handle the input
+        return Promise.resolve();
     }
 
     /**
@@ -98,10 +69,7 @@ class SplashScreen {
      * Full startup sequence
      */
     async displayStartupSequence() {
-        // Show loading
-        await this.displayLoadingAnimation('Preparing the track...');
-        
-        // Show main splash
+        // Show main splash with integrated loading
         await this.displayAnimated();
         
         return { success: true };
