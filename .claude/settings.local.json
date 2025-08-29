@@ -52,7 +52,8 @@
       "Bash(gh release view:*)",
       "Bash(gh release create:*)",
       "Bash(script -q splash.txt npm run start:direct)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(git stash:*)"
     ],
     "deny": [],
     "ask": []
