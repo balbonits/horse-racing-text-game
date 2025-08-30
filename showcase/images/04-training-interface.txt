@@ -1,0 +1,24 @@
+===============================================
+           HORSE RACING TEXT GAME            
+===============================================
+
+🏇 TRAINING - TestHorse (Turn 1/24)
+===================================
+
+📊 CURRENT STATS:
+Speed:   ██████░░░░ 30/100
+Stamina: ████░░░░░░ 25/100  
+Power:   █████░░░░░ 28/100
+Energy:  ████████░░ 85/100
+
+🏋️ TRAINING OPTIONS:
+1. Speed Training    (Cost: 15 Energy) - Improve acceleration and top speed
+2. Stamina Training  (Cost: 10 Energy) - Build endurance for longer races  
+3. Power Training    (Cost: 15 Energy) - Increase burst power and strength
+4. Rest Day          (Restore: 30 Energy) - Recover energy and avoid fatigue
+5. Media Day         (Cost: 5 Energy) - Bond with trainers and fans
+
+💰 Career Info:
+Wins: 0 | Races: 0 | Prize Money: $0
+
+Select training (1-5) or Q to quit:

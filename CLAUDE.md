@@ -341,6 +341,14 @@ node src/app.js          # Direct game launch
 
 ## Recent Major Updates ✅
 
+### Text-Based Screenshot System Migration (August 30, 2025)
+- **UI State Isolation Issue Discovery**: Screenshot generation revealing fundamental problems with screen state blending
+- **Playwright Integration**: Added for terminal automation and text-based snapshot testing  
+- **Testing Strategy Evolution**: Moving from SVG/PNG images to text-based terminal capture for AI/machine compatibility
+- **Architecture Insights**: Combined screens in captures indicate real UI state machine bugs, not just timing issues
+- **Cross-Platform Compatibility**: Text-based testing more reliable across different terminal environments
+- **Required Investigation**: UI rendering system needs audit for proper screen isolation and clean state transitions
+
 ### Career Completion & Grading System (August 26, 2025)
 - **Career Grading**: S/A/B/C/D/F grades based on race performance (40%), placements (20%), stat development (30%), friendship (10%)
 - **Achievement System**: Perfect Record, Champion, Elite Athlete, Best Friends, Training Fanatic awards
@@ -448,3 +456,4 @@ node src/app.js          # Direct game launch
 - when adding tests, check & update the test inventory first, then create/update/remove the tests.
 - when resolving bugs & issues, create tests to verify the issue & the fix.
 - add the github repo when writing LinkedIn posts: `https://github.com/balbonits/horse-racing-text-game`
+- when generating screenshots, trim negative spaces

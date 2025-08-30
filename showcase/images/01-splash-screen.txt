@@ -1,26 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-<style>
-body { 
-    background-color: #1a1a1a; 
-    color: #ffffff; 
-    font-family: 'Monaco', 'Menlo', monospace; 
-    font-size: 10px; 
-    white-space: pre; 
-    padding: 20px;
-    line-height: 1.0;
-}
-</style>
-</head>
-<body>
-🏇 HORSE RACING TEXT GAME - THUNDER RUNNER v1.0 🏇
-
 ████████████████████████████████████████████████████████████████████████
-█                                                                      █
-█          🏇 HORSE RACING TEXT GAME - THUNDER RUNNER v1.0 🏇          █
-█                                                                      █
-████████████████████████████████████████████████████████████████████████
+    █                                                                      █
+    █          🏇 HORSE RACING TEXT GAME - THUNDER RUNNER v1.0 🏇          █
+    █                                                                      █
+    ████████████████████████████████████████████████████████████████████████
                                                                                 
                                                    #&&&&&.                      
                                              ,,**(/(*.@%          .%&@,         
@@ -41,9 +23,7 @@ body {
                  .%          .@&        ,#&&% ..                                
                               #&*  &&@%((                                       
 
-═══════════════════════════════════════════════════════════════════
+    ═══════════════════════════════════════════════════════════════════
                       🐎 WELCOME TO THE STABLES 🐎
            Train Champions • Race for Glory • Build Your Legacy
-═══════════════════════════════════════════════════════════════════
-</body>
-</html>
+    ═══════════════════════════════════════════════════════════════════

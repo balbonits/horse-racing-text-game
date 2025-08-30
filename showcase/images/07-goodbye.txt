@@ -1,0 +1,33 @@
+===============================================
+           HORSE RACING TEXT GAME            
+===============================================
+
+🐎 FAREWELL FROM THE STABLES
+============================
+
+Thank you for playing Horse Racing Text Game!
+
+Your champions await your return...
+
+🏆 Recent Achievements:
+• Thunder Strike - Hall of Fame Legend
+• 4 Perfect Race Victories  
+• Elite Trainer Status Achieved
+
+🌟 "Every champion starts with a dream and ends with a legacy."
+
+═══════════════════════════════════════════════
+
+🎮 TECHNICAL CREDITS:
+Built with Node.js, Blessed Terminal UI
+State Machine Architecture for Performance
+Comprehensive Test Coverage with TDD
+
+⚖️  Legal: Parody/Educational Use - Fair Use Protected
+🛡️  Not affiliated with any commercial horse racing games
+
+═══════════════════════════════════════════════
+
+Until we meet again at the track... 🏁
+
+Press any key to exit...

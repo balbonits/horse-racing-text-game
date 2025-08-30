@@ -1,0 +1,13 @@
+===============================================
+           HORSE RACING TEXT GAME            
+===============================================
+
+🏇 HORSE RACING TEXT GAME - MAIN MENU
+=====================================
+
+1. New Career - Start training a new horse
+2. Tutorial - Learn how to play (Recommended for new players)
+3. Load Game - Continue a saved career
+4. Help - View game instructions
+
+Enter your choice (1-4) or Q to quit:

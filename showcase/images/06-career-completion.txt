@@ -1,0 +1,32 @@
+===============================================
+           HORSE RACING TEXT GAME            
+===============================================
+
+🏆 CAREER COMPLETE - Thunder Strike
+===================================
+
+🎓 FINAL GRADE: S (Outstanding Champion)
+
+📈 CAREER STATISTICS:
+═══════════════════════════════════════
+Races Won:     4/4  (100% Win Rate) 🏆
+Total Prize:   $30,000
+Career Turns:  24/24
+
+📊 FINAL STATS:
+Speed:   ████████████████████ 95/100
+Stamina: ███████████████████░ 92/100  
+Power:   ████████████████████ 96/100
+Bond:    ████████████████████ 100/100
+
+🏅 ACHIEVEMENTS UNLOCKED:
+✅ Perfect Record - Won every race
+✅ Elite Champion - All stats above 90
+✅ Maximum Bond - Perfect trainer relationship
+✅ Speed Demon - Speed stat maxed
+✅ Training Fanatic - Never missed training
+
+🌟 LEGACY BONUS: +15 stat points for next horse
+💎 Hall of Fame: Thunder Strike inducted as Legend
+
+Press Enter to continue your racing legacy...

@@ -1,0 +1,19 @@
+===============================================
+           HORSE RACING TEXT GAME            
+===============================================
+
+🐎 CREATE YOUR HORSE
+====================
+
+Welcome to the stables! Let's create your racing champion.
+
+Enter horse name: _
+
+[Type a name for your horse and press Enter]
+
+💡 Tips:
+• Choose a memorable name for your champion
+• Names can include letters, spaces, and basic punctuation
+• Make it unique - this will be your horse throughout the career
+
+Controls: Type name + Enter to continue, Q to quit

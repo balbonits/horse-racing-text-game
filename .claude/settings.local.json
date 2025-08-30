@@ -53,7 +53,15 @@
       "Bash(gh release create:*)",
       "Bash(script -q splash.txt npm run start:direct)",
       "Bash(cat:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(do echo \"Trimming $file...\")",
+      "Bash(git merge:*)",
+      "Bash(do echo \"Converting $svg to PNG...\")",
+      "Bash(do if [ \"$svg\" != \"00-splash-screen.svg\" ])",
+      "Bash(then echo \"Converting $svg to PNG...\")",
+      "Bash(fi)",
+      "Bash(script -q /Users/johndilig/Projects/horse-racing-text-game/showcase/images/01-splash-screen.txt npm run start:direct)",
+      "Bash(script -q:*)"
     ],
     "deny": [],
     "ask": []

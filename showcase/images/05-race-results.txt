@@ -1,0 +1,26 @@
+===============================================
+           HORSE RACING TEXT GAME            
+===============================================
+
+🏁 RACE RESULTS - Maiden Sprint
+===============================
+
+📍 Track: Churchill Downs (Turf, 1200m)
+🌤️  Conditions: Good | Weather: Clear
+
+🏇 FINAL STANDINGS:
+1st 🏆 Thunder Strike      (YOU!)    Time: 1:12.45
+2nd 🥈 Lightning Bolt                 Time: 1:12.89  
+3rd 🥉 Swift Arrow                    Time: 1:13.12
+4th     Desert Wind                   Time: 1:13.45
+5th     Racing Dream                  Time: 1:13.78
+
+💰 PRIZE MONEY: $2,000 (Winner's Share)
+🎯 PERFORMANCE: Excellent! Perfect race strategy execution.
+
+📊 Race Analysis:
+• Your speed training paid off perfectly
+• Excellent positioning in the final stretch  
+• Stamina held strong throughout the race
+
+Press Enter to continue to celebration...

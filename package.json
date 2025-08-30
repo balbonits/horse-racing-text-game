@@ -55,6 +55,7 @@
   "dependencies": {
     "@anthropic-ai/claude-code": "^1.0.89",
     "blessed": "^0.1.81",
+    "canvas": "^3.2.0",
     "chalk": "^4.1.2",
     "commander": "^11.1.0",
     "inquirer": "^9.2.11"
@@ -66,6 +67,7 @@
     "jest-mock": "^29.7.0",
     "nodemon": "^3.0.1",
     "pkg": "^5.8.1",
+    "playwright": "^1.55.0",
     "sinon": "^17.0.1",
     "supertest": "^6.3.4"
   }

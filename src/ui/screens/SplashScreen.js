@@ -40,10 +40,12 @@ class SplashScreen {
         // Wait for loading to complete
         await new Promise(resolve => setTimeout(resolve, 2000));
         
-        // Clear the loading message - splash becomes loading screen
-        process.stdout.write('\u001b[1A\u001b[2K');
+        // FIX: Clear entire screen for proper state isolation
+        // Instead of just clearing loading line, clear everything
+        // This prevents screen bleeding into next UI state
+        console.clear();
         
-        // Return immediately - seamless transition to main menu
+        // Return immediately - next screen will render cleanly
         return Promise.resolve();
     }
 
